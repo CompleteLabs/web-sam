@@ -278,7 +278,8 @@ class SettingController extends Controller
     //CLUSTER
     public function cluster(Request $request)
     {
-        $clusters = Cluster::with(['region', 'divisi', 'badanusaha'])->orderBy('name')->get();
+        $clusters = Cluster::with(['region', 'divisi', 'badanusaha'])
+                    ->orderBy('name')->get();
         $badanusahas = BadanUsaha::orderBy('name')->get();
         $divisis = Division::orderBy('name')->get();
         $regions = Region::orderBy('name')->get();
