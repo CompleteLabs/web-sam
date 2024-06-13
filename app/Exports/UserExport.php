@@ -26,7 +26,8 @@ class UserExport implements FromCollection,WithHeadings,WithMapping
             'badan_usaha',
             'divisi',
             'region',
-            'cluster',
+            'cluster1',
+            'cluster2',
             'tm',
         ];
     }
@@ -41,6 +42,7 @@ class UserExport implements FromCollection,WithHeadings,WithMapping
             $user->divisi->name,
             $user->region->name,
             $user->cluster->name,
+            $user->cluster2 ? $user->cluster2->name : '-',
             $user->tm->nama_lengkap,
         ];
     }

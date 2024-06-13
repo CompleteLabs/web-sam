@@ -51,7 +51,12 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Cluster::class);
     }
-    
+
+    public function cluster2()
+    {
+        return $this->belongsTo(Cluster::class, 'cluster_id2');
+    }
+
     public function region()
     {
         return $this->belongsTo(Region::class);
