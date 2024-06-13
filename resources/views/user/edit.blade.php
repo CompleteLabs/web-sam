@@ -91,6 +91,17 @@
                                                     @endforeach
                                                 </select>
                                             </div>
+                                            <div class="col-lg-4">
+                                                <label for="cluster_id" class="form-label col-lg-12">Cluster (Optional)</label>
+                                                <select class="custom-select col-lg-12" id="cluster_id2" name="cluster_id2">
+                                                    <option value="" disabled selected>Pilih Cluster</option>
+                                                    @foreach ($clusters as $cluster)
+                                                        <option value="{{ $cluster->id }}" {{ $cluster->id === $user->cluster_id2 ? 'selected' : '' }}>
+                                                            {{ $cluster->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                     <button type="submit" class="btn btn-success mt-3">Update</button>
