@@ -15,8 +15,7 @@ class OutletExport implements FromCollection, WithMapping, WithHeadings
      */
     public function collection()
     {
-        return Outlet::with(['cluster', 'region', 'badanusaha'])->whereIn('divisi_id',[2,4])
-            ->orderBy('nama_outlet')->get();
+        return Outlet::with(['cluster', 'region', 'badanusaha'])->orderBy('nama_outlet')->get();
     }
 
     public function headings(): array

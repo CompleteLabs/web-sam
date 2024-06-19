@@ -69,10 +69,10 @@
                             <tbody>
                                 @foreach ($planVisits as $planVisit)
                                     <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $planVisit->user->nama_lengkap }}</td>
-                                        <td>{{ $planVisit->outlet->nama_outlet }}</td>
-                                        <td>{{ $planVisit->outlet->kode_outlet }}</td>
+                                        <td>{{ $loop->iteration ?? null }}</td>
+                                        <td>{{ $planVisit->user->nama_lengkap ?? null }}</td>
+                                        <td>{{ $planVisit->outlet->nama_outlet ?? null }}</td>
+                                        <td>{{ $planVisit->outlet->kode_outlet ?? null }}</td>
                                         <td>{{ date('d M Y', $planVisit->tanggal_visit / 1000) }}</td>
                                     </tr>
                                 @endforeach
