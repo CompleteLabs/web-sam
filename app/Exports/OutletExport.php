@@ -50,6 +50,13 @@ class OutletExport implements FromCollection, WithMapping, WithHeadings
 
     public function map($outlet): array
     {
+        $foto_shop_sign = $outlet->poto_shop_sign ? 'http://grosir.mediaselularindonesia.com/storage/' . $outlet->poto_shop_sign : '-';
+        $foto_depan = $outlet->poto_depan ? 'http://grosir.mediaselularindonesia.com/storage/' . $outlet->poto_depan : '-';
+        $foto_kiri = $outlet->poto_kiri ? 'http://grosir.mediaselularindonesia.com/storage/' . $outlet->poto_kiri : '-';
+        $foto_kanan = $outlet->poto_kanan ? 'http://grosir.mediaselularindonesia.com/storage/' . $outlet->poto_kanan : '-';
+        $foto_ktp = $outlet->poto_ktp ? 'http://grosir.mediaselularindonesia.com/storage/' . $outlet->poto_ktp : '-';
+        $video = $outlet->video ? 'http://grosir.mediaselularindonesia.com/storage/' . $outlet->video : '-';
+
         return [
             $outlet->badanusaha->name,
             $outlet->divisi->name,
@@ -69,12 +76,12 @@ class OutletExport implements FromCollection, WithMapping, WithHeadings
             User::where('divisi_id', $outlet->divisi_id)->where('region_id', $outlet->region_id)->where('role_id', 2)->first()->nama_lengkap ?? 'VACANT',
             User::where('divisi_id', $outlet->divisi_id)->where('region_id', $outlet->region_id)->where('cluster_id', $outlet->cluster_id)->where('role_id', 3)->first()->nama_lengkap ?? 'VACANT',
             date('d M Y', $outlet->created_at / 1000),
-            'http://grosir.mediaselularindonesia.com/storage/'.$outlet->poto_shop_sign,
-            'http://grosir.mediaselularindonesia.com/storage/'.$outlet->poto_depan,
-            'http://grosir.mediaselularindonesia.com/storage/'.$outlet->poto_kiri,
-            'http://grosir.mediaselularindonesia.com/storage/'.$outlet->poto_kanan,
-            'http://grosir.mediaselularindonesia.com/storage/'.$outlet->poto_ktp,
-            'http://grosir.mediaselularindonesia.com/storage/'.$outlet->video,
+            $foto_shop_sign,
+            $foto_depan,
+            $foto_kiri,
+            $foto_kanan,
+            $foto_ktp,
+            $video,
         ];
     }
 }
