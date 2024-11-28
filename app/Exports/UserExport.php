@@ -43,7 +43,7 @@ class UserExport implements FromCollection,WithHeadings,WithMapping
             $user->region->name,
             $user->cluster->name,
             $user->cluster2 ? $user->cluster2->name : '-',
-            $user->tm->nama_lengkap,
+            $user->tm->nama_lengkap ?? '-',
         ];
     }
 }

@@ -20,38 +20,97 @@ class UserImport implements ToModel, WithHeadingRow
      */
     public function model(array $row)
     {
-        $user = new User();
-        $user = $user->where('username', strtolower($row['username']));
-        if ($user->first()) {
-            error_log($row['nama_lengkap'] . $row['role']);
-            $badanusaha_id = BadanUsaha::where('name', preg_replace('/\s+/', '', $row['badan_usaha']))->first()->id;
-            $divisi_id = Division::where('name', preg_replace('/\s+/', '', $row['divisi']))->where('badanusaha_id', $badanusaha_id)->first()->id;
-            $region_id = strtoupper($row['role']) === 'TM' ? null : Region::where('name', preg_replace('/\s+/', '', $row['region']))->where('divisi_id', $divisi_id)->where('badanusaha_id', $badanusaha_id)->first()->id;
-            $user->update([
-                'nama_lengkap' => strtoupper($row['nama_lengkap']),
-                'username' => strtolower($row['username']),
-                'role_id' => Role::where('name', preg_replace('/\s+/', '', $row['role']))->first()->id,
-                'badanusaha_id' => $badanusaha_id,
-                'divisi_id' => $divisi_id,
-                'region_id' => strtoupper($row['role']) === 'TM' ? Region::where('name', preg_replace('/\s+/', '', $row['region']))->first()->id : $region_id,
-                'cluster_id' => Cluster::where('name', preg_replace('/\s+/', '', $row['cluster']))->first()->id,
-                'tm_id' => User::where('nama_lengkap', $row['tm'])->first()->id,
-            ]);
-        } else {
-            $badanusaha_id = BadanUsaha::where('name', preg_replace('/\s+/', '', $row['badan_usaha']))->first()->id;
-            $divisi_id = Division::where('name', preg_replace('/\s+/', '', $row['divisi']))->where('badanusaha_id', $badanusaha_id)->first()->id;
-            $region_id = strtoupper($row['role']) === 'TM' ? null : Region::where('name', preg_replace('/\s+/', '', $row['region']))->where('divisi_id', $divisi_id)->where('badanusaha_id', $badanusaha_id)->first()->id;
-            return new User([
-                'nama_lengkap' => strtoupper($row['nama_lengkap']),
-                'username' => strtolower($row['username']),
-                'role_id' => Role::where('name', preg_replace('/\s+/', '', $row['role']))->first()->id,
-                'badanusaha_id' => $badanusaha_id,
-                'divisi_id' => $divisi_id,
-                'region_id' => strtoupper($row['role']) === 'TM' ? Region::where('name', preg_replace('/\s+/', '', $row['region']))->first()->id : $region_id,
-                'cluster_id' => Cluster::where('name', preg_replace('/\s+/', '', $row['cluster']))->first()->id,
-                'tm_id' => User::where('nama_lengkap', $row['tm'])->first()->id,
-                'password' => $row['password'] ? bcrypt($row['password']) : bcrypt('complete123'),
-            ]);
+        try {
+            // Check if user already exists
+            $user = User::where('username', strtolower($row['username']))->first();
+            if ($user) {
+                // User exists, update if necessary
+                $this->updateUser($user, $row);
+                return null; // Skip creation
+            } else {
+                // User does not exist, create new user
+                return $this->createUser($row);
+            }
+        } catch (\Exception $e) {
+            // Log the error and skip the row
+            error_log("Error processing row for username {$row['username']}: " . $e->getMessage());
+            return null; // Skip this row
         }
+    }
+
+    private function updateUser($user, $row)
+    {
+        $badanusaha_id = $this->getBadanUsahaId($row['badan_usaha']);
+        $divisi_id = $this->getDivisionId($row['divisi'], $badanusaha_id);
+        $region_id = strtoupper($row['role']) === 'TM' ? null : $this->getRegionId($row['region'], $divisi_id, $badanusaha_id);
+        $cluster_id = $this->getClusterId($row['cluster']);
+        $tm_id = $this->getTmId($row['tm']);
+
+        $user->update([
+            'nama_lengkap' => strtoupper($row['nama_lengkap']),
+            'username' => strtolower($row['username']),
+            'role_id' => $this->getRoleId($row['role']),
+            'badanusaha_id' => $badanusaha_id,
+            'divisi_id' => $divisi_id,
+            'region_id' => $region_id,
+            'cluster_id' => $cluster_id,
+            'tm_id' => $tm_id,
+        ]);
+    }
+
+    private function createUser($row)
+    {
+        $badanusaha_id = $this->getBadanUsahaId($row['badan_usaha']);
+        $divisi_id = $this->getDivisionId($row['divisi'], $badanusaha_id);
+        $region_id = strtoupper($row['role']) === 'TM' ? null : $this->getRegionId($row['region'], $divisi_id, $badanusaha_id);
+        $cluster_id = $this->getClusterId($row['cluster']);
+        $tm_id = $this->getTmId($row['tm']);
+
+        return new User([
+            'nama_lengkap' => strtoupper($row['nama_lengkap']),
+            'username' => strtolower($row['username']),
+            'role_id' => $this->getRoleId($row['role']),
+            'badanusaha_id' => $badanusaha_id,
+            'divisi_id' => $divisi_id,
+            'region_id' => $region_id,
+            'cluster_id' => $cluster_id,
+            'tm_id' => $tm_id,
+            'password' => $row['password'] ? bcrypt($row['password']) : bcrypt('complete123'),
+        ]);
+    }
+
+    private function getBadanUsahaId($name)
+    {
+        return BadanUsaha::where('name', preg_replace('/\s+/', '', $name))->first()->id ?? null;
+    }
+
+    private function getDivisionId($name, $badanusaha_id)
+    {
+        return Division::where('name', preg_replace('/\s+/', '', $name))
+            ->where('badanusaha_id', $badanusaha_id)
+            ->first()->id ?? null;
+    }
+
+    private function getRegionId($name, $divisi_id, $badanusaha_id)
+    {
+        return Region::where('name', preg_replace('/\s+/', '', $name))
+            ->where('divisi_id', $divisi_id)
+            ->where('badanusaha_id', $badanusaha_id)
+            ->first()->id ?? null;
+    }
+
+    private function getClusterId($name)
+    {
+        return Cluster::where('name', preg_replace('/\s+/', '', $name))->first()->id ?? null;
+    }
+
+    private function getRoleId($name)
+    {
+        return Role::where('name', preg_replace('/\s+/', '', $name))->first()->id ?? null;
+    }
+
+    private function getTmId($name)
+    {
+        return User::where('nama_lengkap', $name)->first()->id ?? null;
     }
 }
