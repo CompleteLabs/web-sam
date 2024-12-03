@@ -3,15 +3,18 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Filament\Models\Contracts\HasName;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Jetstream\HasProfilePhoto;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasName
 {
     use HasApiTokens;
     use HasFactory;
@@ -20,6 +23,11 @@ class User extends Authenticatable
     use TwoFactorAuthenticatable;
     use SoftDeletes;
 
+    public function getFilamentName(): string
+    {
+        return "{$this->nama_lengkap}";
+    }
+
     public function scopeFilter($query)
     {
         if(request('search')){
@@ -27,57 +35,57 @@ class User extends Authenticatable
         }
     }
 
-    public function outlet()
+    public function outlet(): HasMany
     {
         return $this->hasMany(Outlet::class);
     }
 
-    public function nootm()
+    public function nootm(): HasMany
     {
         return $this->hasMany(Noo::class,'tm_id');
     }
 
-    public function visit()
+    public function visit(): HasMany
     {
         return $this->hasMany(Visit::class);
     }
 
-    public function planvisit()
+    public function planvisit(): HasMany
     {
         return $this->hasMany(Planvisit::class);
     }
 
-    public function cluster()
+    public function cluster(): BelongsTo
     {
         return $this->belongsTo(Cluster::class);
     }
 
-    public function cluster2()
+    public function cluster2(): BelongsTo
     {
         return $this->belongsTo(Cluster::class, 'cluster_id2');
     }
 
-    public function region()
+    public function region(): BelongsTo
     {
         return $this->belongsTo(Region::class);
     }
 
-    public function role()
+    public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
     }
 
-    public function divisi()
+    public function divisi(): BelongsTo
     {
         return $this->belongsTo(Division::class);
     }
 
-    public function badanusaha()
+    public function badanusaha(): BelongsTo
     {
         return $this->belongsTo(BadanUsaha::class);
     }
 
-    public function tm()
+    public function tm(): BelongsTo
     {
         return $this->belongsTo(User::class,'tm_id');
     }
