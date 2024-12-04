@@ -16,8 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
-
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?int $navigationSort = 0;
 
     public static function form(Form $form): Form
     {
@@ -41,25 +41,18 @@ class UserResource extends Resource
                 Forms\Components\Select::make('cluster_id')
                     ->relationship('cluster', 'name')
                     ->required(),
-                Forms\Components\TextInput::make('cluster_id2')
-                    ->numeric(),
+                Forms\Components\Select::make('cluster_id2')
+                    ->relationship('cluster2', 'name')
+                    ->required(),
                 Forms\Components\Select::make('role_id')
                     ->relationship('role', 'name')
                     ->required(),
                 Forms\Components\Select::make('tm_id')
-                    ->relationship('tm', 'id')
+                    ->relationship('tm', 'nama_lengkap')
                     ->required(),
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('two_factor_secret')
-                    ->columnSpanFull(),
-                Forms\Components\Textarea::make('two_factor_recovery_codes')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('id_notif')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('profile_photo_path')
                     ->maxLength(255),
             ]);
     }
@@ -68,35 +61,17 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('username')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('nama_lengkap')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('badanusaha.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('divisi.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('region.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('cluster.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('cluster_id2')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('role.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('tm.id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('id_notif')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('profile_photo_path')
-                    ->searchable(),
+                // Tables\Columns\TextColumn::make('username')
+                //     ->searchable(),
+                Tables\Columns\TextColumn::make('role.name'),
+                Tables\Columns\TextColumn::make('badanusaha.name'),
+                Tables\Columns\TextColumn::make('divisi.name'),
+                Tables\Columns\TextColumn::make('region.name'),
+                Tables\Columns\TextColumn::make('cluster.name'),
+                Tables\Columns\TextColumn::make('tm.nama_lengkap')
+                ->label('TM'),
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
@@ -110,6 +85,7 @@ class UserResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('nama_lengkap', 'asc')
             ->filters([
                 //
             ])

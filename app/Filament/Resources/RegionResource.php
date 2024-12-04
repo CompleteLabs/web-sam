@@ -4,11 +4,14 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\RegionResource\Pages;
 use App\Filament\Resources\RegionResource\RelationManagers;
+use App\Models\Division;
 use App\Models\Region;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -17,7 +20,9 @@ class RegionResource extends Resource
 {
     protected static ?string $model = Region::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-flag';
+    protected static ?string $navigationGroup = 'Settings';
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {
@@ -39,14 +44,10 @@ class RegionResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('badanusaha.name')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('divisi.name')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('badanusaha.name'),
+                Tables\Columns\TextColumn::make('divisi.name'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -56,8 +57,18 @@ class RegionResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('name', 'asc')
+            ->groups([
+                Group::make('divisi.name')
+                    ->label('Divisi')
+                    ->collapsible(),
+            ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('badanusaha.name')
+                    ->relationship('badanusaha', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Badan Usaha'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

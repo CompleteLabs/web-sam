@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Outlet extends Model
 {
@@ -24,36 +26,36 @@ class Outlet extends Model
         }
     }
 
-    public function planvisit()
+    public function planvisit(): HasMany
     {
         return $this->hasMany(PlanVisit::class);
     }
-    public function visit()
+    public function visit(): HasMany
     {
         return $this->hasMany(Visit::class);
     }
 
-    public function cluster()
+    public function cluster(): BelongsTo
     {
         return $this->belongsTo(Cluster::class);
     }
 
-    public function region()
+    public function region(): BelongsTo
     {
         return $this->belongsTo(Region::class);
     }
 
-    public function user()
+    public function user(): HasMany
     {
         return $this->hasMany(User::class);
     }
 
-    public function badanusaha()
+    public function badanusaha(): BelongsTo
     {
         return $this->belongsTo(BadanUsaha::class);
     }
 
-    public function divisi()
+    public function divisi(): BelongsTo
     {
         return $this->belongsTo(Division::class);
     }

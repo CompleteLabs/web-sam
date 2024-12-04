@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Visit extends Model
 {
@@ -16,13 +17,13 @@ class Visit extends Model
         'id'
     ];
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
 
-    public function outlet()
+    public function outlet(): BelongsTo
     {
         return $this->belongsTo(Outlet::class);
     }

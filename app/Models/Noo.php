@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Noo extends Model
 {
@@ -23,27 +24,27 @@ class Noo extends Model
         }
     }
 
-    public function cluster()
+    public function cluster(): BelongsTo
     {
         return $this->belongsTo(Cluster::class);
     }
 
-    public function region()
+    public function region(): BelongsTo
     {
         return $this->belongsTo(Region::class);
     }
 
-    public function badanusaha()
+    public function badanusaha(): BelongsTo
     {
         return $this->belongsTo(BadanUsaha::class);
     }
 
-    public function divisi()
+    public function divisi(): BelongsTo
     {
         return $this->belongsTo(Division::class);
     }
 
-    public function tm()
+    public function tm(): BelongsTo
     {
         return $this->belongsTo(User::class,'tm_id');
     }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlanVisit extends Model
 {
@@ -21,12 +22,12 @@ class PlanVisit extends Model
         }
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function outlet()
+    public function outlet(): BelongsTo
     {
         return $this->belongsTo(Outlet::class);
     }
