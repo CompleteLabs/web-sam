@@ -25,61 +25,61 @@ use App\Http\Controllers\OutletController as outlet;
 |
 */
 
-Route::middleware(['auth:sanctum','logku'])->group(function(){
-//USER
-Route::get('user',[UserController::class,'fetch']);
-Route::post('logout',[UserController::class,'logout']);
+Route::middleware(['auth:sanctum', 'logku'])->group(function () {
+    //USER
+    Route::get('user', [UserController::class, 'fetch']);
+    Route::post('logout', [UserController::class, 'logout']);
 
-//OUTLET
-Route::get('outlet', [OutletController::class,'fetch']);
-Route::get('outlet/{nama}', [OutletController::class,'singleOutlet']);
-Route::post('outlet',[OutletController::class,'updatefoto']);
-
-
-//VISIT
-Route::get('visit',[VisitController::class,'fetch']);
-Route::get('visit/check',[VisitController::class,'check']);
-Route::post('visit',[VisitController::class,'submit']);
-Route::get('visit/monitor',[VisitController::class,'monitor']);
-Route::post('visitNoo',[VisitController::class,'submitNoo']);
+    //OUTLET
+    Route::get('outlet', [OutletController::class, 'fetch']);
+    Route::get('outlet/{nama}', [OutletController::class, 'singleOutlet']);
+    Route::post('outlet', [OutletController::class, 'updatefoto']);
 
 
-//PLANVISIT
-Route::get('planvisit',[PlanVisitController::class,'fetch']);
-Route::post('planvisit',[PlanVisitController::class,'add']);
-Route::get('planvisit/filter',[PlanVisitController::class,'bymonth']);
-Route::delete('planvisit',[PlanVisitController::class,'delete']);
-Route::delete('planvisitrealme',[PlanVisitController::class,'deleterealme']);
-Route::get('planvisitnoo',[PlanVisitController::class,'fetchnoo']);
-Route::delete('planvisitnoo',[PlanVisitController::class,'deletenoo']);
+    //VISIT
+    Route::get('visit', [VisitController::class, 'fetch']);
+    Route::get('visit/check', [VisitController::class, 'check']);
+    Route::post('visit', [VisitController::class, 'submit']);
+    Route::get('visit/monitor', [VisitController::class, 'monitor']);
+    Route::post('visitNoo', [VisitController::class, 'submitNoo']);
 
-//NOO
-Route::get('noo/getbu',[NooController::class,'getbu']);
-Route::get('noo/getdiv',[NooController::class,'getdiv']);
-Route::get('noo/getreg',[NooController::class,'getreg']);
-Route::get('noo/getclus',[NooController::class,'getclus']);
-Route::post('noo',[NooController::class,'submit']);
-Route::get('noo/all',[NooController::class,'all']);
-Route::get('noo',[NooController::class,'fetch']);
-Route::get('noo/{kodeOutlet}', [NooController::class,'singleOutlet']);
-Route::get('nooOutlet',[NooController::class,'getnoooutlet']);
 
-Route::post('noo/confirm',[NooController::class,'confirm']);
-Route::post('noo/approved',[NooController::class,'approved']);
-Route::post('noo/reject',[NooController::class,'reject']);
+    //PLANVISIT
+    Route::get('planvisit', [PlanVisitController::class, 'fetch']);
+    Route::post('planvisit', [PlanVisitController::class, 'add']);
+    Route::get('planvisit/filter', [PlanVisitController::class, 'bymonth']);
+    Route::delete('planvisit', [PlanVisitController::class, 'delete']);
+    Route::delete('planvisitrealme', [PlanVisitController::class, 'deleterealme']);
+    Route::get('planvisitnoo', [PlanVisitController::class, 'fetchnoo']);
+    Route::delete('planvisitnoo', [PlanVisitController::class, 'deletenoo']);
 
-//LEAD
-Route::post('lead',[LeadController::class,'create']);
-Route::post('lead/update',[LeadController::class,'update']);
+    //NOO
+    Route::get('noo/getbu', [NooController::class, 'getbu']);
+    Route::get('noo/getdiv', [NooController::class, 'getdiv']);
+    Route::get('noo/getreg', [NooController::class, 'getreg']);
+    Route::get('noo/getclus', [NooController::class, 'getclus']);
+    Route::post('noo', [NooController::class, 'submit']);
+    Route::get('noo/all', [NooController::class, 'all']);
+    Route::get('noo', [NooController::class, 'fetch']);
+    Route::get('noo/{kodeOutlet}', [NooController::class, 'singleOutlet']);
+    Route::get('nooOutlet', [NooController::class, 'getnoooutlet']);
+
+    Route::post('noo/confirm', [NooController::class, 'confirm']);
+    Route::post('noo/approved', [NooController::class, 'approved']);
+    Route::post('noo/reject', [NooController::class, 'reject']);
+
+    //LEAD
+    Route::post('lead', [LeadController::class, 'create']);
+    Route::post('lead/update', [LeadController::class, 'update']);
 });
 
-Route::post('user/register',[UserController::class,'register']);
-Route::post('user/login',[UserController::class,'login']);
+Route::post('user/register', [UserController::class, 'register']);
+Route::post('user/login', [UserController::class, 'login']);
 
-Route::post('notif', [SendNotif::class,'sendMessage']);
+Route::post('notif', [SendNotif::class, 'sendMessage']);
 
-Route::get('divisi',[SettingController::class,'getdivisi']);
-Route::get('region',[SettingController::class,'getregion']);
+Route::get('divisi', [SettingController::class, 'getdivisi']);
+Route::get('region', [SettingController::class, 'getregion']);
 
 
 Route::get('tes', function (Request $request) {
@@ -87,4 +87,4 @@ Route::get('tes', function (Request $request) {
 });
 
 Route::get('/tes/outlet', [OutletController::class, 'all']);
-Route::post('/outlet/delete',[outlet::class,'deleteBulk']);
+Route::post('/outlet/delete', [outlet::class, 'deleteBulk']);
