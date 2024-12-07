@@ -52,14 +52,14 @@ class Noo extends Model
     public function getConfirmedAtAttribute($value)
     {
         if($value){
-        return Carbon::parse($value)->getPreciseTimestamp(3);
+        return Carbon::parse($value)->timestamp;
         }
     }
 
     public function getRejectedAtAttribute($value)
     {
         if($value){
-            return Carbon::parse($value)->getPreciseTimestamp(3);
+            return Carbon::parse($value)->timestamp;
         }
 
     }
@@ -67,18 +67,18 @@ class Noo extends Model
     public function getApprovedAtAttribute($value)
     {
         if($value){
-            return Carbon::parse($value)->getPreciseTimestamp(3);
+            return Carbon::parse($value)->timestamp;
         }
     }
 
     public function getCreatedAtAttribute($value)
     {
-        return Carbon::parse($value)->getPreciseTimestamp(3);
+        return Carbon::parse($value)->timestamp;
     }
 
     public function getUpdatedAtAttribute($value)
     {
-        return Carbon::parse($value)->getPreciseTimestamp(3);
+        return Carbon::parse($value)->timestamp;
     }
 }
 

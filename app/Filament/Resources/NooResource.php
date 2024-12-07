@@ -114,7 +114,9 @@ class NooResource extends Resource
                 Forms\Components\TextInput::make('keterangan')
                     ->maxLength(255),
                 Forms\Components\Select::make('tm_id')
-                    ->relationship('tm', 'id')
+                    ->relationship('tm', 'nama_lengkap')
+                    ->preload()
+                    ->searchable()
                     ->required(),
             ]);
     }
@@ -125,11 +127,13 @@ class NooResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('created_at')
                     ->date('d M Y'),
-                Tables\Columns\TextColumn::make('created_by'),
+                Tables\Columns\TextColumn::make('created_by')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('kode_outlet'),
                 Tables\Columns\TextColumn::make('divisi.name'),
                 Tables\Columns\TextColumn::make('badanusaha.name'),
-                Tables\Columns\TextColumn::make('nama_outlet'),
+                Tables\Columns\TextColumn::make('nama_outlet')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('alamat_outlet'),
                 Tables\Columns\TextColumn::make('nama_pemilik_outlet'),
                 Tables\Columns\TextColumn::make('ktp_outlet'),
@@ -177,6 +181,7 @@ class NooResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('created_at', 'desc')
+            ->deferLoading()
             ->filters([
                 //
             ])
@@ -189,6 +194,7 @@ class NooResource extends Resource
                 ]),
             ]);
     }
+
 
     public static function getRelations(): array
     {

@@ -23,32 +23,90 @@ class VisitResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\DateTimePicker::make('tanggal_visit')
-                    ->required(),
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'id')
-                    ->required(),
-                Forms\Components\Select::make('outlet_id')
-                    ->relationship('outlet', 'id')
-                    ->required(),
-                Forms\Components\TextInput::make('tipe_visit')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('latlong_in')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('latlong_out')
-                    ->maxLength(255),
-                Forms\Components\DateTimePicker::make('check_in_time'),
-                Forms\Components\DateTimePicker::make('check_out_time'),
-                Forms\Components\Textarea::make('laporan_visit')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('transaksi'),
-                Forms\Components\TextInput::make('durasi_visit')
-                    ->numeric(),
-                Forms\Components\Textarea::make('picture_visit_in')
-                    ->columnSpanFull(),
-                Forms\Components\Textarea::make('picture_visit_out')
-                    ->columnSpanFull(),
+                Forms\Components\Section::make('Visit Information')
+                    ->schema([
+                        Forms\Components\DateTimePicker::make('tanggal_visit')
+                            ->required()
+                            ->label('Tanggal Visit'),
+                        Forms\Components\Select::make('tipe_visit')
+                            ->options([
+                                'PLANNED' => 'PLANNED',
+                                'EXTRACALL' => 'EXTRACALL',
+                            ])
+                            ->required()
+                            ->label('Tipe Visit')
+                            ->placeholder('Select a type')
+                            ->searchable()
+                            ->columnSpanFull(),
+                    ]),
+                Forms\Components\Section::make('User and Outlet')
+                    ->schema([
+                        Forms\Components\Select::make('user_id')
+                            ->relationship('user', 'nama_lengkap')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->label('Pilih User')
+                            ->placeholder('Cari User berdasarkan nama lengkap'),
+                        Forms\Components\Select::make('outlet_id')
+                            ->relationship('outlet', 'nama_outlet')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->label('Pilih Outlet'),
+                    ]),
+                Forms\Components\Section::make('Location & Timing')
+                    ->schema([
+                        Forms\Components\TextInput::make('latlong_in')
+                            ->maxLength(255)
+                            ->label('LatLong In')
+                            ->placeholder('Latitude and Longitude at the start'),
+                        Forms\Components\TextInput::make('latlong_out')
+                            ->maxLength(255)
+                            ->label('LatLong Out')
+                            ->placeholder('Latitude and Longitude at the end'),
+                        Forms\Components\DateTimePicker::make('check_in_time')
+                            ->label('Check-in Time'),
+                        Forms\Components\DateTimePicker::make('check_out_time')
+                            ->label('Check-out Time'),
+                        Forms\Components\TextInput::make('durasi_visit')
+                            ->numeric()
+                            ->label('Durasi Visit (in minutes)'),
+                    ]),
+                Forms\Components\Section::make('Files')
+                    ->schema([
+                        Forms\Components\FileUpload::make('picture_visit_in')
+                            ->image()
+                            ->columnSpanFull()
+                            ->required()
+                            ->disk('public')
+                            ->directory('pictures/visits')
+                            ->nullable()
+                            ->label('Picture at Start of Visit'),
+                        Forms\Components\FileUpload::make('picture_visit_out')
+                            ->image()
+                            ->columnSpanFull()
+                            ->required()
+                            ->disk('public')
+                            ->directory('pictures/visits')
+                            ->nullable()
+                            ->label('Picture at End of Visit'),
+                    ]),
+                Forms\Components\Section::make('Transaction Information')
+                    ->schema([
+                        Forms\Components\Select::make('transaksi')
+                            ->label('Transaksi')
+                            ->options([
+                                'YES' => 'Yes',
+                                'NO' => 'No',
+                            ])
+                            ->required()
+                            ->placeholder('Select Yes or No')
+                            ->searchable(),
+                        Forms\Components\Textarea::make('laporan_visit')
+                            ->columnSpanFull()
+                            ->label('Laporan Visit'),
+                    ]),
             ]);
     }
 
@@ -57,44 +115,27 @@ class VisitResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('tanggal_visit')
-                    ->date('d F Y')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('user.nama_lengkap')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('outlet.nama_outlet')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('tipe_visit')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('latlong_in')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('latlong_out')
-                    ->searchable(),
+                    ->date('d M Y'),
+                Tables\Columns\TextColumn::make('user.nama_lengkap'),
+                Tables\Columns\TextColumn::make('outlet.nama_outlet'),
+                Tables\Columns\TextColumn::make('tipe_visit'),
+                Tables\Columns\TextColumn::make('latlong_in'),
+                Tables\Columns\TextColumn::make('latlong_out'),
                 Tables\Columns\TextColumn::make('check_in_time')
-                    ->dateTime()
-                    ->sortable(),
+                    ->dateTime(),
                 Tables\Columns\TextColumn::make('check_out_time')
-                    ->dateTime()
-                    ->sortable(),
+                    ->dateTime(),
                 Tables\Columns\TextColumn::make('transaksi'),
-                Tables\Columns\TextColumn::make('durasi_visit')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('durasi_visit'),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
+                    ->date('d M Y')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
+                    ->date('d M Y')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('id', 'desc')
+            ->deferLoading()
             ->filters([
                 //
             ])

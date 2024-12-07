@@ -23,8 +23,7 @@ class VisitController extends Controller
 
             $user = Auth::user();
             #ASM || RKAM
-            if($user->role_id == 1 || $user->role_id == 9)
-            {
+            if ($user->role_id == 1 || $user->role_id == 9) {
                 $visit = Visit::with([
                     'outlet.badanusaha',
                     'outlet.region',
@@ -35,9 +34,9 @@ class VisitController extends Controller
                     'user.divisi',
                     'user.cluster',
                     'user.role',
-                    ])->whereHas('user', function ($query) {
-                    $query->where('tm_id',Auth::user()->id);
-                    })
+                ])->whereHas('user', function ($query) {
+                    $query->where('tm_id', Auth::user()->id);
+                })
                     ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
                     ->get();
@@ -52,18 +51,17 @@ class VisitController extends Controller
                     'user.divisi',
                     'user.cluster',
                     'user.role',
-                    ])->whereHas('user', function ($query) {
-                    $query->where('tm_id',Auth::user()->id);
-                    })
+                ])->whereHas('user', function ($query) {
+                    $query->where('tm_id', Auth::user()->id);
+                })
                     ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
                     ->get();
 
-                    $visit = $visit->merge($visitnoo);
+                $visit = $visit->merge($visitnoo);
             }
             #COO
-            else if($user->role_id == 6)
-            {
+            else if ($user->role_id == 6) {
                 $visit = Visit::with([
                     'outlet.badanusaha',
                     'outlet.region',
@@ -74,7 +72,7 @@ class VisitController extends Controller
                     'user.divisi',
                     'user.cluster',
                     'user.role',
-                    ])->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
+                ])->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
                     ->get();
 
@@ -88,15 +86,14 @@ class VisitController extends Controller
                     'user.divisi',
                     'user.cluster',
                     'user.role',
-                    ])->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
+                ])->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
                     ->get();
 
                 $visit = $visit->merge($visitnoo);
             }
             #CSO
-            else if($user->role_id == 8)
-            {
+            else if ($user->role_id == 8) {
                 $visit = Visit::with([
                     'outlet.badanusaha',
                     'outlet.region',
@@ -107,9 +104,9 @@ class VisitController extends Controller
                     'user.divisi',
                     'user.cluster',
                     'user.role',
-                    ])->whereHas('outlet', function ($query) {
-                    $query->where('divisi_id',4);
-                    })
+                ])->whereHas('outlet', function ($query) {
+                    $query->whereIn('divisi_id', [4, 8]);
+                })
                     ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
                     ->get();
@@ -124,92 +121,89 @@ class VisitController extends Controller
                     'user.divisi',
                     'user.cluster',
                     'user.role',
-                    ])->whereHas('outlet', function ($query) {
-                    $query->where('divisi_id',4);
-                    })
-                    ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
-                    ->latest()
-                    ->get();
-
-                    $visit = $visit->merge($visitnoo);
-            }
-            #CSO FAST EV
-            else if($user->role_id == 11)
-            {
-                $visit = Visit::with([
-                    'outlet.badanusaha',
-                    'outlet.region',
-                    'outlet.divisi',
-                    'outlet.cluster',
-                    'user.badanusaha',
-                    'user.region',
-                    'user.divisi',
-                    'user.cluster',
-                    'user.role',
-                    ])->whereHas('outlet', function ($query) {
-                    $query->where('divisi_id',7);
-                    })
-                    ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
-                    ->latest()
-                    ->get();
-
-                $visitnoo = VisitNoo::with([
-                    'outlet.badanusaha',
-                    'outlet.region',
-                    'outlet.divisi',
-                    'outlet.cluster',
-                    'user.badanusaha',
-                    'user.region',
-                    'user.divisi',
-                    'user.cluster',
-                    'user.role',
-                    ])->whereHas('outlet', function ($query) {
-                    $query->where('divisi_id',7);
-                    })
-                    ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
-                    ->latest()
-                    ->get();
-
-                    $visit = $visit->merge($visitnoo);
-            }
-            else
-            {
-                $visit = Visit::with([
-                    'outlet.badanusaha',
-                    'outlet.region',
-                    'outlet.divisi',
-                    'outlet.cluster',
-                    'user.badanusaha',
-                    'user.region',
-                    'user.divisi',
-                    'user.cluster',
-                    'user.role',
-                    ])->whereHas('user', function ($query) {
-                    $query->where('region_id',Auth::user()->region_id);
-                    })
-                    ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
-                    ->latest()
-                    ->get();
-
-                $visitnoo = VisitNoo::with([
-                    'outlet.badanusaha',
-                    'outlet.region',
-                    'outlet.divisi',
-                    'outlet.cluster',
-                    'user.badanusaha',
-                    'user.region',
-                    'user.divisi',
-                    'user.cluster',
-                    'user.role',
-                    ])->whereHas('user', function ($query) {
-                    $query->where('region_id',Auth::user()->region_id);
-                    })
+                ])->whereHas('outlet', function ($query) {
+                    $query->whereIn('divisi_id', [4, 8]);
+                })
                     ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
                     ->get();
 
                 $visit = $visit->merge($visitnoo);
-             }
+            }
+            #CSO FAST EV
+            else if ($user->role_id == 11) {
+                $visit = Visit::with([
+                    'outlet.badanusaha',
+                    'outlet.region',
+                    'outlet.divisi',
+                    'outlet.cluster',
+                    'user.badanusaha',
+                    'user.region',
+                    'user.divisi',
+                    'user.cluster',
+                    'user.role',
+                ])->whereHas('outlet', function ($query) {
+                    $query->where('divisi_id', 7);
+                })
+                    ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
+                    ->latest()
+                    ->get();
+
+                $visitnoo = VisitNoo::with([
+                    'outlet.badanusaha',
+                    'outlet.region',
+                    'outlet.divisi',
+                    'outlet.cluster',
+                    'user.badanusaha',
+                    'user.region',
+                    'user.divisi',
+                    'user.cluster',
+                    'user.role',
+                ])->whereHas('outlet', function ($query) {
+                    $query->where('divisi_id', 7);
+                })
+                    ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
+                    ->latest()
+                    ->get();
+
+                $visit = $visit->merge($visitnoo);
+            } else {
+                $visit = Visit::with([
+                    'outlet.badanusaha',
+                    'outlet.region',
+                    'outlet.divisi',
+                    'outlet.cluster',
+                    'user.badanusaha',
+                    'user.region',
+                    'user.divisi',
+                    'user.cluster',
+                    'user.role',
+                ])->whereHas('user', function ($query) {
+                    $query->where('region_id', Auth::user()->region_id);
+                })
+                    ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
+                    ->latest()
+                    ->get();
+
+                $visitnoo = VisitNoo::with([
+                    'outlet.badanusaha',
+                    'outlet.region',
+                    'outlet.divisi',
+                    'outlet.cluster',
+                    'user.badanusaha',
+                    'user.region',
+                    'user.divisi',
+                    'user.cluster',
+                    'user.role',
+                ])->whereHas('user', function ($query) {
+                    $query->where('region_id', Auth::user()->region_id);
+                })
+                    ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
+                    ->latest()
+                    ->get();
+
+                $visit = $visit->merge($visitnoo);
+            }
 
             return ResponseFormatter::success($visit, 'fetch monitoring visit succes');
         } catch (Exception $err) {
@@ -224,20 +218,20 @@ class VisitController extends Controller
         try {
             if ($request->isnoo) {
                 $visit = VisitNoo::with([
-                'outlet.badanusaha',
-                'outlet.region',
-                'outlet.divisi',
-                'outlet.cluster',
-                'user.badanusaha',
-                'user.region',
-                'user.divisi',
-                'user.cluster',
-                'user.role'
-            ])
-                ->where('user_id', Auth::user()->id)
-                ->whereDate('tanggal_visit', date('Y-m-d'))
-                ->latest()
-                ->get();
+                    'outlet.badanusaha',
+                    'outlet.region',
+                    'outlet.divisi',
+                    'outlet.cluster',
+                    'user.badanusaha',
+                    'user.region',
+                    'user.divisi',
+                    'user.cluster',
+                    'user.role'
+                ])
+                    ->where('user_id', Auth::user()->id)
+                    ->whereDate('tanggal_visit', date('Y-m-d'))
+                    ->latest()
+                    ->get();
             } else {
                 $visit = Visit::with([
                     'outlet.badanusaha',
@@ -350,6 +344,25 @@ class VisitController extends Controller
         }
     }
 
+    // Tambah validasi radius 100meter
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371000; // Jari-jari bumi dalam meter
+
+        // Menghitung perbedaan koordinat
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        // Menghitung jarak dengan Haversine formula
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLon / 2) * sin($dLon / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        // Menghitung jarak dalam meter
+        return $earthRadius * $c;
+    }
+
     public function submit(Request $request)
     {
         try {
@@ -361,7 +374,13 @@ class VisitController extends Controller
             #aturan checkin
             if ($checkIn) {
                 $outlet = Outlet::where('kode_outlet', $request->kode_outlet)->first();
+
+                // if (is_null($outlet->latlong)) {
+                //     $outlet->update(['latlong' => $request->latlong_in]);
+                // }
+
                 $outletId = $outlet->id;
+                list($outletLat, $outletLon) = explode(',', $outlet->latlong);
                 #validasi data
                 $request->validate([
                     'kode_outlet' => ['required'],
@@ -369,6 +388,18 @@ class VisitController extends Controller
                     'latlong_in' => ['required', 'string'],
                     'tipe_visit' => ['required'],
                 ]);
+
+                list($latIn, $lonIn) = explode(',', $request->latlong_in);
+
+                // Hitung jarak antara latlong_in dan latlong outlet
+                $distanceIn = $this->calculateDistance($outletLat, $outletLon, $latIn, $lonIn);
+
+                // Validasi jarak check-in
+                // if ($distanceIn > 100) {
+                //     return ResponseFormatter::error([
+                //         'error' => 'Jarak check-in melebihi 100 meter dari outlet.'
+                //     ], 'Validasi gagal pada check-in', 500);
+                // }
 
 
                 ##buat nama gambar
@@ -420,7 +451,7 @@ class VisitController extends Controller
                     ##simpan gambar di folder public/images
                     $request->picture_visit->move(storage_path('app/public/'), $imageName);
                     $data = [
-			            'tanggal_visit' => date('Y-m-d'),
+                        'tanggal_visit' => date('Y-m-d'),
                         'latlong_out' => $request->latlong_out,
                         'check_out_time' => now(),
                         'laporan_visit' => $request->laporan_visit,
@@ -511,7 +542,7 @@ class VisitController extends Controller
                     ##simpan gambar di folder public/images
                     $request->picture_visit->move(storage_path('app/public/'), $imageName);
                     $data = [
-			            'tanggal_visit' => date('Y-m-d'),
+                        'tanggal_visit' => date('Y-m-d'),
                         'latlong_out' => $request->latlong_out,
                         'check_out_time' => now(),
                         'laporan_visit' => $request->laporan_visit,

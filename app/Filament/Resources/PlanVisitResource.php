@@ -23,21 +23,43 @@ class PlanVisitResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'nama_lengkap')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-                Forms\Components\Select::make('outlet_id')
-                    ->relationship('outlet', 'nama_outlet')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-                Forms\Components\DateTimePicker::make('tanggal_visit')
-                    ->native(false)
-                    ->required(),
+                // Grup User Information
+                Forms\Components\Section::make('User Information')
+                    ->schema([
+                        Forms\Components\Select::make('user_id')
+                            ->relationship('user', 'nama_lengkap')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->label('Pilih User')
+                            ->placeholder('Cari User berdasarkan nama lengkap'),
+
+                        Forms\Components\Select::make('outlet_id')
+                            ->relationship('outlet', 'nama_outlet')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->label('Pilih Outlet')
+                            ->placeholder('Cari Outlet berdasarkan nama'),
+                    ])
+                    ->collapsible() // Membuat bagian ini dapat diperluas atau disembunyikan
+                    ->columns(2),  // Membuat dua kolom, jika space memungkinkan
+
+                // Grup Visit Details
+                Forms\Components\Section::make('Visit Details')
+                    ->schema([
+                        Forms\Components\DateTimePicker::make('tanggal_visit')
+                            ->native(false)
+                            ->required()
+                            ->label('Tanggal Visit')
+                            ->placeholder('Pilih tanggal dan waktu visit')
+                            ->helperText('Tanggal dan waktu kunjungan akan dicatat di sini'),
+                    ])
+                    ->collapsible()
+                    ->columns(1), // Menggunakan satu kolom karena hanya ada satu input
             ]);
     }
+
 
     public static function table(Table $table): Table
     {
@@ -49,15 +71,14 @@ class PlanVisitResource extends Resource
                 Tables\Columns\TextColumn::make('tanggal_visit')
                     ->date('d M Y'),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
+                    ->date('d M Y')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
+                    ->date('d M Y')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('tanggal_visit', 'desc')
+            ->deferLoading()
             ->filters([
                 //
             ])

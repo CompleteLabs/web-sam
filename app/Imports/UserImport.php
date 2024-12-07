@@ -10,6 +10,7 @@ use App\Models\Division;
 use App\Models\BadanUsaha;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Illuminate\Support\Facades\Log;
 
 class UserImport implements ToModel, WithHeadingRow
 {
@@ -23,27 +24,60 @@ class UserImport implements ToModel, WithHeadingRow
         try {
             // Check if user already exists
             $user = User::where('username', strtolower($row['username']))->first();
+
             if ($user) {
-                // User exists, update if necessary
+                // If user exists, update the user
                 $this->updateUser($user, $row);
-                return null; // Skip creation
+                Log::info("User updated: {$row['username']}");
+                return null; // Skip creation, as we are updating
             } else {
-                // User does not exist, create new user
-                return $this->createUser($row);
+                // If user does not exist, create a new user
+                $user = $this->createUser($row);
+                Log::info("User created: {$row['username']}");
+                return $user;
             }
         } catch (\Exception $e) {
             // Log the error and skip the row
-            error_log("Error processing row for username {$row['username']}: " . $e->getMessage());
+            Log::error("Error processing row for username {$row['username']}: " . $e->getMessage());
             return null; // Skip this row
         }
     }
 
+    /**
+     * Update existing user
+     *
+     * @param User $user
+     * @param array $row
+     */
     private function updateUser($user, $row)
     {
+        // Ensure region exists, otherwise create it
         $badanusaha_id = $this->getBadanUsahaId($row['badan_usaha']);
         $divisi_id = $this->getDivisionId($row['divisi'], $badanusaha_id);
+
         $region_id = strtoupper($row['role']) === 'TM' ? null : $this->getRegionId($row['region'], $divisi_id, $badanusaha_id);
+        if (!$region_id) {
+            $region_id = Region::create([
+                'name' => strtoupper($row['region']),
+                'divisi_id' => $divisi_id,
+                'badanusaha_id' => $badanusaha_id
+            ])->id;
+            Log::info("Region created: {$row['region']}");
+        }
+
+        // Ensure cluster exists, otherwise create it
         $cluster_id = $this->getClusterId($row['cluster']);
+        if (!$cluster_id) {
+            $cluster_id = Cluster::create([
+                'name' => strtoupper($row['cluster']),
+                'badanusaha_id' => $badanusaha_id,
+                'divisi_id' => $divisi_id,
+                'region_id' => $region_id
+            ])->id;
+            Log::info("Cluster created: {$row['cluster']}");
+        }
+
+        // Update user details
         $tm_id = $this->getTmId($row['tm']);
 
         $user->update([
@@ -58,14 +92,44 @@ class UserImport implements ToModel, WithHeadingRow
         ]);
     }
 
+    /**
+     * Create a new user
+     *
+     * @param array $row
+     * @return User
+     */
     private function createUser($row)
     {
+        // Ensure region exists, otherwise create it
         $badanusaha_id = $this->getBadanUsahaId($row['badan_usaha']);
         $divisi_id = $this->getDivisionId($row['divisi'], $badanusaha_id);
+
         $region_id = strtoupper($row['role']) === 'TM' ? null : $this->getRegionId($row['region'], $divisi_id, $badanusaha_id);
+        if (!$region_id) {
+            $region_id = Region::create([
+                'name' => strtoupper($row['region']),
+                'divisi_id' => $divisi_id,
+                'badanusaha_id' => $badanusaha_id
+            ])->id;
+            Log::info("Region created: {$row['region']}");
+        }
+
+        // Ensure cluster exists, otherwise create it
         $cluster_id = $this->getClusterId($row['cluster']);
+        if (!$cluster_id) {
+            $cluster_id = Cluster::create([
+                'name' => strtoupper($row['cluster']),
+                'badanusaha_id' => $badanusaha_id,
+                'divisi_id' => $divisi_id,
+                'region_id' => $region_id
+            ])->id;
+            Log::info("Cluster created: {$row['cluster']}");
+        }
+
+        // Get the TM ID if available
         $tm_id = $this->getTmId($row['tm']);
 
+        // Create and return a new user
         return new User([
             'nama_lengkap' => strtoupper($row['nama_lengkap']),
             'username' => strtolower($row['username']),
@@ -81,36 +145,42 @@ class UserImport implements ToModel, WithHeadingRow
 
     private function getBadanUsahaId($name)
     {
-        return BadanUsaha::where('name', preg_replace('/\s+/', '', $name))->first()->id ?? null;
+        $badanusaha = BadanUsaha::where('name', preg_replace('/\s+/', '', $name))->first();
+        return $badanusaha ? $badanusaha->id : null;
     }
 
     private function getDivisionId($name, $badanusaha_id)
     {
-        return Division::where('name', preg_replace('/\s+/', '', $name))
+        $division = Division::where('name', preg_replace('/\s+/', '', $name))
             ->where('badanusaha_id', $badanusaha_id)
-            ->first()->id ?? null;
+            ->first();
+        return $division ? $division->id : null;
     }
 
     private function getRegionId($name, $divisi_id, $badanusaha_id)
     {
-        return Region::where('name', preg_replace('/\s+/', '', $name))
+        $region = Region::where('name', preg_replace('/\s+/', '', $name))
             ->where('divisi_id', $divisi_id)
             ->where('badanusaha_id', $badanusaha_id)
-            ->first()->id ?? null;
+            ->first();
+        return $region ? $region->id : null;
     }
 
     private function getClusterId($name)
     {
-        return Cluster::where('name', preg_replace('/\s+/', '', $name))->first()->id ?? null;
+        $cluster = Cluster::where('name', preg_replace('/\s+/', '', $name))->first();
+        return $cluster ? $cluster->id : null;
     }
 
     private function getRoleId($name)
     {
-        return Role::where('name', preg_replace('/\s+/', '', $name))->first()->id ?? null;
+        $role = Role::where('name', preg_replace('/\s+/', '', $name))->first();
+        return $role ? $role->id : null;
     }
 
     private function getTmId($name)
     {
-        return User::where('nama_lengkap', $name)->first()->id ?? null;
+        $tm = User::where('nama_lengkap', $name)->first();
+        return $tm ? $tm->id : null;
     }
 }

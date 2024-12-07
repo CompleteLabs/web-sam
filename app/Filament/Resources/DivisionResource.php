@@ -28,6 +28,8 @@ class DivisionResource extends Resource
             ->schema([
                 Forms\Components\Select::make('badanusaha_id')
                     ->relationship('badanusaha', 'name')
+                    ->searchable()
+                    ->preload()
                     ->required(),
                 Forms\Components\TextInput::make('name')
                     ->required()
@@ -43,12 +45,10 @@ class DivisionResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('badanusaha.name'),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
+                    ->date('d M Y')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
+                    ->date('d M Y')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('name', 'asc')

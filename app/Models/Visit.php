@@ -30,28 +30,28 @@ class Visit extends Model
 
     public function getCreatedAtAttribute($value)
     {
-        return Carbon::parse($value)->getPreciseTimestamp(3);
+        return Carbon::parse($value)->timestamp;
     }
 
     public function getUpdatedAtAttribute($value)
     {
-        return Carbon::parse($value)->getPreciseTimestamp(3);
+        return Carbon::parse($value)->timestamp;
     }
 
     public function getTanggalVisitAttribute($value)
     {
-        return Carbon::parse($value)->getPreciseTimestamp(3);
+        return Carbon::parse($value)->timestamp;
     }
 
     public function getCheckInTimeAttribute($value)
     {
-        return Carbon::parse($value)->getPreciseTimestamp(3);
+        return Carbon::parse($value)->timestamp;
     }
 
     public function getCheckOutTimeAttribute($value)
     {
         if($value){
-            return Carbon::parse($value)->getPreciseTimestamp(3);
+            return Carbon::parse($value)->timestamp;
         }else{
             return $value;
         }

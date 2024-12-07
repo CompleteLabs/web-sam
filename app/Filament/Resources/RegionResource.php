@@ -29,11 +29,31 @@ class RegionResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('badanusaha_id')
-                    ->relationship('badanusaha', 'name')
-                    ->required(),
-                Forms\Components\Select::make('divisi_id')
-                    ->relationship('divisi', 'name')
-                    ->required(),
+                ->label('Badan Usaha')
+                ->relationship('badanusaha', 'name')
+                ->searchable()
+                ->preload()
+                ->required()
+                ->reactive()
+                ->afterStateUpdated(function ($state, callable $set) {
+                    $set('divisi_id', null);
+                }),
+
+            // Dropdown untuk Divisi
+            Forms\Components\Select::make('divisi_id')
+                ->label('Divisi')
+                ->searchable()
+                ->preload()
+                ->required()
+                ->reactive()
+                ->options(function (callable $get) {
+                    $badanusahaId = $get('badanusaha_id');
+                    if (!$badanusahaId) {
+                        return [];
+                    }
+                    return Division::where('badanusaha_id', $badanusahaId)
+                        ->pluck('name', 'id');
+                }),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
@@ -49,12 +69,10 @@ class RegionResource extends Resource
                 Tables\Columns\TextColumn::make('badanusaha.name'),
                 Tables\Columns\TextColumn::make('divisi.name'),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
+                    ->date('d M Y')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
+                    ->date('d M Y')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('name', 'asc')
