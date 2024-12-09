@@ -6,12 +6,16 @@ use App\Filament\Resources\VisitResource\Pages;
 use App\Filament\Resources\VisitResource\RelationManagers;
 use App\Models\Visit;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+use function Laravel\Prompts\search;
 
 class VisitResource extends Resource
 {
@@ -115,16 +119,25 @@ class VisitResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('tanggal_visit')
+                    ->label('Tanggal Visit')
                     ->date('d M Y'),
-                Tables\Columns\TextColumn::make('user.nama_lengkap'),
-                Tables\Columns\TextColumn::make('outlet.nama_outlet'),
+                Tables\Columns\TextColumn::make('user.nama_lengkap')
+                    ->label('Nama')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('outlet.nama_outlet')
+                    ->label('Outlet')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('tipe_visit'),
-                Tables\Columns\TextColumn::make('latlong_in'),
-                Tables\Columns\TextColumn::make('latlong_out'),
+                Tables\Columns\TextColumn::make('latlong_in')
+                    ->label('Lokasi CI'),
+                Tables\Columns\TextColumn::make('latlong_out')
+                    ->label('Lokasi CO'),
                 Tables\Columns\TextColumn::make('check_in_time')
-                    ->dateTime(),
+                    ->label('Jam CI')
+                    ->time(),
                 Tables\Columns\TextColumn::make('check_out_time')
-                    ->dateTime(),
+                    ->label('Jam CO')
+                    ->time(),
                 Tables\Columns\TextColumn::make('transaksi'),
                 Tables\Columns\TextColumn::make('durasi_visit'),
                 Tables\Columns\TextColumn::make('created_at')
@@ -137,7 +150,24 @@ class VisitResource extends Resource
             ->defaultSort('id', 'desc')
             ->deferLoading()
             ->filters([
-                //
+                Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('tanggal_visit_from')
+                            ->label('Tanggal Visit Mulai'),
+                        DatePicker::make('tanggal_visit_until')
+                            ->label('Tanggal Visit Akhir'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['tanggal_visit_from'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('tanggal_visit', '>=', $date),
+                            )
+                            ->when(
+                                $data['tanggal_visit_until'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('tanggal_visit', '<=', $date),
+                            );
+                    })
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

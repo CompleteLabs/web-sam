@@ -212,7 +212,7 @@ class PlanVisitController extends Controller
                             ->where('user_id',Auth::user()->id)
                             ->first();
 
-            if ((Carbon::now() > Carbon::createFromTimestamp($planVisit->tanggal_visit / 1000)->startOfMonth()) || (Carbon::now() < Carbon::createFromTimestamp($planVisit->tanggal_visit / 1000)->startOfMonth()->subDay(5))){
+            if ((Carbon::now() > Carbon::createFromTimestamp($planVisit->tanggal_visit )->startOfMonth()) || (Carbon::now() < Carbon::createFromTimestamp($planVisit->tanggal_visit )->startOfMonth()->subDay(5))){
                 return ResponseFormatter::error(null,'Tidak bisa menghapus plan visit kurang dari h-5 bulan visit dan lebih dari tanggal 1');
             }
 
@@ -253,7 +253,7 @@ class PlanVisitController extends Controller
                 ->where('user_id',Auth::user()->id)
                 ->first();
 
-            if ((Carbon::now() > Carbon::createFromTimestamp($planVisit->tanggal_visit / 1000)->startOfWeek()->addDay(1)->addHour(10))) {
+            if ((Carbon::now() > Carbon::createFromTimestamp($planVisit->tanggal_visit )->startOfWeek()->addDay(1)->addHour(10))) {
                return ResponseFormatter::error(null,'Tidak bisa menghapus plan visit kurang dari atau dalam minggu yang berjalan');
             }
 
@@ -299,7 +299,7 @@ class PlanVisitController extends Controller
                             ->where('user_id',Auth::user()->id)
                             ->first();
 
-            if ((Carbon::now() > Carbon::createFromTimestamp($planVisit->tanggal_visit / 1000)->startOfMonth()) || (Carbon::now() < Carbon::createFromTimestamp($planVisit->tanggal_visit / 1000)->startOfMonth()->subDay(5))){
+            if ((Carbon::now() > Carbon::createFromTimestamp($planVisit->tanggal_visit )->startOfMonth()) || (Carbon::now() < Carbon::createFromTimestamp($planVisit->tanggal_visit )->startOfMonth()->subDay(5))){
                 return ResponseFormatter::error(null,'Tidak bisa menghapus plan visit kurang dari h-5 bulan visit dan lebih dari tanggal 1');
             }
 

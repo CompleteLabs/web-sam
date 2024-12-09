@@ -437,8 +437,8 @@ class VisitController extends Controller
                     $TimeEnd = new DateTime();
                     $start = $lastDataVisit->check_in_time;
                     $end = time() * 1000;
-                    $timeStart->setTimestamp($start / 1000);
-                    $TimeEnd->setTimestamp($end / 1000);
+                    $timeStart->setTimestamp($start );
+                    $TimeEnd->setTimestamp($end );
 
                     $awal = Carbon::parse($timeStart);
                     $akhir = Carbon::parse($TimeEnd);
@@ -528,8 +528,8 @@ class VisitController extends Controller
                     $TimeEnd = new DateTime();
                     $start = $lastDataVisit->check_in_time;
                     $end = time() * 1000;
-                    $timeStart->setTimestamp($start / 1000);
-                    $TimeEnd->setTimestamp($end / 1000);
+                    $timeStart->setTimestamp($start );
+                    $TimeEnd->setTimestamp($end );
 
                     $awal = Carbon::parse($timeStart);
                     $akhir = Carbon::parse($TimeEnd);

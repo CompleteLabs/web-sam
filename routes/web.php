@@ -33,21 +33,21 @@ Route::post('/masuk',[LoginController::class,'login']);
 
 ##EXPORT
     ##USER
-    Route::get('/user/export',[UserController::class,'export']);
+    Route::get('/user/export',[UserController::class,'export'])->name('user.export');
     Route::get('/user/export/template',[UserController::class,'template']);
 
     ##OUTLET
-    Route::get('/outlet/export',[OutletController::class,'export']);
+    Route::get('/outlet/export',[OutletController::class,'export'])->name('outlet.export');
     Route::get('/outlet/export/template',[OutletController::class,'template']);
 
     ##NOO
-    Route::get('/noo/export',[NooController::class,'export']);
+    Route::get('/noo/export',[NooController::class,'export'])->name('noo.export');
 
     ##VISIT
-    Route::get('/visit/export',[VisitController::class,'export']);
+    Route::get('/visit/export',[VisitController::class,'export'])->name('visit.export');
 
     ##PLANVISIT
-    Route::get('/planvisit/export',[PlanVisitController::class,'export']);
+    Route::get('/planvisit/export',[PlanVisitController::class,'export'])->name('planvisit.export');;
     Route::get('/planvisit/export/template',[PlanVisitController::class,'template']);
 
 #IMPORT

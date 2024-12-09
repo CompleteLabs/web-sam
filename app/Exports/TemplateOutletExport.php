@@ -2,9 +2,10 @@
 
 namespace App\Exports;
 
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class TemplateOutletExport implements WithHeadings
+class TemplateOutletExport implements WithHeadings, ShouldAutoSize
 {
     /**
     * @return \Illuminate\Support\Collection

@@ -5,10 +5,11 @@ namespace App\Exports;
 use App\Models\Outlet;
 use App\Models\User;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class OutletExport implements FromCollection, WithMapping, WithHeadings
+class OutletExport implements FromCollection, WithMapping, WithHeadings, ShouldAutoSize
 {
     /**
      * @return \Illuminate\Support\Collection
@@ -75,7 +76,7 @@ class OutletExport implements FromCollection, WithMapping, WithHeadings
             User::where('divisi_id', $outlet->divisi_id)->where('region_id', $outlet->region_id)->where('role_id', 2)->first()->tm->nama_lengkap  ?? 'VACANT',
             User::where('divisi_id', $outlet->divisi_id)->where('region_id', $outlet->region_id)->where('role_id', 2)->first()->nama_lengkap ?? 'VACANT',
             User::where('divisi_id', $outlet->divisi_id)->where('region_id', $outlet->region_id)->where('cluster_id', $outlet->cluster_id)->where('role_id', 3)->first()->nama_lengkap ?? 'VACANT',
-            date('d M Y', $outlet->created_at / 1000),
+            date('d M Y', $outlet->created_at),
             $foto_shop_sign,
             $foto_depan,
             $foto_kiri,

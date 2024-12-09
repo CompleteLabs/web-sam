@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Filament\Models\Contracts\HasName;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -14,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable implements HasName
+class User extends Authenticatable implements FilamentUser, HasName
 {
     use HasApiTokens;
     use HasFactory;
@@ -28,10 +30,16 @@ class User extends Authenticatable implements HasName
         return "{$this->nama_lengkap}";
     }
 
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->role->name === 'ADMIN';
+        // return $this->role->name === 'ADMIN' || $this->role->name === 'AR' || $this->role->name === 'AUDIT';
+    }
+
     public function scopeFilter($query)
     {
-        if(request('search')){
-            $query->where('nama_lengkap',"like",'%'.request('search').'%');
+        if (request('search')) {
+            $query->where('nama_lengkap', "like", '%' . request('search') . '%');
         }
     }
 
@@ -42,7 +50,7 @@ class User extends Authenticatable implements HasName
 
     public function nootm(): HasMany
     {
-        return $this->hasMany(Noo::class,'tm_id');
+        return $this->hasMany(Noo::class, 'tm_id');
     }
 
     public function visit(): HasMany
@@ -87,7 +95,7 @@ class User extends Authenticatable implements HasName
 
     public function tm(): BelongsTo
     {
-        return $this->belongsTo(User::class,'tm_id');
+        return $this->belongsTo(User::class, 'tm_id');
     }
 
     /**

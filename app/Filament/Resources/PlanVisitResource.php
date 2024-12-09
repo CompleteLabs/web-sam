@@ -48,7 +48,7 @@ class PlanVisitResource extends Resource
                 // Grup Visit Details
                 Forms\Components\Section::make('Visit Details')
                     ->schema([
-                        Forms\Components\DateTimePicker::make('tanggal_visit')
+                        Forms\Components\DatePicker::make('tanggal_visit')
                             ->native(false)
                             ->required()
                             ->label('Tanggal Visit')
@@ -65,8 +65,12 @@ class PlanVisitResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user.nama_lengkap'),
-                Tables\Columns\TextColumn::make('outlet.nama_outlet'),
+                Tables\Columns\TextColumn::make('user.nama_lengkap')
+                ->label('Nama')
+                ->searchable(),
+                Tables\Columns\TextColumn::make('outlet.nama_outlet')
+                ->label('Outlet')
+                ->searchable(),
                 Tables\Columns\TextColumn::make('outlet.kode_outlet'),
                 Tables\Columns\TextColumn::make('tanggal_visit')
                     ->date('d M Y'),

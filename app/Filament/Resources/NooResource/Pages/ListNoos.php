@@ -17,6 +17,12 @@ class ListNoos extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
+            Actions\Action::make('export')
+                ->color("success")
+                ->icon('heroicon-o-arrow-up-tray')
+                ->action(function () {
+                    return redirect()->route('noo.export');
+                }),
         ];
     }
 
