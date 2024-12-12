@@ -73,7 +73,7 @@ Route::middleware(['auth:sanctum', 'logku'])->group(function () {
     Route::post('lead/update', [LeadController::class, 'update']);
 });
 
-Route::post('user/register', [UserController::class, 'register']);
+// Route::post('user/register', [UserController::class, 'register']);
 Route::post('user/login', [UserController::class, 'login']);
 
 Route::post('notif', [SendNotif::class, 'sendMessage']);
@@ -81,10 +81,9 @@ Route::post('notif', [SendNotif::class, 'sendMessage']);
 Route::get('divisi', [SettingController::class, 'getdivisi']);
 Route::get('region', [SettingController::class, 'getregion']);
 
+// Route::get('tes', function (Request $request) {
+//     return '';
+// });
 
-Route::get('tes', function (Request $request) {
-    return '';
-});
-
-Route::get('/tes/outlet', [OutletController::class, 'all']);
-Route::post('/outlet/delete', [outlet::class, 'deleteBulk']);
+// Route::get('/tes/outlet', [OutletController::class, 'all']);
+// Route::post('/outlet/delete', [outlet::class, 'deleteBulk']);

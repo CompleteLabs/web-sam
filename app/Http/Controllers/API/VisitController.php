@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\Auth;
 class VisitController extends Controller
 {
 
+    /**
+     * Visit - Monitoring visiting sales ✅
+     */
     public function monitor(Request $request)
     {
         try {
@@ -53,6 +56,43 @@ class VisitController extends Controller
                     'user.role',
                 ])->whereHas('user', function ($query) {
                     $query->where('tm_id', Auth::user()->id);
+                })
+                    ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
+                    ->latest()
+                    ->get();
+
+                $visit = $visit->merge($visitnoo);
+            }
+            else if ($user->id == 2 && $user->role_id == 1) {
+                $visit = Visit::with([
+                    'outlet.badanusaha',
+                    'outlet.region',
+                    'outlet.divisi',
+                    'outlet.cluster',
+                    'user.badanusaha',
+                    'user.region',
+                    'user.divisi',
+                    'user.cluster',
+                    'user.role',
+                ])->whereHas('outlet', function ($query) {
+                    $query->whereIn('region_id', [78, 79, 80, 81]);
+                })
+                    ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
+                    ->latest()
+                    ->get();
+
+                $visitnoo = VisitNoo::with([
+                    'outlet.badanusaha',
+                    'outlet.region',
+                    'outlet.divisi',
+                    'outlet.cluster',
+                    'user.badanusaha',
+                    'user.region',
+                    'user.divisi',
+                    'user.cluster',
+                    'user.role',
+                ])->whereHas('outlet', function ($query) {
+                    $query->whereIn('region_id', [78, 79, 80, 81]);
                 })
                     ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
@@ -213,6 +253,9 @@ class VisitController extends Controller
         }
     }
 
+     /**
+     * Visit - Fetch data visit ✅
+     */
     public function fetch(Request $request)
     {
         try {
@@ -375,12 +418,12 @@ class VisitController extends Controller
             if ($checkIn) {
                 $outlet = Outlet::where('kode_outlet', $request->kode_outlet)->first();
 
-                // if (is_null($outlet->latlong)) {
-                //     $outlet->update(['latlong' => $request->latlong_in]);
-                // }
-
                 $outletId = $outlet->id;
                 list($outletLat, $outletLon) = explode(',', $outlet->latlong);
+
+                // Ambil radius dari outlet atau gunakan default 100 meter jika radiusnya 0
+                $radius = $outlet->radius > 0 ? $outlet->radius : 100;
+
                 #validasi data
                 $request->validate([
                     'kode_outlet' => ['required'],
@@ -395,11 +438,11 @@ class VisitController extends Controller
                 $distanceIn = $this->calculateDistance($outletLat, $outletLon, $latIn, $lonIn);
 
                 // Validasi jarak check-in
-                // if ($distanceIn > 100) {
-                //     return ResponseFormatter::error([
-                //         'error' => 'Jarak check-in melebihi 100 meter dari outlet.'
-                //     ], 'Validasi gagal pada check-in', 500);
-                // }
+                if ($distanceIn > $radius) {
+                    return ResponseFormatter::error([
+                        'error' => 'Jarak check-in melebihi 100 meter dari outlet.'
+                    ], 'Validasi gagal pada check-in', 500);
+                }
 
 
                 ##buat nama gambar
@@ -437,8 +480,8 @@ class VisitController extends Controller
                     $TimeEnd = new DateTime();
                     $start = $lastDataVisit->check_in_time;
                     $end = time() * 1000;
-                    $timeStart->setTimestamp($start );
-                    $TimeEnd->setTimestamp($end );
+                    $timeStart->setTimestamp($start);
+                    $TimeEnd->setTimestamp($end);
 
                     $awal = Carbon::parse($timeStart);
                     $akhir = Carbon::parse($TimeEnd);
@@ -528,8 +571,8 @@ class VisitController extends Controller
                     $TimeEnd = new DateTime();
                     $start = $lastDataVisit->check_in_time;
                     $end = time() * 1000;
-                    $timeStart->setTimestamp($start );
-                    $TimeEnd->setTimestamp($end );
+                    $timeStart->setTimestamp($start);
+                    $TimeEnd->setTimestamp($end);
 
                     $awal = Carbon::parse($timeStart);
                     $akhir = Carbon::parse($TimeEnd);

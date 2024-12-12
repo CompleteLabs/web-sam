@@ -32,8 +32,8 @@ class User extends Authenticatable implements FilamentUser, HasName
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->role->name === 'ADMIN';
-        // return $this->role->name === 'ADMIN' || $this->role->name === 'AR' || $this->role->name === 'AUDIT';
+        // return $this->role->name === 'ADMIN';
+        return $this->role->name === 'ADMIN' || $this->role->name === 'AR' || $this->role->name === 'AUDIT';
     }
 
     public function scopeFilter($query)

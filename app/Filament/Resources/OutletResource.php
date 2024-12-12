@@ -253,7 +253,11 @@ class OutletResource extends Resource
             ->defaultSort('kode_outlet', 'asc')
             ->deferLoading()
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('region.name')
+                ->relationship('region', 'name')
+                ->searchable()
+                ->preload()
+                ->label('Region'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

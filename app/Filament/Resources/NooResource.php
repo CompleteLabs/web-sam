@@ -5,13 +5,19 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\NooResource\Pages;
 use App\Filament\Resources\NooResource\RelationManagers;
 use App\Models\Noo;
+use Carbon\Carbon;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+use function Laravel\Prompts\form;
 
 class NooResource extends Resource
 {
@@ -170,11 +176,6 @@ class NooResource extends Resource
                     ->formatStateUsing(fn($state) => '<a href="https://www.google.com/maps/place/' . $state . '" target="_blank">Lihat Lokasi</a>')
                     ->html(),
                 Tables\Columns\TextColumn::make('limit'),
-                Tables\Columns\TextColumn::make('status'),
-                Tables\Columns\TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
@@ -183,10 +184,55 @@ class NooResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->deferLoading()
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('divisi.name')
+                    ->relationship('divisi', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Divisi'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('approve')
+                    ->label('Approve')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn($record) => $record->status !== 'CONFIRMED' && $record->status !== 'REJECTED' && $record->status !== 'APPROVED')
+                    ->form([
+                        TextInput::make('kode_outlet')
+                            ->required(),
+                        TextInput::make('limit')
+                            ->numeric()
+                            ->required(),
+                    ])
+                    ->action(function ($record, $data) {
+                        $record->update([
+                            'kode_outlet' => $data['kode_outlet'],
+                            'limit' => $data['limit'],
+                            'confirmed_at' => Carbon::now(),
+                            'confirmed_by' => auth()->user()->name,
+                            'status' => 'CONFIRMED',
+                            Notification::make()
+                                ->title($record->nama_outlet . ' Confirm')
+                                ->success()
+                                ->send(),
+                        ]);
+                    }),
+                Tables\Actions\Action::make('reject')
+                    ->label('Reject')
+                    ->icon('heroicon-o-x-circle')
+                    ->color('danger')
+                    ->visible(fn($record) => $record->status !== 'CONFIRMED' && $record->status !== 'REJECTED' && $record->status !== 'APPROVED')
+                    ->action(function ($record, $data) {
+                        $record->update([
+                            'confirmed_at' => Carbon::now(),
+                            'confirmed_by' => auth()->user()->name,
+                            'status' => 'REJECTED',
+                        ]);
+                        Notification::make()
+                            ->title($record->nama_outlet . ' Rejected')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -208,7 +254,7 @@ class NooResource extends Resource
         return [
             'index' => Pages\ListNoos::route('/'),
             'create' => Pages\CreateNoo::route('/create'),
-            'edit' => Pages\EditNoo::route('/{record}/edit'),
+            // 'edit' => Pages\EditNoo::route('/{record}/edit'),
         ];
     }
 }
