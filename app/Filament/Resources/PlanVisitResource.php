@@ -23,7 +23,6 @@ class PlanVisitResource extends Resource
     {
         return $form
             ->schema([
-                // Grup User Information
                 Forms\Components\Section::make('User Information')
                     ->schema([
                         Forms\Components\Select::make('user_id')
@@ -42,10 +41,8 @@ class PlanVisitResource extends Resource
                             ->label('Pilih Outlet')
                             ->placeholder('Cari Outlet berdasarkan nama'),
                     ])
-                    ->collapsible() // Membuat bagian ini dapat diperluas atau disembunyikan
-                    ->columns(2),  // Membuat dua kolom, jika space memungkinkan
-
-                // Grup Visit Details
+                    ->collapsible()
+                    ->columns(2),
                 Forms\Components\Section::make('Visit Details')
                     ->schema([
                         Forms\Components\DatePicker::make('tanggal_visit')
@@ -56,7 +53,7 @@ class PlanVisitResource extends Resource
                             ->helperText('Tanggal dan waktu kunjungan akan dicatat di sini'),
                     ])
                     ->collapsible()
-                    ->columns(1), // Menggunakan satu kolom karena hanya ada satu input
+                    ->columns(1),
             ]);
     }
 
@@ -106,19 +103,16 @@ class PlanVisitResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->join('users', 'plan_visits.user_id', '=', 'users.id') // Join dengan tabel users berdasarkan user_id
+            ->join('users', 'plan_visits.user_id', '=', 'users.id')
             ->where(function ($query) {
                 $user = auth()->user();
-                // Jika Super Admin, tampilkan semua data
-                if ($user->role->name == 'Super Admin') {
+                if ($user->role->name == 'SUPER ADMIN') {
                     return;
                 }
-
-                // Jika bukan Super Admin, filter berdasarkan badanusaha_id
                 $query->where('users.badanusaha_id', $user->badanusaha_id);
             })
-            ->select('plan_visits.*', 'users.id as user_id') // Menentukan kolom yang ingin diambil dan memberi alias untuk users.id
-            ->orderBy('plan_visits.id', 'desc'); // Mengurutkan berdasarkan visits.id
+            ->select('plan_visits.*', 'users.id as user_id')
+            ->orderBy('plan_visits.id', 'desc');
     }
 
 

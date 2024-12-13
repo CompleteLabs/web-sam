@@ -255,8 +255,7 @@ class NooResource extends Resource
         return parent::getEloquentQuery()
             ->where(function ($query) {
                 $user = auth()->user();
-                // Display all tickets to Super Admin
-                if ($user->role->name == 'Super Admin') {
+                if ($user->role->name == 'SUPER ADMIN') {
                     return;
                 } else {
                     $query->where('noos.badanusaha_id', $user->badanusaha_id);
@@ -269,7 +268,7 @@ class NooResource extends Resource
         return [
             'index' => Pages\ListNoos::route('/'),
             'create' => Pages\CreateNoo::route('/create'),
-            // 'edit' => Pages\EditNoo::route('/{record}/edit'),
+            'edit' => Pages\EditNoo::route('/{record}/edit'),
         ];
     }
 }

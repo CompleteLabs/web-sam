@@ -29,31 +29,36 @@ class RegionResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('badanusaha_id')
-                ->label('Badan Usaha')
-                ->relationship('badanusaha', 'name')
-                ->searchable()
-                ->preload()
-                ->required()
-                ->reactive()
-                ->afterStateUpdated(function ($state, callable $set) {
-                    $set('divisi_id', null);
-                }),
-
-            // Dropdown untuk Divisi
-            Forms\Components\Select::make('divisi_id')
-                ->label('Divisi')
-                ->searchable()
-                ->preload()
-                ->required()
-                ->reactive()
-                ->options(function (callable $get) {
-                    $badanusahaId = $get('badanusaha_id');
-                    if (!$badanusahaId) {
-                        return [];
-                    }
-                    return Division::where('badanusaha_id', $badanusahaId)
-                        ->pluck('name', 'id');
-                }),
+                    ->label('Badan Usaha')
+                    ->searchable()
+                    ->required()
+                    ->reactive()
+                    ->placeholder('Pilih badan usaha')
+                    ->options(function (callable $get) {
+                        $user = auth()->user();
+                        if ($user->role->name !== 'SUPER ADMIN') {
+                            return \App\Models\BadanUsaha::where('id', $user->badanusaha_id)
+                                ->pluck('name', 'id');
+                        }
+                        return \App\Models\BadanUsaha::pluck('name', 'id');
+                    })
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $set('divisi_id', null);
+                    }),
+                Forms\Components\Select::make('divisi_id')
+                    ->label('Divisi')
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->reactive()
+                    ->options(function (callable $get) {
+                        $badanusahaId = $get('badanusaha_id');
+                        if (!$badanusahaId) {
+                            return [];
+                        }
+                        return Division::where('badanusaha_id', $badanusahaId)
+                            ->pluck('name', 'id');
+                    }),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255)
@@ -106,7 +111,7 @@ class RegionResource extends Resource
             ->where(function ($query) {
                 $user = auth()->user();
                 // Display all tickets to Super Admin
-                if ($user->role->name == 'Super Admin') {
+                if ($user->role->name == 'SUPER ADMIN') {
                     return;
                 } else {
                     $query->where('regions.badanusaha_id', $user->badanusaha_id);

@@ -26,11 +26,11 @@ class OutletResource extends Resource
     {
         return $form
             ->schema([
-                // Grup Informasi Outlet
                 Forms\Components\Section::make('Informasi Outlet')
                     ->schema([
                         Forms\Components\TextInput::make('kode_outlet')
                             ->required()
+                            ->unique(ignoreRecord: true)
                             ->maxLength(255)
                             ->label('Kode Outlet')
                             ->placeholder('Masukkan kode outlet'),
@@ -54,9 +54,7 @@ class OutletResource extends Resource
                             ->label('Alamat Outlet')
                             ->placeholder('Masukkan alamat lengkap outlet'),
                     ])
-                    ->columns(2),  // Dua kolom untuk informasi outlet
-
-                // Grup Kontak Pemilik Outlet
+                    ->columns(2),
                 Forms\Components\Section::make('Kontak & Pemilik Outlet')
                     ->schema([
                         Forms\Components\TextInput::make('nama_pemilik_outlet')
@@ -68,9 +66,7 @@ class OutletResource extends Resource
                             ->label('Nomor Telepon Outlet')
                             ->placeholder('Masukkan nomor telepon outlet'),
                     ])
-                    ->columns(2), // Menyusun informasi kontak dalam dua kolom
-
-                // Grup Lokasi dan Foto
+                    ->columns(2),
                 Forms\Components\Section::make('Foto & Video')
                     ->schema([
                         Forms\Components\FileUpload::make('poto_shop_sign')
@@ -110,18 +106,23 @@ class OutletResource extends Resource
                             ->disk('public')
                             ->directory('uploads/videos'),
                     ])
-                    ->columns(2), // Menyusun foto dalam dua kolom
-
-                // Grup Badan Usaha & Divisi
+                    ->columns(2),
                 Forms\Components\Section::make('Badan Usaha & Divisi')
                     ->schema([
                         Forms\Components\Select::make('badanusaha_id')
                             ->label('Badan Usaha')
-                            ->relationship('badanusaha', 'name')
                             ->searchable()
-                            ->preload()
                             ->required()
                             ->reactive()
+                            ->placeholder('Pilih badan usaha')
+                            ->options(function (callable $get) {
+                                $user = auth()->user();
+                                if ($user->role->name !== 'SUPER ADMIN') {
+                                    return \App\Models\BadanUsaha::where('id', $user->badanusaha_id)
+                                        ->pluck('name', 'id');
+                                }
+                                return \App\Models\BadanUsaha::pluck('name', 'id');
+                            })
                             ->afterStateUpdated(function ($state, callable $set) {
                                 $set('divisi_id', null);
                                 $set('region_id', null);
@@ -269,7 +270,7 @@ class OutletResource extends Resource
             ->where(function ($query) {
                 $user = auth()->user();
                 // Display all tickets to Super Admin
-                if ($user->role->name == 'Super Admin') {
+                if ($user->role->name == 'SUPER ADMIN') {
                     return;
                 } else {
                     $query->where('outlets.badanusaha_id', $user->badanusaha_id);

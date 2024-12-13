@@ -28,29 +28,40 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make('User Information')
-                    ->schema([
-                        Forms\Components\TextInput::make('username')
-                            ->required()
-                            ->maxLength(255)
-                            ->label('Username')
-                            ->placeholder('Masukkan username yang unik'),
-                        Forms\Components\TextInput::make('nama_lengkap')
-                            ->required()
-                            ->maxLength(255)
-                            ->label('Nama Lengkap')
-                            ->placeholder('Masukkan nama lengkap')
-                    ])
-                    ->columns(2),
+                ->schema([
+                    Forms\Components\TextInput::make('username')
+                        ->required()
+                        ->maxLength(255)
+                        ->label('Username')
+                        ->unique(ignoreRecord: true)
+                        ->dehydrateStateUsing(fn($state) => strtolower($state))
+                        ->placeholder('Masukkan username yang unik')
+                        ->regex('/^[\S]+$/', 'Username tidak boleh mengandung spasi')
+                        ->helperText('Username tidak boleh mengandung spasi'),
+                    Forms\Components\TextInput::make('nama_lengkap')
+                        ->required()
+                        ->maxLength(255)
+                        ->label('Nama Lengkap')
+                        ->placeholder('Masukkan nama lengkap')
+                        ->dehydrateStateUsing(fn($state) => strtoupper($state))
+                ])
+                ->columns(2),
                 Forms\Components\Section::make('Organization Information')
                     ->schema([
                         Forms\Components\Select::make('badanusaha_id')
                             ->label('Badan Usaha')
-                            ->relationship('badanusaha', 'name')
                             ->searchable()
-                            ->preload()
                             ->required()
                             ->reactive()
                             ->placeholder('Pilih badan usaha')
+                            ->options(function (callable $get) {
+                                $user = auth()->user();
+                                if ($user->role->name !== 'SUPER ADMIN') {
+                                    return \App\Models\BadanUsaha::where('id', $user->badanusaha_id)
+                                        ->pluck('name', 'id');
+                                }
+                                return \App\Models\BadanUsaha::pluck('name', 'id');
+                            })
                             ->afterStateUpdated(function ($state, callable $set) {
                                 $set('divisi_id', null);
                                 $set('region_id', null);
@@ -155,7 +166,8 @@ class UserResource extends Resource
                             ->maxLength(255)
                             ->label('Password')
                             ->placeholder('Masukkan password')
-                            ->required(fn (string $context): bool => $context === 'create'),
+                            ->required(fn(string $context): bool => $context === 'create')
+                            ->revealable(),
                     ])
                     ->columns(1),
             ]);
@@ -211,7 +223,7 @@ class UserResource extends Resource
             ->where(function ($query) {
                 $user = auth()->user();
                 // Display all tickets to Super Admin
-                if ($user->role->name == 'Super Admin') {
+                if ($user->role->name == 'SUPER ADMIN') {
                     return;
                 } else {
                     $query->where('users.badanusaha_id', $user->badanusaha_id);

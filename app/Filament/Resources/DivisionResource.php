@@ -27,10 +27,18 @@ class DivisionResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('badanusaha_id')
-                    ->relationship('badanusaha', 'name')
+                    ->label('Badan Usaha')
                     ->searchable()
-                    ->preload()
-                    ->required(),
+                    ->required()
+                    ->placeholder('Pilih badan usaha')
+                    ->options(function (callable $get) {
+                        $user = auth()->user();
+                        if ($user->role->name !== 'SUPER ADMIN') {
+                            return \App\Models\BadanUsaha::where('id', $user->badanusaha_id)
+                                ->pluck('name', 'id');
+                        }
+                        return \App\Models\BadanUsaha::pluck('name', 'id');
+                    }),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
@@ -76,7 +84,7 @@ class DivisionResource extends Resource
             ->where(function ($query) {
                 $user = auth()->user();
                 // Display all tickets to Super Admin
-                if ($user->role->name == 'Super Admin') {
+                if ($user->role->name == 'SUPER ADMIN') {
                     return;
                 } else {
                     $query->where('divisions.badanusaha_id', $user->badanusaha_id);

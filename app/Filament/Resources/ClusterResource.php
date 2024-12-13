@@ -28,16 +28,24 @@ class ClusterResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('badanusaha_id')
-                    ->label('Badan Usaha')
-                    ->relationship('badanusaha', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->reactive()
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        $set('divisi_id', null);
-                        $set('region_id', null);
-                    }),
+                ->label('Badan Usaha')
+                ->searchable()
+                ->required()
+                ->reactive()
+                ->placeholder('Pilih badan usaha')
+                ->options(function (callable $get) {
+                    $user = auth()->user();
+                    if ($user->role->name !== 'SUPER ADMIN') {
+                        return \App\Models\BadanUsaha::where('id', $user->badanusaha_id)
+                            ->pluck('name', 'id');
+                    }
+                    return \App\Models\BadanUsaha::pluck('name', 'id');
+                })
+                ->afterStateUpdated(function ($state, callable $set) {
+                    $set('divisi_id', null);
+                    $set('region_id', null);
+                }),
+
                 Forms\Components\Select::make('divisi_id')
                     ->label('Divisi')
                     ->searchable()
@@ -121,7 +129,7 @@ class ClusterResource extends Resource
             ->where(function ($query) {
                 $user = auth()->user();
                 // Display all tickets to Super Admin
-                if ($user->role->name == 'Super Admin') {
+                if ($user->role->name == 'SUPER ADMIN') {
                     return;
                 } else {
                     $query->where('clusters.badanusaha_id', $user->badanusaha_id);
