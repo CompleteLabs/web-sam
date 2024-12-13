@@ -28,24 +28,24 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make('User Information')
-                ->schema([
-                    Forms\Components\TextInput::make('username')
-                        ->required()
-                        ->maxLength(255)
-                        ->label('Username')
-                        ->unique(ignoreRecord: true)
-                        ->dehydrateStateUsing(fn($state) => strtolower($state))
-                        ->placeholder('Masukkan username yang unik')
-                        ->regex('/^[\S]+$/', 'Username tidak boleh mengandung spasi')
-                        ->helperText('Username tidak boleh mengandung spasi'),
-                    Forms\Components\TextInput::make('nama_lengkap')
-                        ->required()
-                        ->maxLength(255)
-                        ->label('Nama Lengkap')
-                        ->placeholder('Masukkan nama lengkap')
-                        ->dehydrateStateUsing(fn($state) => strtoupper($state))
-                ])
-                ->columns(2),
+                    ->schema([
+                        Forms\Components\TextInput::make('username')
+                            ->required()
+                            ->maxLength(255)
+                            ->label('Username')
+                            ->unique(ignoreRecord: true)
+                            ->dehydrateStateUsing(fn($state) => strtolower($state))
+                            ->placeholder('Masukkan username yang unik')
+                            ->regex('/^[\S]+$/', 'Username tidak boleh mengandung spasi')
+                            ->helperText('Username tidak boleh mengandung spasi'),
+                        Forms\Components\TextInput::make('nama_lengkap')
+                            ->required()
+                            ->maxLength(255)
+                            ->label('Nama Lengkap')
+                            ->placeholder('Masukkan nama lengkap')
+                            ->dehydrateStateUsing(fn($state) => strtoupper($state))
+                    ])
+                    ->columns(2),
                 Forms\Components\Section::make('Organization Information')
                     ->schema([
                         Forms\Components\Select::make('badanusaha_id')
@@ -147,7 +147,15 @@ class UserResource extends Resource
                             ->preload()
                             ->required()
                             ->label('Role')
-                            ->placeholder('Pilih role'),
+                            ->placeholder('Pilih role')
+                            ->options(function (callable $get) {
+                                $user = auth()->user();
+                                if ($user->role->name !== 'SUPER ADMIN') {
+                                    return \App\Models\Role::whereIn('name', ['AR', 'ASC', 'ASM', 'DSF/DM'])
+                                    ->pluck('name', 'id')->toArray();
+                                }
+                                return \App\Models\Role::pluck('name', 'id')->toArray();
+                            }),
                         Forms\Components\Select::make('tm_id')
                             ->label('TM')
                             ->relationship('tm', 'nama_lengkap')
