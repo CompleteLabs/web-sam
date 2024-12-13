@@ -43,8 +43,6 @@ class VisitPolicy
     {
         if ($user->role->name === 'SUPER ADMIN') {
             return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
         }
 
         return false;
@@ -57,8 +55,6 @@ class VisitPolicy
     {
         if ($user->role->name === 'SUPER ADMIN') {
             return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
         }
 
         return false;
@@ -70,8 +66,6 @@ class VisitPolicy
     public function delete(User $user, Visit $visit): bool
     {
         if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
             return true;
         }
 

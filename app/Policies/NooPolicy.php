@@ -17,6 +17,8 @@ class NooPolicy
             return true;
         } elseif ($user->role->name === 'ADMIN') {
             return true;
+        } elseif ($user->role->name === 'AR') {
+            return true;
         }
 
         return false;
@@ -31,6 +33,8 @@ class NooPolicy
             return true;
         } elseif ($user->role->name === 'ADMIN') {
             return true;
+        }  elseif ($user->role->name === 'AR') {
+            return true;
         }
 
         return false;
@@ -42,8 +46,6 @@ class NooPolicy
     public function create(User $user): bool
     {
         if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
             return true;
         }
 
@@ -57,8 +59,6 @@ class NooPolicy
     {
         if ($user->role->name === 'SUPER ADMIN') {
             return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
         }
 
         return false;
@@ -70,8 +70,6 @@ class NooPolicy
     public function delete(User $user, Noo $noo): bool
     {
         if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
             return true;
         }
 
@@ -85,8 +83,6 @@ class NooPolicy
     {
         if ($user->role->name === 'SUPER ADMIN') {
             return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
         }
 
         return false;
@@ -99,10 +95,27 @@ class NooPolicy
     {
         if ($user->role->name === 'SUPER ADMIN') {
             return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
         }
 
         return false;
+    }
+
+    public function export(User $user): bool
+    {
+        // Check if the user has the 'SUPER ADMIN' or 'ADMIN' role
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
+    }
+
+    public function approve(User $user, Noo $noo)
+    {
+        // Logika untuk memeriksa apakah user bisa melakukan approve
+        return $user->role->name === 'AR';
+    }
+
+    // Method untuk memeriksa apakah user bisa reject
+    public function reject(User $user, Noo $noo)
+    {
+        // Logika untuk memeriksa apakah user bisa melakukan reject
+        return $user->role->name === 'AR';
     }
 }

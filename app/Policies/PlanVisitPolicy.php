@@ -43,8 +43,6 @@ class PlanVisitPolicy
     {
         if ($user->role->name === 'SUPER ADMIN') {
             return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
         }
 
         return false;
@@ -56,8 +54,6 @@ class PlanVisitPolicy
     public function update(User $user, PlanVisit $planVisit): bool
     {
         if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
             return true;
         }
 
@@ -71,8 +67,6 @@ class PlanVisitPolicy
     {
         if ($user->role->name === 'SUPER ADMIN') {
             return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
         }
 
         return false;
@@ -85,8 +79,6 @@ class PlanVisitPolicy
     {
         if ($user->role->name === 'SUPER ADMIN') {
             return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
         }
 
         return false;
@@ -98,8 +90,6 @@ class PlanVisitPolicy
     public function forceDelete(User $user, PlanVisit $planVisit): bool
     {
         if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
             return true;
         }
 

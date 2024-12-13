@@ -4,10 +4,12 @@ namespace App\Filament\Resources\NooResource\Pages;
 
 use App\Filament\Resources\NooResource;
 use App\Models\Noo;
+use App\Models\User;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Components\Tab;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Gate;
 
 class ListNoos extends ListRecords
 {
@@ -15,36 +17,54 @@ class ListNoos extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
+        $actions = [
             Actions\CreateAction::make(),
-            Actions\Action::make('export')
+        ];
+
+        // Check if the user is authorized to export
+        if (Gate::allows('export', User::class)) {
+            $actions[] = Actions\Action::make('export')
                 ->color("success")
                 ->icon('heroicon-o-arrow-up-tray')
                 ->action(function () {
                     return redirect()->route('noo.export');
-                }),
-        ];
+                });
+        }
+
+        return $actions;
     }
 
     public function getTabs(): array
     {
+        // Ambil query yang sudah difilter berdasarkan role
+        $query = NooResource::getEloquentQuery(); // Panggil getEloquentQuery() dari Resource
+
         return [
             'pending' => Tab::make()
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'PENDING'))
-                ->badge(Noo::query()->where('status', 'PENDING')->count())
+                ->badge($this->getStatusBadgeCount($query, 'PENDING'))
                 ->badgeColor('warning'),
+
             'confirmed' => Tab::make()
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'CONFIRMED'))
-                ->badge(Noo::query()->where('status', 'CONFIRMED')->count())
+                ->badge($this->getStatusBadgeCount($query, 'CONFIRMED'))
                 ->badgeColor('info'),
+
             'approved' => Tab::make()
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'APPROVED'))
-                ->badge(Noo::query()->where('status', 'APPROVED')->count())
+                ->badge($this->getStatusBadgeCount($query, 'APPROVED'))
                 ->badgeColor('success'),
+
             'rejected' => Tab::make()
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'REJECTED'))
-                ->badge(Noo::query()->where('status', 'REJECTED')->count())
+                ->badge($this->getStatusBadgeCount($query, 'REJECTED'))
                 ->badgeColor('danger'),
         ];
+    }
+
+    // Fungsi untuk menghitung jumlah berdasarkan status dengan filter yang sudah diterapkan
+    private function getStatusBadgeCount(Builder $query, string $status): int
+    {
+        return $query->clone()->where('status', $status)->count();
     }
 }

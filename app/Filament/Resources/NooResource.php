@@ -16,6 +16,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Gate;
 
 use function Laravel\Prompts\form;
 
@@ -191,12 +192,12 @@ class NooResource extends Resource
                     ->label('Divisi'),
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('approve')
                     ->label('Approve')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn($record) => $record->status !== 'CONFIRMED' && $record->status !== 'REJECTED' && $record->status !== 'APPROVED')
+                    ->visible(fn($record) => $record->status !== 'CONFIRMED' && $record->status !== 'REJECTED' && $record->status !== 'APPROVED' && Gate::allows('approve', $record))
                     ->form([
                         TextInput::make('kode_outlet')
                             ->required(),
@@ -221,7 +222,7 @@ class NooResource extends Resource
                     ->label('Reject')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->visible(fn($record) => $record->status !== 'CONFIRMED' && $record->status !== 'REJECTED' && $record->status !== 'APPROVED')
+                    ->visible(fn($record) => $record->status !== 'CONFIRMED' && $record->status !== 'REJECTED' && $record->status !== 'APPROVED' && Gate::allows('reject', $record))
                     ->action(function ($record, $data) {
                         $record->update([
                             'confirmed_at' => Carbon::now(),

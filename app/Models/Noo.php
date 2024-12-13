@@ -80,5 +80,7 @@ class Noo extends Model
     {
         return Carbon::parse($value)->timestamp;
     }
+
+
 }
 
