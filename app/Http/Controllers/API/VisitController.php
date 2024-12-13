@@ -25,8 +25,8 @@ class VisitController extends Controller
         try {
 
             $user = Auth::user();
-            #ASM || RKAM
-            if ($user->role_id == 1 || $user->role_id == 9) {
+            // Robby (GM ZTE)
+            if ($user->id == 2 && $user->role_id == 1) {
                 $visit = Visit::with([
                     'outlet.badanusaha',
                     'outlet.region',
@@ -38,7 +38,7 @@ class VisitController extends Controller
                     'user.cluster',
                     'user.role',
                 ])->whereHas('user', function ($query) {
-                    $query->where('tm_id', Auth::user()->id);
+                    $query->where('divisi_id', '8');
                 })
                     ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
@@ -55,7 +55,7 @@ class VisitController extends Controller
                     'user.cluster',
                     'user.role',
                 ])->whereHas('user', function ($query) {
-                    $query->where('tm_id', Auth::user()->id);
+                    $query->where('divisi_id', '8');
                 })
                     ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
@@ -63,7 +63,8 @@ class VisitController extends Controller
 
                 $visit = $visit->merge($visitnoo);
             }
-            else if ($user->id == 2 && $user->role_id == 1) {
+            // Hendra Setia (GM Techno)
+            else if ($user->id == 689 && $user->role_id == 1) {
                 $visit = Visit::with([
                     'outlet.badanusaha',
                     'outlet.region',
@@ -74,8 +75,8 @@ class VisitController extends Controller
                     'user.divisi',
                     'user.cluster',
                     'user.role',
-                ])->whereHas('outlet', function ($query) {
-                    $query->whereIn('region_id', [78, 79, 80, 81]);
+                ])->whereHas('user', function ($query) {
+                    $query->where('divisi_id', '11');
                 })
                     ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
@@ -91,8 +92,46 @@ class VisitController extends Controller
                     'user.divisi',
                     'user.cluster',
                     'user.role',
-                ])->whereHas('outlet', function ($query) {
-                    $query->whereIn('region_id', [78, 79, 80, 81]);
+                ])->whereHas('user', function ($query) {
+                    $query->where('divisi_id', '11');
+                })
+                    ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
+                    ->latest()
+                    ->get();
+
+                $visit = $visit->merge($visitnoo);
+            }
+            #ASM || RKAM
+            else if ($user->role_id == 1 || $user->role_id == 9) {
+                $visit = Visit::with([
+                    'outlet.badanusaha',
+                    'outlet.region',
+                    'outlet.divisi',
+                    'outlet.cluster',
+                    'user.badanusaha',
+                    'user.region',
+                    'user.divisi',
+                    'user.cluster',
+                    'user.role',
+                ])->whereHas('user', function ($query) {
+                    $query->where('tm_id', Auth::user()->id);
+                })
+                    ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
+                    ->latest()
+                    ->get();
+
+                $visitnoo = VisitNoo::with([
+                    'outlet.badanusaha',
+                    'outlet.region',
+                    'outlet.divisi',
+                    'outlet.cluster',
+                    'user.badanusaha',
+                    'user.region',
+                    'user.divisi',
+                    'user.cluster',
+                    'user.role',
+                ])->whereHas('user', function ($query) {
+                    $query->where('tm_id', Auth::user()->id);
                 })
                     ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
@@ -145,7 +184,7 @@ class VisitController extends Controller
                     'user.cluster',
                     'user.role',
                 ])->whereHas('outlet', function ($query) {
-                    $query->whereIn('divisi_id', [4, 8]);
+                    $query->where('divisi_id', 4);
                 })
                     ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
@@ -162,7 +201,7 @@ class VisitController extends Controller
                     'user.cluster',
                     'user.role',
                 ])->whereHas('outlet', function ($query) {
-                    $query->whereIn('divisi_id', [4, 8]);
+                    $query->where('divisi_id', 4);
                 })
                     ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
@@ -253,7 +292,7 @@ class VisitController extends Controller
         }
     }
 
-     /**
+    /**
      * Visit - Fetch data visit ✅
      */
     public function fetch(Request $request)

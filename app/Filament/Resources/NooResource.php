@@ -249,6 +249,20 @@ class NooResource extends Resource
         ];
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where(function ($query) {
+                $user = auth()->user();
+                // Display all tickets to Super Admin
+                if ($user->role->name == 'Super Admin') {
+                    return;
+                } else {
+                    $query->where('noos.badanusaha_id', $user->badanusaha_id);
+                }
+            });
+    }
+
     public static function getPages(): array
     {
         return [

@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\PlanVisitResource\Pages;
 
 use App\Filament\Resources\PlanVisitResource;
+use App\Models\User;
 use Filament\Actions;
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Gate;
 
 class ListPlanVisits extends ListRecords
 {
@@ -13,9 +15,13 @@ class ListPlanVisits extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
+        $actions = [
             Actions\CreateAction::make(),
-            Actions\Action::make('export')
+        ];
+
+        // Check if the user is authorized to export
+        if (Gate::allows('export', User::class)) {
+            $actions[] = Actions\Action::make('export')
                 ->color("success")
                 ->icon('heroicon-o-arrow-up-tray')
                 ->form([
@@ -38,7 +44,9 @@ class ListPlanVisits extends ListRecords
                         'tanggal1' => $data['tanggal1'],
                         'tanggal2' => $data['tanggal2'],
                     ]);
-                }),
-        ];
+                });
+        }
+
+        return $actions;
     }
 }

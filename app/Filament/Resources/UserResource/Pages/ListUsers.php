@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Filament\Resources\UserResource;
+use App\Models\User;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Facades\Gate;
 
 class ListUsers extends ListRecords
 {
@@ -12,14 +14,20 @@ class ListUsers extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
+        $actions = [
             Actions\CreateAction::make(),
-            Actions\Action::make('export')
-                ->color("success")
+        ];
+
+        // Check if the user is authorized to export
+        if (Gate::allows('export', User::class)) {
+            $actions[] = Actions\Action::make('export')
+                ->color('success')
                 ->icon('heroicon-o-arrow-up-tray')
                 ->action(function () {
                     return redirect()->route('user.export');
-                }),
-        ];
+                });
+        }
+
+        return $actions;
     }
 }

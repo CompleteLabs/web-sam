@@ -179,6 +179,24 @@ class VisitResource extends Resource
             ]);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->join('users', 'visits.user_id', '=', 'users.id') // Join dengan tabel users berdasarkan user_id
+            ->where(function ($query) {
+                $user = auth()->user();
+                // Jika Super Admin, tampilkan semua data
+                if ($user->role->name == 'Super Admin') {
+                    return;
+                }
+
+                // Jika bukan Super Admin, filter berdasarkan badanusaha_id
+                $query->where('users.badanusaha_id', $user->badanusaha_id);
+            })
+            ->select('visits.*', 'users.id as user_id') // Menentukan kolom yang ingin diambil dan memberi alias untuk users.id
+            ->orderBy('visits.id', 'desc'); // Mengurutkan berdasarkan visits.id
+    }
+
     public static function getRelations(): array
     {
         return [

@@ -23,8 +23,13 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('/', function () {
+    return redirect('admin');
+});
+
 ##HANDLE JETSTREAM BLOCK
-Route::get('/', [LoginController::class,'index']);
+// Route::get('/', [LoginController::class,'index']);
 Route::get('/login', [LoginController::class,'index'])->name('login');
 
 ##LOGIN

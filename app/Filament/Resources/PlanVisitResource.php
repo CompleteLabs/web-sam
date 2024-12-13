@@ -66,11 +66,11 @@ class PlanVisitResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.nama_lengkap')
-                ->label('Nama')
-                ->searchable(),
+                    ->label('Nama')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('outlet.nama_outlet')
-                ->label('Outlet')
-                ->searchable(),
+                    ->label('Outlet')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('outlet.kode_outlet'),
                 Tables\Columns\TextColumn::make('tanggal_visit')
                     ->date('d M Y'),
@@ -102,6 +102,25 @@ class PlanVisitResource extends Resource
             //
         ];
     }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->join('users', 'plan_visits.user_id', '=', 'users.id') // Join dengan tabel users berdasarkan user_id
+            ->where(function ($query) {
+                $user = auth()->user();
+                // Jika Super Admin, tampilkan semua data
+                if ($user->role->name == 'Super Admin') {
+                    return;
+                }
+
+                // Jika bukan Super Admin, filter berdasarkan badanusaha_id
+                $query->where('users.badanusaha_id', $user->badanusaha_id);
+            })
+            ->select('plan_visits.*', 'users.id as user_id') // Menentukan kolom yang ingin diambil dan memberi alias untuk users.id
+            ->orderBy('plan_visits.id', 'desc'); // Mengurutkan berdasarkan visits.id
+    }
+
 
     public static function getPages(): array
     {

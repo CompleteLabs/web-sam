@@ -3,12 +3,14 @@
 namespace App\Filament\Resources\VisitResource\Pages;
 
 use App\Filament\Resources\VisitResource;
+use App\Models\User;
 use App\Models\Visit;
 use Filament\Actions;
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Components\Tab;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Gate;
 
 class ListVisits extends ListRecords
 {
@@ -16,9 +18,13 @@ class ListVisits extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
+        $actions = [
             Actions\CreateAction::make(),
-            Actions\Action::make('export')
+        ];
+
+        // Check if the user is authorized to export
+        if (Gate::allows('export', User::class)) {
+            $actions[] = Actions\Action::make('export')
                 ->color("success")
                 ->icon('heroicon-o-arrow-up-tray')
                 ->form([
@@ -41,8 +47,10 @@ class ListVisits extends ListRecords
                         'tanggal1' => $data['tanggal1'],
                         'tanggal2' => $data['tanggal2'],
                     ]);
-                }),
-        ];
+                });
+        }
+
+        return $actions;
     }
 
     public function getTabs(): array

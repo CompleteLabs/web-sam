@@ -23,200 +23,194 @@ class OutletResource extends Resource
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
-{
-    return $form
-        ->schema([
-            // Grup Informasi Outlet
-            Forms\Components\Section::make('Informasi Outlet')
-                ->schema([
-                    Forms\Components\TextInput::make('kode_outlet')
-                        ->required()
-                        ->maxLength(255)
-                        ->label('Kode Outlet')
-                        ->placeholder('Masukkan kode outlet'),
-                    Forms\Components\TextInput::make('nama_outlet')
-                        ->required()
-                        ->maxLength(255)
-                        ->label('Nama Outlet')
-                        ->placeholder('Masukkan nama outlet'),
-                    Forms\Components\Textarea::make('alamat_outlet')
-                        ->required()
-                        ->columnSpanFull()
-                        ->label('Alamat Outlet')
-                        ->placeholder('Masukkan alamat lengkap outlet')
-                ])
-                ->columns(2),  // Dua kolom untuk informasi outlet
+    {
+        return $form
+            ->schema([
+                // Grup Informasi Outlet
+                Forms\Components\Section::make('Informasi Outlet')
+                    ->schema([
+                        Forms\Components\TextInput::make('kode_outlet')
+                            ->required()
+                            ->maxLength(255)
+                            ->label('Kode Outlet')
+                            ->placeholder('Masukkan kode outlet'),
+                        Forms\Components\TextInput::make('nama_outlet')
+                            ->required()
+                            ->maxLength(255)
+                            ->label('Nama Outlet')
+                            ->placeholder('Masukkan nama outlet'),
+                        Forms\Components\TextInput::make('distric')
+                            ->required()
+                            ->maxLength(255)
+                            ->label('Distrik')
+                            ->placeholder('Masukkan distrik outlet'),
+                        Forms\Components\TextInput::make('latlong')
+                            ->maxLength(255)
+                            ->label('Latitude/Longitude')
+                            ->placeholder('Masukkan koordinat latitude dan longitude outlet'),
+                        Forms\Components\Textarea::make('alamat_outlet')
+                            ->required()
+                            ->columnSpanFull()
+                            ->label('Alamat Outlet')
+                            ->placeholder('Masukkan alamat lengkap outlet'),
+                    ])
+                    ->columns(2),  // Dua kolom untuk informasi outlet
 
-            // Grup Kontak Pemilik Outlet
-            Forms\Components\Section::make('Kontak & Pemilik Outlet')
-                ->schema([
-                    Forms\Components\TextInput::make('nama_pemilik_outlet')
-                        ->maxLength(255)
-                        ->label('Nama Pemilik Outlet')
-                        ->placeholder('Masukkan nama pemilik outlet'),
-                    Forms\Components\TextInput::make('nomer_tlp_outlet')
-                        ->maxLength(255)
-                        ->label('Nomor Telepon Outlet')
-                        ->placeholder('Masukkan nomor telepon outlet'),
-                    Forms\Components\TextInput::make('distric')
-                        ->required()
-                        ->maxLength(255)
-                        ->label('Distrik')
-                        ->placeholder('Masukkan distrik outlet'),
-                ])
-                ->columns(2), // Menyusun informasi kontak dalam dua kolom
+                // Grup Kontak Pemilik Outlet
+                Forms\Components\Section::make('Kontak & Pemilik Outlet')
+                    ->schema([
+                        Forms\Components\TextInput::make('nama_pemilik_outlet')
+                            ->maxLength(255)
+                            ->label('Nama Pemilik Outlet')
+                            ->placeholder('Masukkan nama pemilik outlet'),
+                        Forms\Components\TextInput::make('nomer_tlp_outlet')
+                            ->maxLength(255)
+                            ->label('Nomor Telepon Outlet')
+                            ->placeholder('Masukkan nomor telepon outlet'),
+                    ])
+                    ->columns(2), // Menyusun informasi kontak dalam dua kolom
 
-            // Grup Lokasi dan Foto
-            Forms\Components\Section::make('Lokasi & Foto')
-                ->schema([
-                    Forms\Components\TextInput::make('latlong')
-                        ->maxLength(255)
-                        ->label('Latitude/Longitude')
-                        ->placeholder('Masukkan koordinat latitude dan longitude outlet'),
-                    Forms\Components\FileUpload::make('poto_shop_sign')
-                        ->label('Foto Tanda Outlet')
-                        ->maxSize(10240)
-                        ->image()
-                        ->disk('public')
-                        ->directory('uploads/shop_signs')
-                        ->required(),
-                    Forms\Components\FileUpload::make('poto_depan')
-                        ->label('Foto Depan')
-                        ->maxSize(10240)
-                        ->image()
-                        ->disk('public')
-                        ->directory('uploads/front_photos')
-                        ->required(),
-                    Forms\Components\FileUpload::make('poto_kiri')
-                        ->label('Foto Kiri')
-                        ->maxSize(10240)
-                        ->image()
-                        ->disk('public')
-                        ->directory('uploads/left_photos')
-                        ->required(),
-                    Forms\Components\FileUpload::make('poto_kanan')
-                        ->label('Foto Kanan')
-                        ->maxSize(10240)
-                        ->image()
-                        ->disk('public')
-                        ->directory('uploads/right_photos')
-                        ->required(),
-                    Forms\Components\FileUpload::make('poto_ktp')
-                        ->label('Foto KTP')
-                        ->maxSize(10240)
-                        ->image()
-                        ->disk('public')
-                        ->directory('uploads/ktp_photos')
-                        ->required(),
-                    Forms\Components\FileUpload::make('video')
-                        ->label('Video')
-                        ->maxSize(10240)
-                        ->acceptedFileTypes(['video/mp4', 'video/avi', 'video/mkv'])
-                        ->disk('public')
-                        ->directory('uploads/videos')
-                        ->required(),
-                ])
-                ->columns(2), // Menyusun foto dalam dua kolom
+                // Grup Lokasi dan Foto
+                Forms\Components\Section::make('Foto & Video')
+                    ->schema([
+                        Forms\Components\FileUpload::make('poto_shop_sign')
+                            ->label('Foto Tanda Outlet')
+                            ->maxSize(10240)
+                            ->image()
+                            ->disk('public')
+                            ->directory('uploads/shop_signs'),
+                        Forms\Components\FileUpload::make('poto_depan')
+                            ->label('Foto Depan')
+                            ->maxSize(10240)
+                            ->image()
+                            ->disk('public')
+                            ->directory('uploads/front_photos'),
+                        Forms\Components\FileUpload::make('poto_kiri')
+                            ->label('Foto Kiri')
+                            ->maxSize(10240)
+                            ->image()
+                            ->disk('public')
+                            ->directory('uploads/left_photos'),
+                        Forms\Components\FileUpload::make('poto_kanan')
+                            ->label('Foto Kanan')
+                            ->maxSize(10240)
+                            ->image()
+                            ->disk('public')
+                            ->directory('uploads/right_photos'),
+                        Forms\Components\FileUpload::make('poto_ktp')
+                            ->label('Foto KTP')
+                            ->maxSize(10240)
+                            ->image()
+                            ->disk('public')
+                            ->directory('uploads/ktp_photos'),
+                        Forms\Components\FileUpload::make('video')
+                            ->label('Video')
+                            ->maxSize(10240)
+                            ->acceptedFileTypes(['video/mp4', 'video/avi', 'video/mkv'])
+                            ->disk('public')
+                            ->directory('uploads/videos'),
+                    ])
+                    ->columns(2), // Menyusun foto dalam dua kolom
 
-            // Grup Badan Usaha & Divisi
-            Forms\Components\Section::make('Badan Usaha & Divisi')
-                ->schema([
-                    Forms\Components\Select::make('badanusaha_id')
-                        ->label('Badan Usaha')
-                        ->relationship('badanusaha', 'name')
-                        ->searchable()
-                        ->preload()
-                        ->required()
-                        ->reactive()
-                        ->afterStateUpdated(function ($state, callable $set) {
-                            $set('divisi_id', null);
-                            $set('region_id', null);
-                            $set('cluster_id', null);
-                            $set('cluster_id2', null);
-                        }),
+                // Grup Badan Usaha & Divisi
+                Forms\Components\Section::make('Badan Usaha & Divisi')
+                    ->schema([
+                        Forms\Components\Select::make('badanusaha_id')
+                            ->label('Badan Usaha')
+                            ->relationship('badanusaha', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $set('divisi_id', null);
+                                $set('region_id', null);
+                                $set('cluster_id', null);
+                                $set('cluster_id2', null);
+                            }),
 
-                    Forms\Components\Select::make('divisi_id')
-                        ->label('Divisi')
-                        ->searchable()
-                        ->preload()
-                        ->required()
-                        ->reactive()
-                        ->options(function (callable $get) {
-                            $badanusahaId = $get('badanusaha_id');
-                            if (!$badanusahaId) {
-                                return [];
-                            }
-                            return Division::where('badanusaha_id', $badanusahaId)
-                                ->pluck('name', 'id');
-                        })
-                        ->afterStateUpdated(function ($state, callable $set) {
-                            $set('region_id', null);
-                            $set('cluster_id', null);
-                            $set('cluster_id2', null);
-                        }),
+                        Forms\Components\Select::make('divisi_id')
+                            ->label('Divisi')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->reactive()
+                            ->options(function (callable $get) {
+                                $badanusahaId = $get('badanusaha_id');
+                                if (!$badanusahaId) {
+                                    return [];
+                                }
+                                return Division::where('badanusaha_id', $badanusahaId)
+                                    ->pluck('name', 'id');
+                            })
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $set('region_id', null);
+                                $set('cluster_id', null);
+                                $set('cluster_id2', null);
+                            }),
 
-                    Forms\Components\Select::make('region_id')
-                        ->label('Region')
-                        ->searchable()
-                        ->preload()
-                        ->required()
-                        ->reactive()
-                        ->options(function (callable $get) {
-                            $divisiId = $get('divisi_id');
-                            if (!$divisiId) {
-                                return [];
-                            }
-                            return Region::where('divisi_id', $divisiId)
-                                ->pluck('name', 'id');
-                        })
-                        ->afterStateUpdated(function ($state, callable $set) {
-                            $set('cluster_id', null);
-                            $set('cluster_id2', null);
-                        }),
+                        Forms\Components\Select::make('region_id')
+                            ->label('Region')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->reactive()
+                            ->options(function (callable $get) {
+                                $divisiId = $get('divisi_id');
+                                if (!$divisiId) {
+                                    return [];
+                                }
+                                return Region::where('divisi_id', $divisiId)
+                                    ->pluck('name', 'id');
+                            })
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $set('cluster_id', null);
+                                $set('cluster_id2', null);
+                            }),
 
-                    Forms\Components\Select::make('cluster_id')
-                        ->label('Cluster')
-                        ->searchable()
-                        ->preload()
-                        ->required()
-                        ->reactive()
-                        ->options(function (callable $get) {
-                            $regionId = $get('region_id');
-                            if (!$regionId) {
-                                return [];
-                            }
-                            return Cluster::where('region_id', $regionId)
-                                ->pluck('name', 'id');
-                        }),
-                ])
-                ->columns(2), // Menyusun dropdown dalam dua kolom
+                        Forms\Components\Select::make('cluster_id')
+                            ->label('Cluster')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->reactive()
+                            ->options(function (callable $get) {
+                                $regionId = $get('region_id');
+                                if (!$regionId) {
+                                    return [];
+                                }
+                                return Cluster::where('region_id', $regionId)
+                                    ->pluck('name', 'id');
+                            }),
+                    ])
+                    ->columns(2), // Menyusun dropdown dalam dua kolom
 
-            // Grup Status & Limit Outlet
-            Forms\Components\Section::make('Status & Limit Outlet')
-                ->schema([
-                    Forms\Components\Select::make('status_outlet')
-                        ->label('Status Outlet')
-                        ->searchable()
-                        ->options([
-                            'MAINTAIN' => 'MAINTAIN',
-                            'UNMAINTAIN' => 'UNMAINTAIN',
-                            'UNPRODUCTIVE' => 'UNPRODUCTIVE',
-                        ])
-                        ->required(),
+                // Grup Status & Limit Outlet
+                Forms\Components\Section::make('Status & Limit Outlet')
+                    ->schema([
+                        Forms\Components\Select::make('status_outlet')
+                            ->label('Status Outlet')
+                            ->searchable()
+                            ->options([
+                                'MAINTAIN' => 'MAINTAIN',
+                                'UNMAINTAIN' => 'UNMAINTAIN',
+                                'UNPRODUCTIVE' => 'UNPRODUCTIVE',
+                            ])
+                            ->required(),
 
-                    Forms\Components\TextInput::make('limit')
-                        ->numeric()
-                        ->label('Limit')
-                        ->placeholder('Masukkan limit outlet'),
+                        Forms\Components\TextInput::make('limit')
+                            ->numeric()
+                            ->label('Limit')
+                            ->placeholder('Masukkan limit outlet'),
 
-                    Forms\Components\TextInput::make('radius')
-                        ->numeric()
-                        ->label('Radius')
-                        ->placeholder('Masukkan radius outlet'),
-                ])
-                ->columns(2), // Menyusun status dan limit dalam dua kolom
-        ]);
-}
+                        Forms\Components\TextInput::make('radius')
+                            ->numeric()
+                            ->label('Radius')
+                            ->placeholder('Masukkan radius outlet'),
+                    ])
+                    ->columns(2), // Menyusun status dan limit dalam dua kolom
+            ]);
+    }
 
 
     public static function table(Table $table): Table
@@ -254,10 +248,10 @@ class OutletResource extends Resource
             ->deferLoading()
             ->filters([
                 Tables\Filters\SelectFilter::make('region.name')
-                ->relationship('region', 'name')
-                ->searchable()
-                ->preload()
-                ->label('Region'),
+                    ->relationship('region', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Region'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -267,6 +261,20 @@ class OutletResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where(function ($query) {
+                $user = auth()->user();
+                // Display all tickets to Super Admin
+                if ($user->role->name == 'Super Admin') {
+                    return;
+                } else {
+                    $query->where('outlets.badanusaha_id', $user->badanusaha_id);
+                }
+            });
     }
 
     public static function getRelations(): array
