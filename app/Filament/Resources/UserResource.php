@@ -152,7 +152,7 @@ class UserResource extends Resource
                                 $user = auth()->user();
                                 if ($user->role->name !== 'SUPER ADMIN') {
                                     return \App\Models\Role::whereIn('name', ['AR', 'ASC', 'ASM', 'DSF/DM'])
-                                    ->pluck('name', 'id')->toArray();
+                                        ->pluck('name', 'id')->toArray();
                                 }
                                 return \App\Models\Role::pluck('name', 'id')->toArray();
                             }),
@@ -181,7 +181,6 @@ class UserResource extends Resource
             ]);
     }
 
-
     public static function table(Table $table): Table
     {
         return $table
@@ -206,7 +205,26 @@ class UserResource extends Resource
             ])
             ->defaultSort('nama_lengkap', 'asc')
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('role.name')
+                    ->relationship('role', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Role'),
+                Tables\Filters\SelectFilter::make('badanusaha.name')
+                    ->relationship('badanusaha', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Badan Usaha'),
+                Tables\Filters\SelectFilter::make('divisi.name')
+                    ->relationship('divisi', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Divisi'),
+                Tables\Filters\SelectFilter::make('region.name')
+                    ->relationship('region', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->label('Region'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

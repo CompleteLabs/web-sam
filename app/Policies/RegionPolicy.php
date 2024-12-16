@@ -13,7 +13,7 @@ class RegionPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -21,7 +21,7 @@ class RegionPolicy
      */
     public function view(User $user, Region $region): bool
     {
-        return true;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -29,7 +29,7 @@ class RegionPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -37,7 +37,7 @@ class RegionPolicy
      */
     public function update(User $user, Region $region): bool
     {
-        return true;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -45,7 +45,7 @@ class RegionPolicy
      */
     public function delete(User $user, Region $region): bool
     {
-        return true;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -53,7 +53,7 @@ class RegionPolicy
      */
     public function restore(User $user, Region $region): bool
     {
-        return true;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -61,6 +61,6 @@ class RegionPolicy
      */
     public function forceDelete(User $user, Region $region): bool
     {
-        return true;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 }

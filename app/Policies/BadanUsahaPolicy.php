@@ -13,11 +13,7 @@ class BadanUsahaPolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -25,11 +21,7 @@ class BadanUsahaPolicy
      */
     public function view(User $user, BadanUsaha $badanUsaha): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -37,11 +29,7 @@ class BadanUsahaPolicy
      */
     public function create(User $user): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -49,11 +37,7 @@ class BadanUsahaPolicy
      */
     public function update(User $user, BadanUsaha $badanUsaha): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -61,11 +45,7 @@ class BadanUsahaPolicy
      */
     public function delete(User $user, BadanUsaha $badanUsaha): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -73,11 +53,7 @@ class BadanUsahaPolicy
      */
     public function restore(User $user, BadanUsaha $badanUsaha): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -85,10 +61,6 @@ class BadanUsahaPolicy
      */
     public function forceDelete(User $user, BadanUsaha $badanUsaha): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 }

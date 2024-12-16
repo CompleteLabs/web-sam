@@ -140,13 +140,13 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
 
 Route::get('download/app',[SettingController::class,'download']);
 
-Route::get('/tes',function (Request $request){
-    // Log::channel('custom')->info('halo');
-    // phpinfo();
-    dd(today());
-});
+// Route::get('/tes',function (Request $request){
+//     // Log::channel('custom')->info('halo');
+//     // phpinfo();
+//     dd(today());
+// });
 
 
-Route::get('destroyuser',[UserController::class,'destroyall']);
-Route::get('destroyoutlet',[OutletController::class,'destroyall']);
+// Route::get('destroyuser',[UserController::class,'destroyall']);
+// Route::get('destroyoutlet',[OutletController::class,'destroyall']);
 

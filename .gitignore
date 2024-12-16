@@ -16,3 +16,7 @@ yarn-error.log
 
 .DS_Store
 */.DS_Store
+
+**/caddy
+frankenphp
+frankenphp-worker.php

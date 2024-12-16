@@ -13,7 +13,7 @@ class ClusterPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+         return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -21,7 +21,7 @@ class ClusterPolicy
      */
     public function view(User $user, Cluster $cluster): bool
     {
-        return true;
+         return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -29,7 +29,7 @@ class ClusterPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+         return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -37,7 +37,7 @@ class ClusterPolicy
      */
     public function update(User $user, Cluster $cluster): bool
     {
-        return true;
+         return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -45,7 +45,7 @@ class ClusterPolicy
      */
     public function delete(User $user, Cluster $cluster): bool
     {
-        return true;
+         return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -53,7 +53,7 @@ class ClusterPolicy
      */
     public function restore(User $user, Cluster $cluster): bool
     {
-        return true;
+         return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -61,6 +61,6 @@ class ClusterPolicy
      */
     public function forceDelete(User $user, Cluster $cluster): bool
     {
-        return true;
+         return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 }

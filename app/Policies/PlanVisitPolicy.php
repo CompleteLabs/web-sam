@@ -13,13 +13,7 @@ class PlanVisitPolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -27,13 +21,7 @@ class PlanVisitPolicy
      */
     public function view(User $user, PlanVisit $planVisit): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -41,11 +29,7 @@ class PlanVisitPolicy
      */
     public function create(User $user): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -53,11 +37,7 @@ class PlanVisitPolicy
      */
     public function update(User $user, PlanVisit $planVisit): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -65,11 +45,7 @@ class PlanVisitPolicy
      */
     public function delete(User $user, PlanVisit $planVisit): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -77,11 +53,7 @@ class PlanVisitPolicy
      */
     public function restore(User $user, PlanVisit $planVisit): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -89,11 +61,7 @@ class PlanVisitPolicy
      */
     public function forceDelete(User $user, PlanVisit $planVisit): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     public function export(User $user): bool

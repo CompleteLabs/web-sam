@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\VisitResource\Pages;
 
 use App\Filament\Resources\VisitResource;
-use App\Models\User;
 use App\Models\Visit;
 use Filament\Actions;
 use Filament\Forms\Components\DatePicker;
@@ -23,7 +22,7 @@ class ListVisits extends ListRecords
         ];
 
         // Check if the user is authorized to export
-        if (Gate::allows('export', User::class)) {
+        if (Gate::allows('export', Visit::class)) {
             $actions[] = Actions\Action::make('export')
                 ->color("success")
                 ->icon('heroicon-o-arrow-up-tray')
@@ -54,34 +53,33 @@ class ListVisits extends ListRecords
     }
 
     public function getTabs(): array
-{
-    // Ambil query yang sudah difilter berdasarkan role
-    $query = VisitResource::getEloquentQuery(); // Panggil getEloquentQuery() dari Resource
+    {
+        // Ambil query yang sudah difilter berdasarkan role
+        $query = VisitResource::getEloquentQuery(); // Panggil getEloquentQuery() dari Resource
 
-    return [
-        'all' => Tab::make(),
+        return [
+            'all' => Tab::make(),
 
-        'EXTRACALL' => Tab::make()
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('tipe_visit', 'EXTRACALL'))
-            ->badge($this->getStatusBadgeCount($query, 'EXTRACALL'))
-            ->badgeColor('warning'),
+            'EXTRACALL' => Tab::make()
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('tipe_visit', 'EXTRACALL'))
+                ->badge($this->getStatusBadgeCount($query, 'EXTRACALL'))
+                ->badgeColor('warning'),
 
-        'PLANNED' => Tab::make()
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('tipe_visit', 'PLANNED'))
-            ->badge($this->getStatusBadgeCount($query, 'PLANNED'))
-            ->badgeColor('info'),
-    ];
-}
-
-// Fungsi untuk menghitung jumlah berdasarkan status dengan filter yang sudah diterapkan
-private function getStatusBadgeCount(Builder $query, ?string $status): int
-{
-    // Jika status tidak diberikan (null), hitung semua data
-    if ($status === null) {
-        return $query->clone()->count(); // Hitung semua data
+            'PLANNED' => Tab::make()
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('tipe_visit', 'PLANNED'))
+                ->badge($this->getStatusBadgeCount($query, 'PLANNED'))
+                ->badgeColor('info'),
+        ];
     }
 
-    return $query->clone()->where('tipe_visit', $status)->count(); // Hitung berdasarkan status
-}
+    // Fungsi untuk menghitung jumlah berdasarkan status dengan filter yang sudah diterapkan
+    private function getStatusBadgeCount(Builder $query, ?string $status): int
+    {
+        // Jika status tidak diberikan (null), hitung semua data
+        if ($status === null) {
+            return $query->clone()->count(); // Hitung semua data
+        }
 
+        return $query->clone()->where('tipe_visit', $status)->count(); // Hitung berdasarkan status
+    }
 }

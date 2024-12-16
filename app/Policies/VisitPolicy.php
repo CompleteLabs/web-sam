@@ -13,13 +13,7 @@ class VisitPolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
     }
 
     /**
@@ -27,13 +21,7 @@ class VisitPolicy
      */
     public function view(User $user, Visit $visit): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
     }
 
     /**
@@ -41,11 +29,7 @@ class VisitPolicy
      */
     public function create(User $user): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -53,11 +37,7 @@ class VisitPolicy
      */
     public function update(User $user, Visit $visit): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -65,11 +45,7 @@ class VisitPolicy
      */
     public function delete(User $user, Visit $visit): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -77,13 +53,7 @@ class VisitPolicy
      */
     public function restore(User $user, Visit $visit): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -91,18 +61,11 @@ class VisitPolicy
      */
     public function forceDelete(User $user, Visit $visit): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     public function export(User $user): bool
     {
-        // Check if the user has the 'SUPER ADMIN' or 'ADMIN' role
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
     }
 }

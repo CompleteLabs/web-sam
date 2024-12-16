@@ -260,7 +260,8 @@ class NooResource extends Resource
                 } else {
                     $query->where('noos.badanusaha_id', $user->badanusaha_id);
                 }
-            });
+            })
+            ->whereNull('keterangan');
     }
 
     public static function getPages(): array

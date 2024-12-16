@@ -4,7 +4,6 @@ namespace App\Filament\Resources\NooResource\Pages;
 
 use App\Filament\Resources\NooResource;
 use App\Models\Noo;
-use App\Models\User;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Components\Tab;
@@ -22,7 +21,7 @@ class ListNoos extends ListRecords
         ];
 
         // Check if the user is authorized to export
-        if (Gate::allows('export', User::class)) {
+        if (Gate::allows('export', Noo::class)) {
             $actions[] = Actions\Action::make('export')
                 ->color("success")
                 ->icon('heroicon-o-arrow-up-tray')

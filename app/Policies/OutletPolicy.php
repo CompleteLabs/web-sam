@@ -13,13 +13,7 @@ class OutletPolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
     }
 
     /**
@@ -27,13 +21,7 @@ class OutletPolicy
      */
     public function view(User $user, Outlet $outlet): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
     }
 
     /**
@@ -41,13 +29,7 @@ class OutletPolicy
      */
     public function create(User $user): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -55,13 +37,7 @@ class OutletPolicy
      */
     public function update(User $user, Outlet $outlet): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -69,13 +45,7 @@ class OutletPolicy
      */
     public function delete(User $user, Outlet $outlet): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -83,13 +53,7 @@ class OutletPolicy
      */
     public function restore(User $user, Outlet $outlet): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -97,12 +61,11 @@ class OutletPolicy
      */
     public function forceDelete(User $user, Outlet $outlet): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
-        }
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
+    }
 
-        return false;
+    public function export(User $user): bool
+    {
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
     }
 }

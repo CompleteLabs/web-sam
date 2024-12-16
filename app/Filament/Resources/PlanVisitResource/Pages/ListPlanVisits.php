@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\PlanVisitResource\Pages;
 
 use App\Filament\Resources\PlanVisitResource;
-use App\Models\User;
+use App\Models\PlanVisit;
 use Filament\Actions;
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Pages\ListRecords;
@@ -20,18 +20,16 @@ class ListPlanVisits extends ListRecords
         ];
 
         // Check if the user is authorized to export
-        if (Gate::allows('export', User::class)) {
+        if (Gate::allows('export', PlanVisit::class)) {
             $actions[] = Actions\Action::make('export')
                 ->color("success")
                 ->icon('heroicon-o-arrow-up-tray')
                 ->form([
                     DatePicker::make('tanggal1')
                         ->label('Dari')
-                        ->maxDate(now())
                         ->required(),
                     DatePicker::make('tanggal2')
                         ->label('Sampai')
-                        ->maxDate(now())
                         ->required(),
                 ])
                 ->modalWidth('md')

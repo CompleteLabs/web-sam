@@ -13,15 +13,7 @@ class NooPolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'AR') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
     }
 
     /**
@@ -29,15 +21,7 @@ class NooPolicy
      */
     public function view(User $user, Noo $noo): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        } elseif ($user->role->name === 'ADMIN') {
-            return true;
-        }  elseif ($user->role->name === 'AR') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
     }
 
     /**
@@ -45,11 +29,7 @@ class NooPolicy
      */
     public function create(User $user): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
     /**
@@ -57,11 +37,7 @@ class NooPolicy
      */
     public function update(User $user, Noo $noo): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -69,11 +45,7 @@ class NooPolicy
      */
     public function delete(User $user, Noo $noo): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -81,11 +53,7 @@ class NooPolicy
      */
     public function restore(User $user, Noo $noo): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -93,17 +61,13 @@ class NooPolicy
      */
     public function forceDelete(User $user, Noo $noo): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     public function export(User $user): bool
     {
         // Check if the user has the 'SUPER ADMIN' or 'ADMIN' role
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
     }
 
     public function approve(User $user, Noo $noo)

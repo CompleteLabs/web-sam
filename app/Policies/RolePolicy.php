@@ -13,11 +13,7 @@ class RolePolicy
      */
     public function viewAny(User $user): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -25,11 +21,7 @@ class RolePolicy
      */
     public function view(User $user, Role $role): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -37,11 +29,7 @@ class RolePolicy
      */
     public function create(User $user): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -49,11 +37,7 @@ class RolePolicy
      */
     public function update(User $user, Role $role): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -61,11 +45,7 @@ class RolePolicy
      */
     public function delete(User $user, Role $role): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -73,11 +53,7 @@ class RolePolicy
      */
     public function restore(User $user, Role $role): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 
     /**
@@ -85,10 +61,6 @@ class RolePolicy
      */
     public function forceDelete(User $user, Role $role): bool
     {
-        if ($user->role->name === 'SUPER ADMIN') {
-            return true;
-        }
-
-        return false;
+        return $user->role->name === 'SUPER ADMIN';
     }
 }
