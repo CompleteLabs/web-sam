@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('viewApiDocs', function (User $user) {
-            return $user->role->name === 'ADMIN';
+            return $user->role->name === 'SUPER ADMIN';
         });
     }
 }
