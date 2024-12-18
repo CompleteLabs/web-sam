@@ -56,4 +56,35 @@ class Visit extends Model
             return $value;
         }
     }
+
+    protected static function booted()
+    {
+        static::saving(function ($visit) {
+            $visit->calculateDurasiVisit();
+        });
+    }
+
+    protected function calculateDurasiVisit(): void
+    {
+        // Pastikan kedua nilai check_in_time dan check_out_time valid
+        if (!empty($this->check_in_time) && !empty($this->check_out_time)) {
+            try {
+                // Parsing check-in dan check-out time
+                $checkIn = Carbon::parse($this->check_in_time);
+                $checkOut = Carbon::parse($this->check_out_time);
+
+                // Hitung durasi dalam menit
+                $durationInMinutes = $checkIn->diffInMinutes($checkOut);
+
+                // Set nilai durasi
+                $this->durasi_visit = $durationInMinutes;
+            } catch (\Exception $e) {
+                // Jika terjadi kesalahan parsing, atur durasi menjadi null
+                $this->durasi_visit = null;
+            }
+        } else {
+            // Jika salah satu nilai tidak ada, atur durasi menjadi null
+            $this->durasi_visit = null;
+        }
+    }
 }

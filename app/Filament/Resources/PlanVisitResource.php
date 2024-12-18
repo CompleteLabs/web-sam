@@ -102,17 +102,16 @@ class PlanVisitResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
+        $user = auth()->user();
+
+        if ($user->role->name == 'SUPER ADMIN') {
+            return parent::getEloquentQuery();
+        }
+
         return parent::getEloquentQuery()
             ->join('users', 'plan_visits.user_id', '=', 'users.id')
-            ->where(function ($query) {
-                $user = auth()->user();
-                if ($user->role->name == 'SUPER ADMIN') {
-                    return;
-                }
-                $query->where('users.badanusaha_id', $user->badanusaha_id);
-            })
             ->select('plan_visits.*', 'users.id as user_id')
-            ->orderBy('plan_visits.id', 'desc');
+            ->where('users.badanusaha_id', $user->badanusaha_id);
     }
 
 

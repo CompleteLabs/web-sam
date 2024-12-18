@@ -68,4 +68,10 @@ class UserPolicy
         // Check if the user has the 'SUPER ADMIN' or 'ADMIN' role
         return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
+
+    public function import(User $user): bool
+    {
+        // Check if the user has the 'SUPER ADMIN' or 'ADMIN' role
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
+    }
 }

@@ -4,9 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\VisitResource\Pages;
 use App\Filament\Resources\VisitResource\RelationManagers;
+use App\Models\User;
 use App\Models\Visit;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -14,6 +17,8 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\HtmlString;
 
 use function Laravel\Prompts\search;
 
@@ -40,9 +45,9 @@ class VisitResource extends Resource
                             ->required()
                             ->label('Tipe Visit')
                             ->placeholder('Select a type')
-                            ->searchable()
-                            ->columnSpanFull(),
-                    ]),
+                            ->searchable(),
+                    ])
+                    ->columns(2),
                 Forms\Components\Section::make('User and Outlet')
                     ->schema([
                         Forms\Components\Select::make('user_id')
@@ -50,6 +55,7 @@ class VisitResource extends Resource
                             ->searchable()
                             ->preload()
                             ->required()
+                            ->reactive()
                             ->label('Pilih User')
                             ->placeholder('Cari User berdasarkan nama lengkap'),
                         Forms\Components\Select::make('outlet_id')
@@ -58,7 +64,8 @@ class VisitResource extends Resource
                             ->preload()
                             ->required()
                             ->label('Pilih Outlet'),
-                    ]),
+                    ])
+                    ->columns(2),
                 Forms\Components\Section::make('Location & Timing')
                     ->schema([
                         Forms\Components\TextInput::make('latlong_in')
@@ -68,15 +75,15 @@ class VisitResource extends Resource
                         Forms\Components\TextInput::make('latlong_out')
                             ->maxLength(255)
                             ->label('LatLong Out')
-                            ->placeholder('Latitude and Longitude at the end'),
+                            ->placeholder('Latitude and Longitude at the end')
+                            ->visible(fn(string $context): bool => $context === 'edit'),
                         Forms\Components\DateTimePicker::make('check_in_time')
                             ->label('Check-in Time'),
                         Forms\Components\DateTimePicker::make('check_out_time')
-                            ->label('Check-out Time'),
-                        Forms\Components\TextInput::make('durasi_visit')
-                            ->numeric()
-                            ->label('Durasi Visit (in minutes)'),
-                    ]),
+                            ->label('Check-out Time')
+                            ->visible(fn(string $context): bool => $context === 'edit'),
+                    ])
+                    ->columns(2),
                 Forms\Components\Section::make('Files')
                     ->schema([
                         Forms\Components\FileUpload::make('picture_visit_in')
@@ -84,25 +91,32 @@ class VisitResource extends Resource
                             ->columnSpanFull()
                             ->required()
                             ->disk('public')
-                            ->directory('pictures/visits')
-                            ->nullable()
-                            ->label('Picture at Start of Visit'),
+                            ->label('Picture at Start of Visit')
+                            ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
+                                $user = User::find($get('user_id'));
+                                $username = $user ? $user->username : 'vacant';
+                                return Carbon::now()->format('Y-m-d') . '-' . $username . '-IN-' . Carbon::now()->getPreciseTimestamp(3) . '.' . $file->getClientOriginalExtension();
+                            }),
                         Forms\Components\FileUpload::make('picture_visit_out')
                             ->image()
                             ->columnSpanFull()
                             ->required()
                             ->disk('public')
-                            ->directory('pictures/visits')
-                            ->nullable()
-                            ->label('Picture at End of Visit'),
+                            ->label('Picture at End of Visit')
+                            ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
+                                $user = User::find($get('user_id'));
+                                $username = $user ? $user->username : 'vacant';
+                                return Carbon::now()->format('Y-m-d') . '-' . $username . '-OUT-' . Carbon::now()->getPreciseTimestamp(3) . '.' . $file->getClientOriginalExtension();
+                            })
+                            ->visible(fn(string $context): bool => $context === 'edit'),
                     ]),
                 Forms\Components\Section::make('Transaction Information')
                     ->schema([
                         Forms\Components\Select::make('transaksi')
                             ->label('Transaksi')
                             ->options([
-                                'YES' => 'Yes',
-                                'NO' => 'No',
+                                'YES' => 'YES',
+                                'NO' => 'NO',
                             ])
                             ->required()
                             ->placeholder('Select Yes or No')
@@ -110,7 +124,8 @@ class VisitResource extends Resource
                         Forms\Components\Textarea::make('laporan_visit')
                             ->columnSpanFull()
                             ->label('Laporan Visit'),
-                    ]),
+                    ])
+                    ->visible(fn(string $context): bool => $context === 'edit'),
             ]);
     }
 
@@ -129,15 +144,29 @@ class VisitResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tipe_visit'),
                 Tables\Columns\TextColumn::make('latlong_in')
-                    ->label('Lokasi CI'),
+                    ->label('Lokasi CI')
+                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('LOKASI'))
+                    ->url(fn ($state): string => 'https://www.google.com/maps/place/' . $state)
+                    ->openUrlInNewTab(),
                 Tables\Columns\TextColumn::make('latlong_out')
-                    ->label('Lokasi CO'),
+                    ->label('Lokasi CO')
+                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('LOKASI'))
+                    ->url(fn ($state): string => 'https://www.google.com/maps/place/' . $state)
+                    ->openUrlInNewTab(),
                 Tables\Columns\TextColumn::make('check_in_time')
                     ->label('Jam CI')
                     ->time(),
                 Tables\Columns\TextColumn::make('check_out_time')
                     ->label('Jam CO')
                     ->time(),
+                Tables\Columns\TextColumn::make('picture_visit_in')
+                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
+                    ->url(fn($state): string => asset('storage/' . $state))
+                    ->openUrlInNewTab(),
+                Tables\Columns\TextColumn::make('picture_visit_out')
+                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
+                    ->url(fn($state): string => asset('storage/' . $state))
+                    ->openUrlInNewTab(),
                 Tables\Columns\TextColumn::make('transaksi'),
                 Tables\Columns\TextColumn::make('durasi_visit'),
                 Tables\Columns\TextColumn::make('created_at')
@@ -178,20 +207,18 @@ class VisitResource extends Resource
                 ]),
             ]);
     }
-
     public static function getEloquentQuery(): Builder
     {
+        $user = auth()->user();
+
+        if ($user->role->name == 'SUPER ADMIN') {
+            return parent::getEloquentQuery();
+        }
+
         return parent::getEloquentQuery()
             ->join('users', 'visits.user_id', '=', 'users.id')
-            ->where(function ($query) {
-                $user = auth()->user();
-                if ($user->role->name == 'SUPER ADMIN') {
-                    return;
-                }
-                $query->where('users.badanusaha_id', $user->badanusaha_id);
-            })
             ->select('visits.*', 'users.id as user_id')
-            ->orderBy('visits.id', 'desc');
+            ->where('users.badanusaha_id', $user->badanusaha_id);
     }
 
     public static function getRelations(): array

@@ -71,8 +71,8 @@
                                             <td>{{ $user->role->name }}</td>
                                             <td>{{ $user->badanusaha->name }}</td>
                                             <td>{{ $user->divisi->name }}</td>
-                                            <td>{{ $user->region->name }}</td>
-                                            <td>{{ $user->cluster->name }}</td>
+                                            <td>{{ $user->region->name ?? 'N/A' }}</td>
+                                            <td>{{ $user->cluster->name ?? 'N/A' }}</td>
                                             <td>
                                                 <a href="/user/{{ $user->id }}" class="badge bg-warning"><span><i
                                                             class="fas fa-edit"></i></span></a>
