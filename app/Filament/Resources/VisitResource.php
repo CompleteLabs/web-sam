@@ -18,6 +18,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 
 use function Laravel\Prompts\search;
@@ -91,7 +92,14 @@ class VisitResource extends Resource
                             ->columnSpanFull()
                             ->required()
                             ->disk('public')
+                            ->resize(30)
                             ->label('Picture at Start of Visit')
+                            ->dehydrateStateUsing(function ($state, $record) {
+                                if ($record && $record->picture_visit_in) {
+                                    Storage::disk('public')->delete($record->picture_visit_in);
+                                }
+                                return $state;
+                            })
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $user = User::find($get('user_id'));
                                 $username = $user ? $user->username : 'vacant';
@@ -102,7 +110,14 @@ class VisitResource extends Resource
                             ->columnSpanFull()
                             ->required()
                             ->disk('public')
+                            ->resize(30)
                             ->label('Picture at End of Visit')
+                            ->dehydrateStateUsing(function ($state, $record) {
+                                if ($record && $record->picture_visit_out) {
+                                    Storage::disk('public')->delete($record->picture_visit_out);
+                                }
+                                return $state;
+                            })
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $user = User::find($get('user_id'));
                                 $username = $user ? $user->username : 'vacant';

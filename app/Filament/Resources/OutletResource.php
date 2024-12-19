@@ -17,6 +17,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 
 class OutletResource extends Resource
@@ -38,9 +39,12 @@ class OutletResource extends Resource
                             ->rule(function (callable $get) {
                                 return function ($attribute, $value, $fail) use ($get) {
                                     $divisiId = $get('divisi_id'); // Retrieve badanusaha_id using $get
+                                    $outletId = $get('id'); // Ambil id outlet untuk proses edit (pastikan field ini tersedia)
+                                    // Cek apakah kode_outlet sudah digunakan di divisi yang sama, kecuali oleh outlet ini sendiri
                                     $exists = \DB::table('outlets')
                                         ->where('kode_outlet', $value)
                                         ->where('divisi_id', $divisiId)
+                                        ->where('id', '!=', $outletId) // Abaikan data ini sendiri jika dalam mode edit
                                         ->exists();
                                     if ($exists) {
                                         $fail(__('Kode Outlet sudah digunakan untuk divisi ini.'));
@@ -89,55 +93,96 @@ class OutletResource extends Resource
                             ->required()
                             ->image()
                             ->disk('public')
+                            ->resize(30)
                             ->label('Foto Tanda Toko')
+                            ->dehydrateStateUsing(function ($state, $record) {
+                                if ($record && $record->poto_shop_sign) {
+                                    Storage::disk('public')->delete($record->poto_shop_sign);
+                                }
+                                return $state;
+                            })
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
-                                return $outletName . '-fotoshopsign-' . Carbon::now()->format('d-m-Y') .  '.' . $file->getClientOriginalExtension();
+                                return $outletName . '-fotoshopsign-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
                             }),
                         Forms\Components\FileUpload::make('poto_depan')
                             ->required()
                             ->image()
                             ->disk('public')
+                            ->resize(30)
                             ->label('Foto Depan')
+                            ->dehydrateStateUsing(function ($state, $record) {
+                                if ($record && $record->poto_depan) {
+                                    Storage::disk('public')->delete($record->poto_depan);
+                                }
+                                return $state;
+                            })
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
-                                return $outletName . '-fotodepan-' . Carbon::now()->format('d-m-Y') .  '.' . $file->getClientOriginalExtension();
+                                return $outletName . '-fotodepan-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
                             }),
                         Forms\Components\FileUpload::make('poto_kiri')
                             ->required()
                             ->image()
                             ->disk('public')
+                            ->resize(30)
                             ->label('Foto Kiri')
+                            ->dehydrateStateUsing(function ($state, $record) {
+                                if ($record && $record->poto_kiri) {
+                                    Storage::disk('public')->delete($record->poto_kiri);
+                                }
+                                return $state;
+                            })
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
-                                return $outletName . '-fotokiri-' . Carbon::now()->format('d-m-Y') .  '.' . $file->getClientOriginalExtension();
+                                return $outletName . '-fotokiri-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
                             }),
                         Forms\Components\FileUpload::make('poto_kanan')
                             ->required()
                             ->image()
                             ->disk('public')
+                            ->resize(30)
                             ->label('Foto Kanan')
+                            ->dehydrateStateUsing(function ($state, $record) {
+                                if ($record && $record->poto_kanan) {
+                                    Storage::disk('public')->delete($record->poto_kanan);
+                                }
+                                return $state;
+                            })
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
-                                return $outletName . '-fotokanan-' . Carbon::now()->format('d-m-Y') .  '.' . $file->getClientOriginalExtension();
+                                return $outletName . '-fotokanan-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
                             }),
                         Forms\Components\FileUpload::make('poto_ktp')
                             ->required()
                             ->image()
                             ->disk('public')
+                            ->resize(30)
                             ->label('Foto KTP Pemilik')
+                            ->dehydrateStateUsing(function ($state, $record) {
+                                if ($record && $record->poto_ktp) {
+                                    Storage::disk('public')->delete($record->poto_ktp);
+                                }
+                                return $state;
+                            })
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
-                                return $outletName . '-fotoktp-' . Carbon::now()->format('d-m-Y') .  '.' . $file->getClientOriginalExtension();
+                                return $outletName . '-fotoktp-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
                             }),
                         Forms\Components\FileUpload::make('video')
                             ->required()
                             ->disk('public')
                             ->acceptedFileTypes(['video/mp4', 'video/avi', 'video/mkv'])
                             ->label('Video Toko')
+                            ->dehydrateStateUsing(function ($state, $record) {
+                                if ($record && $record->video) {
+                                    Storage::disk('public')->delete($record->video);
+                                }
+                                return $state;
+                            })
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
-                                return $outletName . '-video-' . Carbon::now()->format('d-m-Y') .  '.' . $file->getClientOriginalExtension();
+                                return $outletName . '-video-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
                             }),
                     ])
                     ->columns(2),
@@ -252,7 +297,7 @@ class OutletResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('kode_outlet')
-                ->searchable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('badanusaha.name'),
                 Tables\Columns\TextColumn::make('divisi.name'),
                 Tables\Columns\TextColumn::make('region.name'),
@@ -290,7 +335,7 @@ class OutletResource extends Resource
                 Tables\Columns\TextColumn::make('radius'),
                 Tables\Columns\TextColumn::make('latlong')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('LOKASI'))
-                    ->url(fn ($state): string => 'https://www.google.com/maps/place/' . $state)
+                    ->url(fn($state): string => 'https://www.google.com/maps/place/' . $state)
                     ->openUrlInNewTab(),
                 Tables\Columns\TextColumn::make('status_outlet'),
                 Tables\Columns\TextColumn::make('created_at')
