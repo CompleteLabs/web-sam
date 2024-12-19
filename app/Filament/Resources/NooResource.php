@@ -179,12 +179,6 @@ class NooResource extends Resource
                             ->disk('public')
                             ->resize(30)
                             ->label('Foto Tanda Toko')
-                            ->dehydrateStateUsing(function ($state, $record) {
-                                if ($record && $record->poto_shop_sign) {
-                                    Storage::disk('public')->delete($record->poto_shop_sign);
-                                }
-                                return $state;
-                            })
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
                                 return 'noo-' . $outletName . '-fotoshopsign-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
@@ -195,12 +189,6 @@ class NooResource extends Resource
                             ->disk('public')
                             ->resize(30)
                             ->label('Foto Depan')
-                            ->dehydrateStateUsing(function ($state, $record) {
-                                if ($record && $record->poto_depan) {
-                                    Storage::disk('public')->delete($record->poto_depan);
-                                }
-                                return $state;
-                            })
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
                                 return 'noo-' . $outletName . '-fotodepan-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
@@ -211,12 +199,6 @@ class NooResource extends Resource
                             ->disk('public')
                             ->resize(30)
                             ->label('Foto Kiri')
-                            ->dehydrateStateUsing(function ($state, $record) {
-                                if ($record && $record->poto_kiri) {
-                                    Storage::disk('public')->delete($record->poto_kiri);
-                                }
-                                return $state;
-                            })
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
                                 return 'noo-' . $outletName . '-fotokiri-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
@@ -227,12 +209,6 @@ class NooResource extends Resource
                             ->disk('public')
                             ->resize(30)
                             ->label('Foto Kanan')
-                            ->dehydrateStateUsing(function ($state, $record) {
-                                if ($record && $record->poto_kanan) {
-                                    Storage::disk('public')->delete($record->poto_kanan);
-                                }
-                                return $state;
-                            })
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
                                 return 'noo-' . $outletName . '-fotokanan-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
@@ -243,12 +219,6 @@ class NooResource extends Resource
                             ->disk('public')
                             ->resize(30)
                             ->label('Foto KTP Pemilik')
-                            ->dehydrateStateUsing(function ($state, $record) {
-                                if ($record && $record->poto_ktp) {
-                                    Storage::disk('public')->delete($record->poto_ktp);
-                                }
-                                return $state;
-                            })
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
                                 return 'noo-' . $outletName . '-fotoktp-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
@@ -257,12 +227,6 @@ class NooResource extends Resource
                             ->required()
                             ->disk('public')
                             ->label('Video Toko')
-                            ->dehydrateStateUsing(function ($state, $record) {
-                                if ($record && $record->video) {
-                                    Storage::disk('public')->delete($record->video);
-                                }
-                                return $state;
-                            })
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
                                 return 'noo-' . $outletName . '-video-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();

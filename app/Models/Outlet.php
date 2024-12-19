@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Outlet extends Model
 {
@@ -20,9 +21,9 @@ class Outlet extends Model
 
     public function scopeFilter($query)
     {
-        if(request('search')){
-            $query->where('nama_outlet',"like",'%'.request('search').'%')
-            ->orWhere('kode_outlet', "like",'%'.request('search').'%');
+        if (request('search')) {
+            $query->where('nama_outlet', "like", '%' . request('search') . '%')
+                ->orWhere('kode_outlet', "like", '%' . request('search') . '%');
         }
     }
 
@@ -68,5 +69,28 @@ class Outlet extends Model
     public function getUpdatedAtAttribute($value)
     {
         return Carbon::parse($value)->timestamp;
+    }
+
+    protected static function booted()
+    {
+        static::updating(function ($model) {
+            $fields = [
+                'poto_shop_sign',
+                'poto_depan',
+                'poto_kiri',
+                'poto_kanan',
+                'poto_ktp',
+                'video',
+            ];
+
+            foreach ($fields as $field) {
+                if ($model->isDirty($field) && $model->getOriginal($field)) {
+                    $oldFile = $model->getOriginal($field);
+                    if (Storage::disk('public')->exists($oldFile)) {
+                        Storage::disk('public')->delete($oldFile);
+                    }
+                }
+            }
+        });
     }
 }

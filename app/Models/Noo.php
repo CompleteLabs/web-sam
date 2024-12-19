@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Noo extends Model
 {
@@ -81,6 +82,27 @@ class Noo extends Model
         return Carbon::parse($value)->timestamp;
     }
 
+    protected static function booted()
+    {
+        static::updating(function ($model) {
+            $fields = [
+                'poto_shop_sign',
+                'poto_depan',
+                'poto_kiri',
+                'poto_kanan',
+                'poto_ktp',
+                'video',
+            ];
 
+            foreach ($fields as $field) {
+                if ($model->isDirty($field) && $model->getOriginal($field)) {
+                    $oldFile = $model->getOriginal($field);
+                    if (Storage::disk('public')->exists($oldFile)) {
+                        Storage::disk('public')->delete($oldFile);
+                    }
+                }
+            }
+        });
+    }
 }
 

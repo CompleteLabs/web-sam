@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Visit extends Model
 {
@@ -50,9 +51,9 @@ class Visit extends Model
 
     public function getCheckOutTimeAttribute($value)
     {
-        if($value){
+        if ($value) {
             return Carbon::parse($value)->timestamp;
-        }else{
+        } else {
             return $value;
         }
     }
@@ -62,28 +63,40 @@ class Visit extends Model
         static::saving(function ($visit) {
             $visit->calculateDurasiVisit();
         });
+
+        static::updating(function ($model) {
+            // Jika field picture_visit_in berubah, hapus gambar lama
+            if ($model->isDirty('picture_visit_in') && $model->getOriginal('picture_visit_in')) {
+                $oldFile = $model->getOriginal('picture_visit_in');
+                if (Storage::disk('public')->exists($oldFile)) {
+                    Storage::disk('public')->delete($oldFile);
+                }
+            }
+
+            // Jika field picture_visit_out berubah, hapus gambar lama
+            if ($model->isDirty('picture_visit_out') && $model->getOriginal('picture_visit_out')) {
+                $oldFileOut = $model->getOriginal('picture_visit_out');
+                if (Storage::disk('public')->exists($oldFileOut)) {
+                    Storage::disk('public')->delete($oldFileOut);
+                }
+            }
+        });
     }
 
     protected function calculateDurasiVisit(): void
     {
-        // Pastikan kedua nilai check_in_time dan check_out_time valid
         if (!empty($this->check_in_time) && !empty($this->check_out_time)) {
             try {
-                // Parsing check-in dan check-out time
                 $checkIn = Carbon::parse($this->check_in_time);
                 $checkOut = Carbon::parse($this->check_out_time);
 
-                // Hitung durasi dalam menit
                 $durationInMinutes = $checkIn->diffInMinutes($checkOut);
 
-                // Set nilai durasi
                 $this->durasi_visit = $durationInMinutes;
             } catch (\Exception $e) {
-                // Jika terjadi kesalahan parsing, atur durasi menjadi null
                 $this->durasi_visit = null;
             }
         } else {
-            // Jika salah satu nilai tidak ada, atur durasi menjadi null
             $this->durasi_visit = null;
         }
     }
