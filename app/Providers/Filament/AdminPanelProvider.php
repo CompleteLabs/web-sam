@@ -32,6 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->databaseNotifications()
             ->brandLogo(asset('icon/samsam.png'))
             ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth(MaxWidth::Full)

@@ -64,7 +64,7 @@ class OutletPolicy
         return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
     }
 
-    public function export(User $user): bool
+    public function exportAll(User $user): bool
     {
         return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
     }
