@@ -25,6 +25,11 @@ class User extends Authenticatable implements FilamentUser, HasName
     use TwoFactorAuthenticatable;
     use SoftDeletes;
 
+    public function canImpersonate()
+    {
+        return $this->nama_lengkap === 'APP DEVELOPER';
+    }
+
     public function getFilamentName(): string
     {
         return "{$this->nama_lengkap}";
