@@ -44,6 +44,7 @@ class OutletResource extends Resource
                                         ->where('kode_outlet', $value)
                                         ->where('divisi_id', $divisiId)
                                         ->where('id', '!=', $outletId) // Abaikan data ini sendiri jika dalam mode edit
+                                        ->where('deleted_at', null)
                                         ->exists();
                                     if ($exists) {
                                         $fail(__('Kode Outlet sudah digunakan untuk divisi ini.'));
@@ -89,7 +90,6 @@ class OutletResource extends Resource
                 Forms\Components\Section::make('Foto & Video')
                     ->schema([
                         Forms\Components\FileUpload::make('poto_shop_sign')
-                            ->required()
                             ->image()
                             ->disk('public')
                             ->resize(30)
@@ -99,7 +99,6 @@ class OutletResource extends Resource
                                 return $outletName . '-fotoshopsign-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
                             }),
                         Forms\Components\FileUpload::make('poto_depan')
-                            ->required()
                             ->image()
                             ->disk('public')
                             ->resize(30)
@@ -109,7 +108,6 @@ class OutletResource extends Resource
                                 return $outletName . '-fotodepan-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
                             }),
                         Forms\Components\FileUpload::make('poto_kiri')
-                            ->required()
                             ->image()
                             ->disk('public')
                             ->resize(30)
@@ -119,7 +117,6 @@ class OutletResource extends Resource
                                 return $outletName . '-fotokiri-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
                             }),
                         Forms\Components\FileUpload::make('poto_kanan')
-                            ->required()
                             ->image()
                             ->disk('public')
                             ->resize(30)
@@ -129,7 +126,6 @@ class OutletResource extends Resource
                                 return $outletName . '-fotokanan-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
                             }),
                         Forms\Components\FileUpload::make('poto_ktp')
-                            ->required()
                             ->image()
                             ->disk('public')
                             ->resize(30)
@@ -139,7 +135,6 @@ class OutletResource extends Resource
                                 return $outletName . '-fotoktp-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
                             }),
                         Forms\Components\FileUpload::make('video')
-                            ->required()
                             ->disk('public')
                             ->acceptedFileTypes(['video/mp4', 'video/avi', 'video/mkv'])
                             ->label('Video Toko')
@@ -241,6 +236,13 @@ class OutletResource extends Resource
                             ])
                             ->required(),
 
+                        Forms\Components\TextInput::make('is_member')
+                            ->label('Is Member')
+                            ->default('1')
+                            ->required()
+                            ->numeric()
+                            ->readonly(),
+
                         Forms\Components\TextInput::make('limit')
                             ->numeric()
                             ->label('Limit')
@@ -251,7 +253,7 @@ class OutletResource extends Resource
                             ->label('Radius')
                             ->placeholder('Masukkan radius outlet'),
                     ])
-                    ->columns(3), // Menyusun status dan limit dalam dua kolom
+                    ->columns(4), // Menyusun status dan limit dalam dua kolom
             ]);
     }
 

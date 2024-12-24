@@ -13,6 +13,7 @@ use App\Models\BadanUsaha;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\Outlet;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
@@ -42,6 +43,13 @@ class LeadController extends Controller
                 'keterangan' => "LEAD",
                 'poto_ktp' => "-",
             ];
+
+            $outletData = [
+                'kode_outlet' => '[LEAD]',
+                'limit' => '0',
+                'radius' => '100',
+            ];
+
             switch ($user->role_id) {
                 case 1:
                     $badanusaha_id = BadanUsaha::where('name', $request->bu)->first()->id;
@@ -70,27 +78,30 @@ class LeadController extends Controller
                     break;
             }
 
-                for ($i = 0; $i <= 3; $i++) {
-                        $namaFoto = $request->file('photo' . $i)->getClientOriginalName();
-                        if (Str::contains($namaFoto, 'fotodepan')) {
-                            $data['poto_depan'] = $namaFoto;
-                        } else if (Str::contains($namaFoto, 'fotokanan')) {
-                            $data['poto_kanan'] = $namaFoto;
-                        } else if (Str::contains($namaFoto, 'fotokiri')) {
-                            $data['poto_kiri'] = $namaFoto;
-                        } else {
-                            $data['poto_shop_sign'] = $namaFoto;
-                        }
-                        $request->file('photo' . $i)->move(storage_path('app/public/'), $namaFoto);
-                    }
-
-                if ($request->hasFile('video')) {
-                    $name = $request->file('video')->getClientOriginalName();
-                    $data['video'] = 'noo-' . time() . $name;
-                    $request->file('video')->move(storage_path('app/public/'), 'noo-' . time() . $name);
+            for ($i = 0; $i <= 3; $i++) {
+                $namaFoto = $request->file('photo' . $i)->getClientOriginalName();
+                if (Str::contains($namaFoto, 'fotodepan')) {
+                    $data['poto_depan'] = $namaFoto;
+                } else if (Str::contains($namaFoto, 'fotokanan')) {
+                    $data['poto_kanan'] = $namaFoto;
+                } else if (Str::contains($namaFoto, 'fotokiri')) {
+                    $data['poto_kiri'] = $namaFoto;
+                } else {
+                    $data['poto_shop_sign'] = $namaFoto;
                 }
+                $request->file('photo' . $i)->move(storage_path('app/public/'), $namaFoto);
+            }
 
-                $insert = Noo::create($data);
+            if ($request->hasFile('video')) {
+                $name = $request->file('video')->getClientOriginalName();
+                $data['video'] = 'noo-' . time() . $name;
+                $request->file('video')->move(storage_path('app/public/'), 'noo-' . time() . $name);
+            }
+
+            Noo::create($data);
+            // Gabungkan $data dengan $outletData dan buat Outlet
+            $outletCompleteData = array_merge($data, $outletData);
+            Outlet::create($outletCompleteData);
             return ResponseFormatter::success(null, 'berhasil menambahkan LEAD ' . $request->nama_outlet);
         } catch (Exception $e) {
             return ResponseFormatter::error($e->getMessage(), $e->getMessage());
@@ -99,22 +110,22 @@ class LeadController extends Controller
 
     public function update(Request $request)
     {
-        try{
+        try {
             $request->validate([
                 'id' => ['required'],
                 'noktp' => ['required'],
-                ]);
+            ]);
 
-        $lead = Noo::find($request->id);
-        $namaFoto = $request->file('photo')->getClientOriginalName();
-        $request->file('photo')->move(storage_path('app/public/'), $namaFoto);
-        $lead['poto_ktp'] = $namaFoto;
-        $lead['ktp_outlet'] = $request->noktp;
-        $lead['keterangan'] = NULL;
-        $lead->update();
-        SendNotif::sendMessage('Noo baru ' . $lead->nama_outlet . ' ditambahkan oleh ' . Auth::user()->nama_lengkap, array(User::where('role_id', 4)->first()->id_notif));
-        return ResponseFormatter::success(null, 'berhasil menambahkan Lead ' . $request->nama_outlet);
-        }catch (Exception $e){
+            $lead = Noo::find($request->id);
+            $namaFoto = $request->file('photo')->getClientOriginalName();
+            $request->file('photo')->move(storage_path('app/public/'), $namaFoto);
+            $lead['poto_ktp'] = $namaFoto;
+            $lead['ktp_outlet'] = $request->noktp;
+            $lead['keterangan'] = NULL;
+            $lead->update();
+            SendNotif::sendMessage('Noo baru ' . $lead->nama_outlet . ' ditambahkan oleh ' . Auth::user()->nama_lengkap, array(User::where('role_id', 4)->first()->id_notif));
+            return ResponseFormatter::success(null, 'berhasil menambahkan Lead ' . $request->nama_outlet);
+        } catch (Exception $e) {
             return ResponseFormatter::error($e->getMessage(), $e->getMessage());
         }
     }

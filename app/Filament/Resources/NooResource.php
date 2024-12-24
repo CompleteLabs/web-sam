@@ -50,6 +50,7 @@ class NooResource extends Resource
                                         ->where('kode_outlet', $value)
                                         ->where('divisi_id', $divisiId)
                                         ->where('id', '!=', $outletId) // Abaikan data ini sendiri jika dalam mode edit
+                                        ->where('deleted_at', null)
                                         ->exists();
                                     if ($exists) {
                                         $fail(__('Kode Outlet sudah digunakan untuk divisi ini.'));
