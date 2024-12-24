@@ -17,7 +17,7 @@ class OutletExporter extends Exporter
         $baseUrl = 'http://grosir.mediaselularindonesia.com/storage/';
 
         return [
-                        ExportColumn::make('badanusaha.name')->label('Badan Usaha'),
+            ExportColumn::make('badanusaha.name')->label('Badan Usaha'),
             ExportColumn::make('divisi.name')->label('Divisi'),
             ExportColumn::make('region.name')->label('Region'),
             ExportColumn::make('cluster.name')->label('Cluster'),
@@ -66,6 +66,11 @@ class OutletExporter extends Exporter
                     return $state ? $baseUrl . $state : '-';
                 })
                 ->label('Video'),
+            ExportColumn::make('is_member')
+                ->formatStateUsing(function ($state) {
+                    return $state == 1 ? 'MEMBER' : ($state == 0 ? 'LEAD' : '-');
+                })
+                ->label('Status Outlet'),
 
 
             // ExportColumn::make('tm', fn($record) => self::getUserByRole($record, 2, 'tm')),

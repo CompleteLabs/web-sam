@@ -7,6 +7,7 @@ use App\Filament\Resources\NooResource\RelationManagers;
 use App\Models\Cluster;
 use App\Models\Division;
 use App\Models\Noo;
+use App\Models\Outlet;
 use App\Models\Region;
 use Carbon\Carbon;
 use Filament\Forms;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 
@@ -385,6 +387,7 @@ class NooResource extends Resource
                     ->url(fn($state): string => 'https://www.google.com/maps/place/' . $state)
                     ->openUrlInNewTab(),
                 Tables\Columns\TextColumn::make('limit'),
+                Tables\Columns\TextColumn::make('keterangan'),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
@@ -401,11 +404,11 @@ class NooResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('approve')
-                    ->label('Approve')
+                Tables\Actions\Action::make('confirm')
+                    ->label('Confirm')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn($record) => $record->status !== 'CONFIRMED' && $record->status !== 'REJECTED' && $record->status !== 'APPROVED' && Gate::allows('approve', $record))
+                    ->visible(fn($record) => $record->status === 'PENDING' && Gate::allows('confirm', $record))
                     ->form([
                         TextInput::make('kode_outlet')
                             ->regex('/^[\S]+$/', 'Kode outlet tidak boleh mengandung spasi')
@@ -420,10 +423,26 @@ class NooResource extends Resource
                             'kode_outlet' => $data['kode_outlet'],
                             'limit' => $data['limit'],
                             'confirmed_at' => Carbon::now(),
-                            'confirmed_by' => auth()->user()->name,
+                            'confirmed_by' => auth()->user()->nama_lengkap,
                             'status' => 'CONFIRMED',
                             Notification::make()
                                 ->title($record->nama_outlet . ' Confirm')
+                                ->success()
+                                ->send(),
+                        ]);
+                    }),
+                Tables\Actions\Action::make('approve')
+                    ->label('Approve')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn($record) => $record->status === 'CONFIRMED' && Gate::allows('approve', $record))
+                    ->action(function ($record, $data) {
+                        $record->update([
+                            'approved_at' => Carbon::now(),
+                            'approved_by' => auth()->user()->nama_lengkap,
+                            'status' => 'APPROVED',
+                            Notification::make()
+                                ->title($record->nama_outlet . ' Approved')
                                 ->success()
                                 ->send(),
                         ]);
@@ -432,7 +451,7 @@ class NooResource extends Resource
                     ->label('Reject')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->visible(fn($record) => $record->status !== 'CONFIRMED' && $record->status !== 'REJECTED' && $record->status !== 'APPROVED' && Gate::allows('reject', $record))
+                    ->visible(fn($record) => $record->status !== 'REJECTED' && $record->status !== 'APPROVED' && Gate::allows('reject', $record))
                     ->form([
                         Textarea::make('alasan')
                             ->required(),
@@ -453,6 +472,43 @@ class NooResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('createOutlets')
+                        ->label('Create Outlets')
+                        ->icon('heroicon-o-plus-circle')
+                        ->visible(fn() => Auth::user()->role->name === 'SUPER ADMIN')
+                        ->action(function ($records) { // Removed $request here
+                            foreach ($records as $record) {
+                                $data = [
+                                    'kode_outlet' => 'LEAD' . $record->id,
+                                    'nama_outlet' => $record->nama_outlet,
+                                    'alamat_outlet' => $record->alamat_outlet,
+                                    'nama_pemilik_outlet' => $record->nama_pemilik_outlet,
+                                    'nomer_tlp_outlet' => $record->nomer_tlp_outlet,
+                                    'badanusaha_id' => $record->badanusaha_id,
+                                    'divisi_id' => $record->divisi_id,
+                                    'region_id' => $record->region_id,
+                                    'cluster_id' => $record->cluster_id,
+                                    'distric' => $record->distric,
+                                    'poto_shop_sign' => $record->poto_shop_sign,
+                                    'poto_depan' => $record->poto_depan,
+                                    'poto_kanan' => $record->poto_kanan,
+                                    'poto_kiri' => $record->poto_kiri,
+                                    'poto_ktp' => $record->poto_ktp,
+                                    'video' => $record->video,
+                                    'limit' => $record->limit ?? 0,
+                                    'radius' => 100,
+                                    'latlong' => $record->latlong,
+                                    'status_outlet' => 'MAINTAIN',
+                                    'is_member' => '0',
+                                ];
+                                Outlet::create($data);
+                            }
+                            Notification::make()
+                                ->title('Outlets created successfully!')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
     }
@@ -475,11 +531,11 @@ class NooResource extends Resource
                 } else {
                     $query->where('noos.badanusaha_id', $user->badanusaha_id);
                 }
-            })
-            ->where(function ($query) {
-                $query->whereNull('keterangan')
-                    ->orWhere('keterangan', '!=', 'LEAD');
             });
+        // ->where(function ($query) {
+        //     $query->whereNull('keterangan')
+        //         ->orWhere('keterangan', '!=', 'LEAD');
+        // });
     }
 
     public static function getPages(): array

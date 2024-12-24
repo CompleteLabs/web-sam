@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('outlets', function (Blueprint $table) {
-            $table->enum('is_member', ['0', '1'])->default('0')->after('status_outlet');
+            $table->enum('is_member', ['0', '1'])->default('1')->after('status_outlet');
         });
     }
 

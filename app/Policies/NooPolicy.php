@@ -70,6 +70,12 @@ class NooPolicy
         return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
     }
 
+    public function confirm(User $user, Noo $noo)
+    {
+        // Logika untuk memeriksa apakah user bisa melakukan approve
+        return $user->role->name === 'AR';
+    }
+
     public function approve(User $user, Noo $noo)
     {
         // Logika untuk memeriksa apakah user bisa melakukan approve

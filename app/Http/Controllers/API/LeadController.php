@@ -44,12 +44,6 @@ class LeadController extends Controller
                 'poto_ktp' => "-",
             ];
 
-            $outletData = [
-                'kode_outlet' => '[LEAD]',
-                'limit' => '0',
-                'radius' => '100',
-            ];
-
             switch ($user->role_id) {
                 case 1:
                     $badanusaha_id = BadanUsaha::where('name', $request->bu)->first()->id;
@@ -98,7 +92,16 @@ class LeadController extends Controller
                 $request->file('video')->move(storage_path('app/public/'), 'noo-' . time() . $name);
             }
 
-            Noo::create($data);
+            $noo = Noo::create($data);
+
+            // Gabungkan $data dengan $outletData dan buat Outlet
+            $outletData = [
+                'kode_outlet' => 'LEAD' . $noo->id,
+                'limit' => '0',
+                'radius' => '100',
+                'is_member' => '0',
+            ];
+
             // Gabungkan $data dengan $outletData dan buat Outlet
             $outletCompleteData = array_merge($data, $outletData);
             Outlet::create($outletCompleteData);

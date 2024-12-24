@@ -20,8 +20,8 @@ class Noo extends Model
 
     public function scopeFilter($query)
     {
-        if(request('search')){
-            $query->where('nama_outlet',"like",'%'.request('search').'%');
+        if (request('search')) {
+            $query->where('nama_outlet', "like", '%' . request('search') . '%');
         }
     }
 
@@ -47,27 +47,26 @@ class Noo extends Model
 
     public function tm(): BelongsTo
     {
-        return $this->belongsTo(User::class,'tm_id');
+        return $this->belongsTo(User::class, 'tm_id');
     }
 
     public function getConfirmedAtAttribute($value)
     {
-        if($value){
-        return Carbon::parse($value)->timestamp;
+        if ($value) {
+            return Carbon::parse($value)->timestamp;
         }
     }
 
     public function getRejectedAtAttribute($value)
     {
-        if($value){
+        if ($value) {
             return Carbon::parse($value)->timestamp;
         }
-
     }
 
     public function getApprovedAtAttribute($value)
     {
-        if($value){
+        if ($value) {
             return Carbon::parse($value)->timestamp;
         }
     }
@@ -102,7 +101,43 @@ class Noo extends Model
                     }
                 }
             }
+
+            // Memasukkan atau memperbarui data ke tabel outlets jika status berubah menjadi APPROVED
+            if ($model->isDirty('status') && $model->status === 'APPROVED') {
+                $kode_lead = 'LEAD' . $model->id;
+                $outlet = Outlet::where('kode_outlet', $kode_lead)->first();
+                if ($outlet) {
+                    $outlet->update([
+                        'kode_outlet' => $model->kode_outlet,
+                        'limit' => $model->limit,
+                        'is_member' => '1',
+                    ]);
+                } else {
+                    Outlet::create([
+                        'kode_outlet' => $model->kode_outlet,
+                        'nama_outlet' => $model->nama_outlet,
+                        'alamat_outlet' => $model->alamat_outlet,
+                        'nama_pemilik_outlet' => $model->nama_pemilik_outlet,
+                        'nomer_tlp_outlet' => $model->nomer_tlp_outlet,
+                        'badanusaha_id' => $model->badanusaha_id,
+                        'divisi_id' => $model->divisi_id,
+                        'region_id' => $model->region_id,
+                        'cluster_id' => $model->cluster_id,
+                        'distric' => $model->distric,
+                        'poto_shop_sign' => $model->poto_shop_sign,
+                        'poto_depan' => $model->poto_depan,
+                        'poto_kanan' => $model->poto_kanan,
+                        'poto_kiri' => $model->poto_kiri,
+                        'poto_ktp' => $model->poto_ktp,
+                        'video' => $model->video,
+                        'limit' => $model->limit,
+                        'radius' => 100,
+                        'latlong' => $model->latlong,
+                        'status_outlet' => 'MAINTAIN',
+                        'is_member' => '1',
+                    ]);
+                }
+            }
         });
     }
 }
-
