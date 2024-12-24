@@ -52,6 +52,12 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-server-stack')
                     ->visible(fn() => auth()->user()?->role->name === 'SUPER ADMIN')
                     ->group('Developer'),
+
+                NavigationItem::make('old-dashboard')
+                    ->label('Old Dashboard')
+                    ->url('/dashboard', shouldOpenInNewTab: false)
+                    ->icon('heroicon-o-tv')
+                    ->group('Settings'),
             ])
             ->pages([
                 Pages\Dashboard::class,
@@ -60,6 +66,10 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
             ])
+            ->plugin(
+                \Hasnayeen\Themes\ThemesPlugin::make()
+                    ->canViewThemesPage(fn() => auth()->user()?->role->name === 'SUPER ADMIN'),
+            )
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -70,6 +80,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                \Hasnayeen\Themes\Http\Middleware\SetTheme::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
