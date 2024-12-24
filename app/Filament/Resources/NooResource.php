@@ -531,11 +531,11 @@ class NooResource extends Resource
                 } else {
                     $query->where('noos.badanusaha_id', $user->badanusaha_id);
                 }
-            });
-        // ->where(function ($query) {
-        //     $query->whereNull('keterangan')
-        //         ->orWhere('keterangan', '!=', 'LEAD');
-        // });
+            })
+        ->where(function ($query) {
+            $query->whereNull('keterangan')
+                ->orWhere('keterangan', '!=', 'LEAD');
+        });
     }
 
     public static function getPages(): array

@@ -58,9 +58,6 @@ class ListNoos extends ListRecords
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'REJECTED'))
                 ->badge($this->getStatusBadgeCount($query, 'REJECTED'))
                 ->badgeColor('danger'),
-
-            'LEAD' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('keterangan', 'LEAD')),
         ];
     }
 
