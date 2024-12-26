@@ -14,7 +14,7 @@ class OutletExporter extends Exporter
 
     public static function getColumns(): array
     {
-        $baseUrl = 'http://grosir.mediaselularindonesia.com/storage/';
+        $baseUrl = 'https://grosir.mediaselularindonesia.com/storage/';
 
         return [
             ExportColumn::make('badanusaha.name')->label('Badan Usaha'),
