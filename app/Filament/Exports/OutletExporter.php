@@ -31,6 +31,34 @@ class OutletExporter extends Exporter
             ExportColumn::make('latlong')->label('Latlong'),
             ExportColumn::make('nama_pemilik_outlet')->label('Nama Pemilik Outlet'),
             ExportColumn::make('nomer_tlp_outlet')->label('Nomor Telepon Outlet'),
+            ExportColumn::make('tm')
+                ->label('TM')
+                ->formatStateUsing(function ($state, $record) {
+                    $tm = User::where('divisi_id', $record->divisi_id)
+                        ->where('region_id', $record->region_id)
+                        ->where('role_id', 2)
+                        ->first();
+                    return $tm->tm->nama_lengkap ?? 'VACANT';
+                }),
+            ExportColumn::make('asc')
+                ->label('ASC')
+                ->formatStateUsing(function ($state, $record) {
+                    $asc = User::where('divisi_id', $record->divisi_id)
+                        ->where('region_id', $record->region_id)
+                        ->where('role_id', 2)
+                        ->first();
+                    return $asc->nama_lengkap ?? 'VACANT';
+                }),
+            ExportColumn::make('dsf')
+                ->label('DSF')
+                ->formatStateUsing(function ($state, $record) {
+                    $dsf = User::where('divisi_id', $record->divisi_id)
+                        ->where('region_id', $record->region_id)
+                        ->where('cluster_id', $record->cluster_id)
+                        ->where('role_id', 3)
+                        ->first();
+                    return $dsf->nama_lengkap ?? 'VACANT';
+                }),
             ExportColumn::make('created_at')
                 ->formatStateUsing(function ($state) {
                     return \Carbon\Carbon::parse($state)->format('d M Y');
@@ -71,11 +99,6 @@ class OutletExporter extends Exporter
                     return $state == 1 ? 'MEMBER' : ($state == 0 ? 'LEAD' : '-');
                 })
                 ->label('Status Outlet'),
-
-
-            // ExportColumn::make('tm', fn($record) => self::getUserByRole($record, 2, 'tm')),
-            // ExportColumn::make('asc', fn($record) => self::getUserByRole($record, 2)),
-            // ExportColumn::make('dsf', fn($record) => self::getUserByRole($record, 3, 'cluster')),
         ];
     }
 
@@ -89,23 +112,4 @@ class OutletExporter extends Exporter
 
         return $body;
     }
-
-    // private static function getUserByRole($outlet, $roleId, $relation = null)
-    // {
-    //     $userQuery = User::where('divisi_id', $outlet->divisi_id)
-    //                      ->where('region_id', $outlet->region_id)
-    //                      ->where('role_id', $roleId);
-
-    //     if ($roleId == 3) {
-    //         $userQuery->where('cluster_id', $outlet->cluster_id);
-    //     }
-
-    //     $user = $userQuery->first();
-
-    //     if ($user) {
-    //         return $relation && isset($user->$relation) ? $user->$relation->nama_lengkap : $user->nama_lengkap;
-    //     }
-
-    //     return 'VACANT';
-    // }
 }
