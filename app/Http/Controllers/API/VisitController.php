@@ -38,7 +38,8 @@ class VisitController extends Controller
                     'user.cluster',
                     'user.role',
                 ])->whereHas('user', function ($query) {
-                    $query->where('divisi_id', '8');
+                    $query->where('divisi_id', '8')
+                        ->whereIn('region_id', [78, 79, 80, 81]);
                 })
                     ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
