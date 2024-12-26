@@ -21,7 +21,7 @@ class OutletController extends Controller
                 ->get();
 
             return ResponseFormatter::success(
-                $outlet,
+                $outlet->map->formatForAPI(),
                 'berhasil'
             );
         } catch (Exception $e) {
@@ -124,7 +124,7 @@ class OutletController extends Controller
 
 
             return ResponseFormatter::success(
-                $outlet,
+                $outlet->map->formatForAPI(),
                 count($outlet),
             );
         } catch (Exception $e) {
@@ -142,7 +142,7 @@ class OutletController extends Controller
             $outlet = Outlet::with(['badanusaha', 'cluster', 'region', 'divisi'])
                 ->where('kode_outlet', $nama)
                 ->get();
-            return ResponseFormatter::success($outlet, 'berhasil');
+            return ResponseFormatter::success($outlet->map->formatForAPI(), 'berhasil');
         } catch (Exception $err) {
             return ResponseFormatter::error(null, 'ada kesalahan');
         }

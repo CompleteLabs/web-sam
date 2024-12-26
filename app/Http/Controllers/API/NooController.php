@@ -118,7 +118,7 @@ class NooController extends Controller
             }
 
             return ResponseFormatter::success(
-                $noos,
+                $noos->map->formatForAPI(),
                 'fetch noo success',
             );
         } catch (Exception $err) {
@@ -134,7 +134,7 @@ class NooController extends Controller
             $noos = Noo::with(['badanusaha', 'cluster', 'region', 'divisi'])->get();
 
             return ResponseFormatter::success(
-                $noos,
+                $noos->map->formatForAPI(),
                 'fetch noo success',
             );
         } catch (Exception $err) {

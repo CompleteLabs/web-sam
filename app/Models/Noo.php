@@ -140,4 +140,49 @@ class Noo extends Model
             }
         });
     }
+
+    public function formatForAPI()
+    {
+        return [
+            'id' => $this->id,
+            'kode_outlet' => $this->kode_outlet,
+            'nama_outlet' => $this->nama_outlet,
+            'alamat_outlet' => $this->alamat_outlet,
+            'nama_pemilik_outlet' => $this->nama_pemilik_outlet,
+            'nomer_tlp_outlet' => $this->nomer_tlp_outlet,
+            'nomer_wakil_outlet' => $this->nomer_wakil_outlet,
+            'ktp_outlet' => $this->ktp_outlet,
+            'distric' => $this->distric,
+            'region' => $this->region ? $this->region->only(['id', 'name']) : null,
+            'poto_shop_sign' => $this->poto_shop_sign,
+            'poto_depan' => $this->poto_depan,
+            'poto_kiri' => $this->poto_kiri,
+            'poto_kanan' => $this->poto_kanan,
+            'poto_ktp' => $this->poto_ktp,
+            'video' => $this->video,
+            'oppo' => $this->oppo,
+            'vivo' => $this->vivo,
+            'realme' => $this->realme,
+            'samsung' => $this->samsung,
+            'xiaomi' => $this->xiaomi,
+            'fl' => $this->fl,
+            'latlong' => $this->latlong,
+            'limit' => $this->limit,
+            'status' => $this->status, // Pastikan status sesuai enum NooStatus
+            'rejected_at' => $this->rejected_at * 1000,
+            'rejected_by' => $this->rejected_by,
+            'confirmed_by' => $this->confirmed_by,
+            'confirmed_at' => $this->confirmed_at * 1000,
+            'approved_by' => $this->approved_by,
+            'approved_at' => $this->approved_at * 1000,
+            'deleted_at' => $this->deleted_at * 1000,
+            'created_at' => $this->created_at * 1000,
+            'updated_at' => $this->updated_at * 1000,
+            'keterangan' => $this->keterangan,
+            'cluster' => $this->cluster ? $this->cluster->only(['id', 'name']) : null,
+            'badanusaha' => $this->badanusaha ? $this->badanusaha->only(['id', 'name']) : null,
+            'divisi' => $this->divisi ? $this->divisi->only(['id', 'name']) : null,
+            'created_by' => $this->created_by,
+        ];
+    }
 }

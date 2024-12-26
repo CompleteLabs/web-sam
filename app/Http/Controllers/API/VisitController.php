@@ -285,7 +285,10 @@ class VisitController extends Controller
                 $visit = $visit->merge($visitnoo);
             }
 
-            return ResponseFormatter::success($visit, 'fetch monitoring visit succes');
+            return ResponseFormatter::success(
+                $visit->map->formatForAPI(),
+                'fetch monitoring visit success'
+            );
         } catch (Exception $err) {
             return ResponseFormatter::error([
                 'message' => $err->getMessage(),
@@ -333,7 +336,8 @@ class VisitController extends Controller
                     ->get();
             }
 
-            return ResponseFormatter::success($visit, 'fetch visit succes');
+            return ResponseFormatter::success(
+                $visit->map->formatForAPI(), 'fetch visit succes');
         } catch (Exception $err) {
             return ResponseFormatter::error([
                 'message' => $err,

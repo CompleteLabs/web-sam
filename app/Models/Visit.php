@@ -100,4 +100,22 @@ class Visit extends Model
             $this->durasi_visit = null;
         }
     }
+
+    public function formatForAPI()
+    {
+        return [
+            'id' => $this->id,
+            'tanggal_visit' => $this->tanggal_visit * 1000,
+            'tipe_visit' => $this->tipe_visit,
+            'latlong_in' => $this->latlong_in,
+            'latlong_out' => $this->latlong_out,
+            'check_in_time' => $this->check_in_time * 1000,
+            'check_out_time' => $this->check_out_time * 1000,
+            'laporan_visit' => $this->laporan_visit,
+            'durasi_visit' => $this->durasi_visit,
+            'transaksi' => $this->transaksi,
+            'outlet' => $this->outlet ? $this->outlet->only(['id', 'nama_outlet', 'alamat_outlet', 'region', 'cluster']) : null,
+            'user' => $this->user ? $this->user->only(['id', 'nama_lengkap', 'username', 'region', 'divisi']) : null,
+        ];
+    }
 }
