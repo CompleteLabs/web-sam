@@ -29,35 +29,6 @@ class Visit extends Model
         return $this->belongsTo(Outlet::class);
     }
 
-    public function getCreatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->timestamp;
-    }
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->timestamp;
-    }
-
-    public function getTanggalVisitAttribute($value)
-    {
-        return Carbon::parse($value)->timestamp;
-    }
-
-    public function getCheckInTimeAttribute($value)
-    {
-        return Carbon::parse($value)->timestamp;
-    }
-
-    public function getCheckOutTimeAttribute($value)
-    {
-        if ($value) {
-            return Carbon::parse($value)->timestamp;
-        } else {
-            return $value;
-        }
-    }
-
     protected static function booted()
     {
         static::saving(function ($visit) {
@@ -105,17 +76,21 @@ class Visit extends Model
     {
         return [
             'id' => $this->id,
-            'tanggal_visit' => $this->tanggal_visit * 1000,
+            'tanggal_visit' => Carbon::parse($this->tanggal_visit)->getPreciseTimestamp(3),
+            'user_id' => $this->user_id,
+            'outlet_id' => $this->outlet_id,
             'tipe_visit' => $this->tipe_visit,
             'latlong_in' => $this->latlong_in,
             'latlong_out' => $this->latlong_out,
-            'check_in_time' => $this->check_in_time * 1000,
-            'check_out_time' => $this->check_out_time * 1000,
+            'check_in_time' => Carbon::parse($this->check_in_time)->getPreciseTimestamp(3),
+            'check_out_time' => $this->check_out_time ? Carbon::parse($this->check_out_time)->getPreciseTimestamp(3) : null,
             'laporan_visit' => $this->laporan_visit,
             'durasi_visit' => $this->durasi_visit,
+            'picture_visit_in' => $this->picture_visit_in,
+            'picture_visit_out' => $this->picture_visit_out,
+            'outlet' => $this->outlet,
+            'user' => $this->user,
             'transaksi' => $this->transaksi,
-            'outlet' => $this->outlet ? $this->outlet->only(['id', 'nama_outlet', 'alamat_outlet', 'region', 'cluster']) : null,
-            'user' => $this->user ? $this->user->only(['id', 'nama_lengkap', 'username', 'region', 'divisi']) : null,
         ];
     }
 }

@@ -32,7 +32,7 @@ class NooController extends Controller
             $query = Noo::with(['badanusaha', 'cluster', 'region', 'divisi']);
 
             switch ($roleId) {
-                #ASM
+                    #ASM
                 case 1:
                     // Cek jika akunnya adalah sodikc maka ambil data dari region Bigtasik, Bigcrb, Bigpwt, Bigbdg, Bigkarawang dengan divisi realme
                     if ($user->id === 158) {
@@ -55,7 +55,7 @@ class NooController extends Controller
                     // ->get();
 
                     break;
-                #ASC
+                    #ASC
                 case 2:
                     $noos = $query
                         ->where('badanusaha_id', $badanusahaId)
@@ -64,37 +64,37 @@ class NooController extends Controller
                         ->latest()
                         ->get();
                     break;
-                #DSF/DM
+                    #DSF/DM
                 case 3:
                     $noos = $query
                         ->where('badanusaha_id', $badanusahaId)
                         ->where('divisi_id', $divisiId)
                         ->where('region_id', $regionId)
                         ->where('cluster_id', $clusterId)
-                        ->orderBy('updated_at','DESC')
+                        ->orderBy('updated_at', 'DESC')
                         ->get();
                     break;
-                #COO
+                    #COO
                 case 6:
                     $noos = $query
                         ->latest()
                         ->get();
                     break;
-                #CSO
+                    #CSO
                 case 8:
                     $noos = $query
                         ->where('divisi_id', 4)
                         ->latest()
                         ->get();
                     break;
-                #RKAM
+                    #RKAM
                 case 9:
                     $noos = $query
                         ->where('tm_id', $user->id)
                         ->latest()
                         ->get();
                     break;
-                #KAM
+                    #KAM
                 case 10:
                     $noos = $query
                         ->where('badanusaha_id', $badanusahaId)
@@ -104,7 +104,7 @@ class NooController extends Controller
                         ->get();
                     break;
 
-                #CSO FAST EV
+                    #CSO FAST EV
                 case 11:
                     $noos = $query
                         ->where('divisi_id', 7)
@@ -113,7 +113,7 @@ class NooController extends Controller
                     break;
 
                 default:
-                    $noos = Noo::with(['badanusaha', 'cluster', 'region', 'divisi'])->where('badanusaha_id',2)->orWhere('badanusaha_id',4)->whereIn('status',['PENDING','CONFIRMED','REJECTED'])->latest()->get();
+                    $noos = Noo::with(['badanusaha', 'cluster', 'region', 'divisi'])->where('badanusaha_id', 2)->orWhere('badanusaha_id', 4)->whereIn('status', ['PENDING', 'CONFIRMED', 'REJECTED'])->latest()->get();
                     break;
             }
 
@@ -167,7 +167,7 @@ class NooController extends Controller
                 'tm_id' => $user->tm->id,
             ];
             switch ($user->role_id) {
-                #ASM
+                    #ASM
                 case 1:
                     $badanusaha_id = BadanUsaha::where('name', $request->bu)->first()->id;
                     $divisi_id = Division::where('badanusaha_id', $badanusaha_id)->where('name', $request->div)->first()->id;
@@ -179,7 +179,7 @@ class NooController extends Controller
                     $data['cluster_id'] = $cluster_id;
                     break;
 
-                #ASC
+                    #ASC
                 case 2:
                     $data['badanusaha_id'] = $user->badanusaha_id;
                     $data['divisi_id'] = $user->divisi_id;
@@ -188,7 +188,7 @@ class NooController extends Controller
                     error_log($data['cluster_id']);
                     break;
 
-                #RKAM
+                    #RKAM
                 case 9:
                     $badanusaha_id = BadanUsaha::where('name', $request->bu)->first()->id;
                     $divisi_id = Division::where('badanusaha_id', $badanusaha_id)->where('name', $request->div)->first()->id;
@@ -200,7 +200,7 @@ class NooController extends Controller
                     $data['cluster_id'] = $cluster_id;
                     break;
 
-                #KAM
+                    #KAM
                 case 10:
                     $data['badanusaha_id'] = $user->badanusaha_id;
                     $data['divisi_id'] = $user->divisi_id;
@@ -240,12 +240,12 @@ class NooController extends Controller
             }
 
             switch ($user->id) {
-                #ASM
+                    #ASM
                 case 1:
                     $notifId = array();
                     array_push($notifId, User::where('role_id', 4)->first()->id_notif);
                     break;
-                #ASC
+                    #ASC
                 case 2:
                     $notifId = array();
                     #notif ar
@@ -253,12 +253,12 @@ class NooController extends Controller
                     #notif tm
                     array_push($notifId, $user->tm->id_notif);
                     break;
-                #RKAM
+                    #RKAM
                 case 9:
                     $notifId = array();
                     array_push($notifId, User::where('role_id', 4)->first()->id_notif);
                     break;
-                #KAM
+                    #KAM
                 case 10:
                     $notifId = array();
                     #notif ar
@@ -497,14 +497,14 @@ class NooController extends Controller
             $query = Noo::with(['badanusaha', 'cluster', 'region', 'divisi'])->where('approved_by', null);
 
             switch ($roleId) {
-                #ASM
+                    #ASM
                 case 1:
                     $noos = $query
                         ->where('tm_id', $user->id)
                         ->orderBy('nama_outlet')
                         ->get();
                     break;
-                #ASC
+                    #ASC
                 case 2:
                     $noos = $query
                         ->where('badanusaha_id', $badanusahaId)
@@ -513,7 +513,7 @@ class NooController extends Controller
                         ->orderBy('nama_outlet')
                         ->get();
                     break;
-                #DSF/DM
+                    #DSF/DM
                 case 3:
                     $noos = $query
                         ->where('badanusaha_id', $badanusahaId)
@@ -525,7 +525,7 @@ class NooController extends Controller
                     break;
 
                 default:
-                    $noos = Noo::with(['badanusaha', 'cluster', 'region', 'divisi'])->where('badanusaha_id',2)->orWhere('badanusaha_id',4)->whereIn('status',['PENDING','CONFIRMED','REJECTED'])->latest()->get();
+                    $noos = Noo::with(['badanusaha', 'cluster', 'region', 'divisi'])->where('badanusaha_id', 2)->orWhere('badanusaha_id', 4)->whereIn('status', ['PENDING', 'CONFIRMED', 'REJECTED'])->latest()->get();
                     break;
             }
 

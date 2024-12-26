@@ -61,16 +61,6 @@ class Outlet extends Model
         return $this->belongsTo(Division::class);
     }
 
-    public function getCreatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->timestamp;
-    }
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->timestamp;
-    }
-
     protected static function booted()
     {
         static::updating(function ($model) {

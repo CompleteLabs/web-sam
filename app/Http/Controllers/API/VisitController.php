@@ -337,7 +337,9 @@ class VisitController extends Controller
             }
 
             return ResponseFormatter::success(
-                $visit->map->formatForAPI(), 'fetch visit succes');
+                $visit->map->formatForAPI(),
+                'fetch visit succes'
+            );
         } catch (Exception $err) {
             return ResponseFormatter::error([
                 'message' => $err,

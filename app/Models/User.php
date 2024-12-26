@@ -144,13 +144,32 @@ class User extends Authenticatable implements FilamentUser, HasName
         'profile_photo_url',
     ];
 
-    public function getCreatedAtAttribute($value)
+    public function formatForAPI()
     {
-        return Carbon::parse($value)->timestamp;
-    }
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->timestamp;
+        return [
+            'username' => $this->username,
+            'nama_lengkap' => $this->nama_lengkap,
+            'region' => $this->region ? [
+                'id' => $this->region->id,
+                'name' => $this->region->name,
+            ] : null,
+            'cluster' => $this->cluster ? [
+                'id' => $this->cluster->id,
+                'name' => $this->cluster->name,
+            ] : null,
+            'role' => $this->role ? [
+                'id' => $this->role->id,
+                'name' => $this->role->name,
+            ] : null,
+            'divisi' => $this->divisi ? [
+                'id' => $this->divisi->id,
+                'name' => $this->divisi->name,
+            ] : null,
+            'badanusaha' => $this->badanusaha ? [
+                'id' => $this->badanusaha->id,
+                'name' => $this->badanusaha->name,
+            ] : null,
+            'id_notif' => $this->id_notif,
+        ];
     }
 }

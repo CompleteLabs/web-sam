@@ -50,37 +50,6 @@ class Noo extends Model
         return $this->belongsTo(User::class, 'tm_id');
     }
 
-    public function getConfirmedAtAttribute($value)
-    {
-        if ($value) {
-            return Carbon::parse($value)->timestamp;
-        }
-    }
-
-    public function getRejectedAtAttribute($value)
-    {
-        if ($value) {
-            return Carbon::parse($value)->timestamp;
-        }
-    }
-
-    public function getApprovedAtAttribute($value)
-    {
-        if ($value) {
-            return Carbon::parse($value)->timestamp;
-        }
-    }
-
-    public function getCreatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->timestamp;
-    }
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->timestamp;
-    }
-
     protected static function booted()
     {
         static::updating(function ($model) {
@@ -168,16 +137,16 @@ class Noo extends Model
             'fl' => $this->fl,
             'latlong' => $this->latlong,
             'limit' => $this->limit,
-            'status' => $this->status, // Pastikan status sesuai enum NooStatus
-            'rejected_at' => $this->rejected_at * 1000,
+            'status' => $this->status,
+            'rejected_at' => $this->rejected_at ? Carbon::parse($this->rejected_at)->getPreciseTimestamp(3) : null,
             'rejected_by' => $this->rejected_by,
+            'confirmed_at' => $this->confirmed_at ? Carbon::parse($this->confirmed_at)->getPreciseTimestamp(3) : null,
             'confirmed_by' => $this->confirmed_by,
-            'confirmed_at' => $this->confirmed_at * 1000,
+            'approved_at' => $this->approved_at ? Carbon::parse($this->approved_at)->getPreciseTimestamp(3) : null,
             'approved_by' => $this->approved_by,
-            'approved_at' => $this->approved_at * 1000,
-            'deleted_at' => $this->deleted_at * 1000,
-            'created_at' => $this->created_at * 1000,
-            'updated_at' => $this->updated_at * 1000,
+            'deleted_at' => $this->deleted_at ? Carbon::parse($this->deleted_at)->getPreciseTimestamp(3) : null,
+            'created_at' => Carbon::parse($this->created_at)->getPreciseTimestamp(3),
+            'updated_at' => Carbon::parse($this->updated_at)->getPreciseTimestamp(3),
             'keterangan' => $this->keterangan,
             'cluster' => $this->cluster ? $this->cluster->only(['id', 'name']) : null,
             'badanusaha' => $this->badanusaha ? $this->badanusaha->only(['id', 'name']) : null,

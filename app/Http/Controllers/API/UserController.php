@@ -23,7 +23,7 @@ class UserController extends Controller
     public function fetch(Request $request)
     {
         $user = User::with(['cluster', 'region', 'role', 'divisi', 'badanusaha'])->where('id', Auth::user()->id)->first();
-        return ResponseFormatter::success(['user' => $user, 'message' => 'Data profile user berhasil diambil']);
+        return ResponseFormatter::success(['user' => $user->formatForAPI(), 'message' => 'Data profile user berhasil diambil']);
     }
 
     /**
