@@ -514,31 +514,25 @@ class VisitController extends Controller
             if ($checkOut) {
                 $lastDataVisit = Visit::whereDate('tanggal_visit', date('Y-m-d'))->where('user_id', Auth::user()->id)->latest()->first();
                 if ($lastDataVisit != null) {
-                    #validasi data
+                    # Validasi data
                     $request->validate([
                         'latlong_out' => ['required'],
                         'laporan_visit' => ['required'],
                         'picture_visit' => ['required', 'mimes:jpg,jpeg,png'],
                         'transaksi' => ['required'],
-
                     ]);
-                    $timeStart = new DateTime();
-                    $TimeEnd = new DateTime();
-                    $start = $lastDataVisit->check_in_time;
-                    $end = time() * 1000;
-                    $timeStart->setTimestamp($start);
-                    $TimeEnd->setTimestamp($end);
-
-                    $awal = Carbon::parse($timeStart);
-                    $akhir = Carbon::parse($TimeEnd);
-
+            
+                    // Hitung durasi menggunakan Carbon
+                    $awal = Carbon::parse($lastDataVisit->check_in_time);
+                    $akhir = Carbon::now();
                     $durasi = $awal->diffInMinutes($akhir);
-
-                    ##buat nama gambar
-                    $imageName = date('Y-m-d') . '-' . Auth::user()->username . '-' . 'OUT-' . Carbon::parse(time())->getPreciseTimestamp(3)  . '.' . $request->picture_visit->extension();
-
-                    ##simpan gambar di folder public/images
+            
+                    ## Buat nama gambar
+                    $imageName = date('Y-m-d') . '-' . Auth::user()->username . '-' . 'OUT-' . Carbon::now()->getPreciseTimestamp(3) . '.' . $request->picture_visit->extension();
+            
+                    ## Simpan gambar di folder public/images
                     $request->picture_visit->move(storage_path('app/public/'), $imageName);
+            
                     $data = [
                         'tanggal_visit' => date('Y-m-d'),
                         'latlong_out' => $request->latlong_out,
@@ -549,11 +543,12 @@ class VisitController extends Controller
                         'transaksi' => $request->transaksi,
                     ];
                     $lastDataVisit->update($data);
+            
                     return ResponseFormatter::success([
                         'visit' => $data
                     ], 'berhasil check out');
                 }
-            }
+            }            
         } catch (Exception $error) {
             return ResponseFormatter::error([
                 'error' => $error

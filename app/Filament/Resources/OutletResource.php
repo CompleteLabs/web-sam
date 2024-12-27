@@ -244,13 +244,18 @@ class OutletResource extends Resource
                             ->readonly(),
 
                         Forms\Components\TextInput::make('limit')
+                            ->required()
                             ->numeric()
                             ->label('Limit')
+                            ->default('0')
                             ->placeholder('Masukkan limit outlet'),
 
                         Forms\Components\TextInput::make('radius')
+                            ->required()
                             ->numeric()
                             ->label('Radius')
+                            ->default('100')
+                            ->helperText('Default 100 meter untuk checkin sales visit')
                             ->placeholder('Masukkan radius outlet'),
                     ])
                     ->columns(4), // Menyusun status dan limit dalam dua kolom

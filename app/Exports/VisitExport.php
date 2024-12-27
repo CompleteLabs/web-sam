@@ -54,7 +54,7 @@ class VisitExport implements FromCollection, WithMapping, WithHeadings, ShouldAu
     public function map($visit): array
     {
         return [
-            date('d M Y', $visit->tanggal_visit),
+            date('d M Y', strtotime($visit->tanggal_visit)), // Pastikan ini diubah
             $visit->user->nama_lengkap ?? '-',
             $visit->user->role->name ?? '-',
             $visit->outlet->kode_outlet ?? '-',
@@ -63,15 +63,15 @@ class VisitExport implements FromCollection, WithMapping, WithHeadings, ShouldAu
             $visit->outlet->region->name ?? '-',
             $visit->outlet->cluster->name ?? '-',
             $visit->tipe_visit,
-            "http://grosir.mediaselularindonesia.com/storage/" . $visit->picture_visit_in ?? '-',
-            $visit->picture_visit_out ? "http://grosir.mediaselularindonesia.com/storage/" . $visit->picture_visit_out ?? '-' : '-',
+            "https://grosir.mediaselularindonesia.com/storage/" . $visit->picture_visit_in ?? '-',
+            $visit->picture_visit_out ? "https://grosir.mediaselularindonesia.com/storage/" . $visit->picture_visit_out ?? '-' : '-',
             "https://www.google.com/maps/place/" . $visit->latlong_in,
             $visit->latlong_out ? "https://www.google.com/maps/place/" . $visit->latlong_out : '-',
-            date('H:i', $visit->check_in_time),
-            $visit->check_out_time ? date('H:i', $visit->check_out_time) : '-',
+            date('H:i', strtotime($visit->check_in_time)),
+            $visit->check_out_time ? date('H:i', strtotime($visit->check_out_time)) : '-',
             $visit->durasi_visit ? $visit->durasi_visit . ' Menit' : '-',
             $visit->transaksi ?? '-',
             $visit->laporan_visit ?? '-',
         ];
-    }
+    }    
 }

@@ -48,7 +48,7 @@ class NooExport implements FromCollection, WithHeadings, WithMapping, ShouldAuto
     public function map($noo): array
     {
         return [
-            date('d M Y', $noo->created_at),
+            date('d M Y', strtotime($noo->created_at)),
             $noo->created_by ?? '-',
             $noo->kode_outlet ?? '-',
             $noo->badanusaha->name,
@@ -64,9 +64,9 @@ class NooExport implements FromCollection, WithHeadings, WithMapping, ShouldAuto
             $noo->cluster->name ?? '-',
             'Rp ' . number_format($noo->limit, 0, ',', '.'),
             $noo->status,
-            $noo->approved_at == null ? '-' : date('d M Y', $noo->created_at),
+            $noo->approved_at == null ? '-' : date('d M Y', strtotime($noo->approved_at)),
             $noo->approved_by ?? '-',
-            $noo->rejected_at == null ? '-' : date('d M Y', $noo->created_at),
+            $noo->rejected_at == null ? '-' : date('d M Y', strtotime($noo->rejected_at)),
             $noo->rejected_by ?? '-',
             $noo->keterangan ?? '-'
         ];

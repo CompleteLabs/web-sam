@@ -177,7 +177,7 @@
                                             @else
                                                 <td>-</td>
                                             @endif
-                                            <td>{{ date('d M Y', $outlet->created_at ) }}</td>
+                                            <td>{{ date('d M Y', strtotime($outlet->created_at) ) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

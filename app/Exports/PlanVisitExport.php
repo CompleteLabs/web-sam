@@ -46,7 +46,7 @@ class PlanVisitExport implements FromCollection, WithHeadings, WithMapping, Shou
             $plan->outlet->region->name ?? '-',
             $plan->outlet->cluster->name ?? '-',
             $plan->outlet->nama_outlet ?? '-',
-            date('d M Y',$plan->tanggal_visit),
+            date('d M Y', strtotime($plan->tanggal_visit)),
         ];
     }
 }

@@ -73,7 +73,7 @@
                                         <td>{{ $planVisit->user->nama_lengkap ?? null }}</td>
                                         <td>{{ $planVisit->outlet->nama_outlet ?? null }}</td>
                                         <td>{{ $planVisit->outlet->kode_outlet ?? null }}</td>
-                                        <td>{{ date('d M Y', $planVisit->tanggal_visit ) }}</td>
+                                        <td>{{ date('d M Y', strtotime($planVisit->tanggal_visit )) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
