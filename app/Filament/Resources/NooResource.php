@@ -336,59 +336,90 @@ class NooResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Tanggal Dibuat') // Capitalized the label for consistency
                     ->date('d M Y'),
                 Tables\Columns\TextColumn::make('created_by')
+                    ->label('Dibuat Oleh')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('kode_outlet'),
-                Tables\Columns\TextColumn::make('divisi.name'),
-                Tables\Columns\TextColumn::make('badanusaha.name'),
+                Tables\Columns\TextColumn::make('kode_outlet')
+                    ->label('Kode Outlet'),
+                Tables\Columns\TextColumn::make('divisi.name')
+                    ->label('Divisi'),
+                Tables\Columns\TextColumn::make('badanusaha.name')
+                    ->label('Badan Usaha'),
                 Tables\Columns\TextColumn::make('nama_outlet')
+                    ->label('Nama Outlet')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('alamat_outlet'),
-                Tables\Columns\TextColumn::make('nama_pemilik_outlet'),
-                Tables\Columns\TextColumn::make('ktp_outlet'),
-                Tables\Columns\TextColumn::make('nomer_tlp_outlet'),
-                Tables\Columns\TextColumn::make('nomer_wakil_outlet'),
-                Tables\Columns\TextColumn::make('distric'),
-                Tables\Columns\TextColumn::make('region.name'),
-                Tables\Columns\TextColumn::make('cluster.name'),
+                Tables\Columns\TextColumn::make('alamat_outlet')
+                    ->label('Alamat Outlet'),
+                Tables\Columns\TextColumn::make('nama_pemilik_outlet')
+                    ->label('Nama Pemilik Outlet'),
+                Tables\Columns\TextColumn::make('ktp_outlet')
+                    ->label('Nomor KTP Outlet'),
+                Tables\Columns\TextColumn::make('nomer_tlp_outlet')
+                    ->label('Nomor Telepon Outlet'),
+                Tables\Columns\TextColumn::make('nomer_wakil_outlet')
+                    ->label('Nomor Wakil Outlet'),
+                Tables\Columns\TextColumn::make('distric')
+                    ->label('Distrik'),
+                Tables\Columns\TextColumn::make('region.name')
+                    ->label('Region'),
+                Tables\Columns\TextColumn::make('cluster.name')
+                    ->label('Cluster'),
                 Tables\Columns\TextColumn::make('poto_ktp')
-                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO KTP'))
-                    ->url(fn($state): string => asset('storage/' . $state))
-                    ->openUrlInNewTab(),
+                    ->label('Foto KTP')
+                    ->color('primary')
+                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('KTP'))
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true),
                 Tables\Columns\TextColumn::make('poto_shop_sign')
+                    ->label('Foto Tanda Outlet')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                    ->url(fn($state): string => asset('storage/' . $state))
-                    ->openUrlInNewTab(),
+                    ->color('primary')
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true),
                 Tables\Columns\TextColumn::make('poto_depan')
+                    ->label('Foto Depan')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                    ->url(fn($state): string => asset('storage/' . $state))
-                    ->openUrlInNewTab(),
+                    ->color('primary')
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true),
                 Tables\Columns\TextColumn::make('poto_kanan')
+                    ->label('Foto Kanan')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                    ->url(fn($state): string => asset('storage/' . $state))
-                    ->openUrlInNewTab(),
+                    ->color('primary')
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true),
                 Tables\Columns\TextColumn::make('poto_kiri')
+                    ->label('Foto Kiri')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                    ->url(fn($state): string => asset('storage/' . $state))
-                    ->openUrlInNewTab(),
+                    ->color('primary')
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true),
                 Tables\Columns\TextColumn::make('video')
+                    ->label('Video Outlet')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('VIDEO'))
-                    ->url(fn($state): string => asset('storage/' . $state))
-                    ->openUrlInNewTab(),
-                Tables\Columns\TextColumn::make('oppo'),
-                Tables\Columns\TextColumn::make('vivo'),
-                Tables\Columns\TextColumn::make('realme'),
-                Tables\Columns\TextColumn::make('samsung'),
-                Tables\Columns\TextColumn::make('xiaomi'),
-                Tables\Columns\TextColumn::make('fl'),
+                    ->color('primary')
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true),
+                Tables\Columns\TextColumn::make('oppo')
+                    ->label('Oppo'),
+                Tables\Columns\TextColumn::make('vivo')
+                    ->label('Vivo'),
+                Tables\Columns\TextColumn::make('realme')
+                    ->label('Realme'),
+                Tables\Columns\TextColumn::make('samsung')
+                    ->label('Samsung'),
+                Tables\Columns\TextColumn::make('xiaomi')
+                    ->label('Xiaomi'),
+                Tables\Columns\TextColumn::make('fl')
+                    ->label('Frontliner'),
                 Tables\Columns\TextColumn::make('latlong')
+                    ->label('Lokasi (LatLong)')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('LOKASI'))
-                    ->url(fn($state): string => 'https://www.google.com/maps/place/' . $state)
-                    ->openUrlInNewTab(),
-                Tables\Columns\TextColumn::make('limit'),
-                Tables\Columns\TextColumn::make('keterangan'),
+                    ->color('primary')
+                    ->url(fn($state): string => 'https://www.google.com/maps/place/' . $state, shouldOpenInNewTab: true),
+                Tables\Columns\TextColumn::make('limit')
+                    ->label('Limit'),
+                Tables\Columns\TextColumn::make('keterangan')
+                    ->label('Keterangan')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Terakhir Diperbarui') // Updated for clarity
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -532,10 +563,10 @@ class NooResource extends Resource
                     $query->where('noos.badanusaha_id', $user->badanusaha_id);
                 }
             })
-        ->where(function ($query) {
-            $query->whereNull('keterangan')
-                ->orWhere('keterangan', '!=', 'LEAD');
-        });
+            ->where(function ($query) {
+                $query->whereNull('keterangan')
+                    ->orWhere('keterangan', '!=', 'LEAD');
+            });
     }
 
     public static function getPages(): array

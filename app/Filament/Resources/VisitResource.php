@@ -143,39 +143,46 @@ class VisitResource extends Resource
                     ->label('Nama')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('outlet.nama_outlet')
-                    ->label('Outlet')
+                    ->label('Nama Outlet')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('tipe_visit'),
+                Tables\Columns\TextColumn::make('tipe_visit')
+                    ->label('Tipe Visit'),
                 Tables\Columns\TextColumn::make('latlong_in')
-                    ->label('Lokasi CI')
+                    ->label('Lokasi Check-In')
+                    ->color('primary')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('LOKASI'))
-                    ->url(fn ($state): string => 'https://www.google.com/maps/place/' . $state)
-                    ->openUrlInNewTab(),
+                    ->url(fn($state): string => 'https://www.google.com/maps/place/' . $state, shouldOpenInNewTab: true),
                 Tables\Columns\TextColumn::make('latlong_out')
-                    ->label('Lokasi CO')
+                    ->label('Lokasi Check-Out')
+                    ->color('primary')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('LOKASI'))
-                    ->url(fn ($state): string => 'https://www.google.com/maps/place/' . $state)
-                    ->openUrlInNewTab(),
+                    ->url(fn($state): string => 'https://www.google.com/maps/place/' . $state, shouldOpenInNewTab: true),
                 Tables\Columns\TextColumn::make('check_in_time')
-                    ->label('Jam CI')
+                    ->label('Jam Check-In')
                     ->time(),
                 Tables\Columns\TextColumn::make('check_out_time')
-                    ->label('Jam CO')
+                    ->label('Jam Check-Out')
                     ->time(),
                 Tables\Columns\TextColumn::make('picture_visit_in')
+                    ->label('Foto Check-In')
+                    ->color('primary')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                    ->url(fn($state): string => asset('storage/' . $state))
-                    ->openUrlInNewTab(),
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true),
                 Tables\Columns\TextColumn::make('picture_visit_out')
+                    ->label('Foto Check-Out')
+                    ->color('primary')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                    ->url(fn($state): string => asset('storage/' . $state))
-                    ->openUrlInNewTab(),
-                Tables\Columns\TextColumn::make('transaksi'),
-                Tables\Columns\TextColumn::make('durasi_visit'),
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true),
+                Tables\Columns\TextColumn::make('transaksi')
+                    ->label('Transaksi'),
+                Tables\Columns\TextColumn::make('durasi_visit')
+                    ->label('Durasi Visit'),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Tanggal Dibuat')
                     ->date('d M Y')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Terakhir Diperbarui')
                     ->date('d M Y')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

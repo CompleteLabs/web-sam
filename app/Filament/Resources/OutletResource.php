@@ -265,56 +265,77 @@ class OutletResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('kode_outlet')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('badanusaha.name'),
-                Tables\Columns\TextColumn::make('divisi.name'),
-                Tables\Columns\TextColumn::make('region.name'),
-                Tables\Columns\TextColumn::make('cluster.name'),
-                Tables\Columns\TextColumn::make('nama_outlet')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('nama_pemilik_outlet'),
-                Tables\Columns\TextColumn::make('nomer_tlp_outlet'),
-                Tables\Columns\TextColumn::make('distric'),
-                Tables\Columns\TextColumn::make('poto_shop_sign')
-                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                    ->url(fn($state): string => asset('storage/' . $state))
-                    ->openUrlInNewTab(),
-                Tables\Columns\TextColumn::make('poto_depan')
-                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                    ->url(fn($state): string => asset('storage/' . $state))
-                    ->openUrlInNewTab(),
-                Tables\Columns\TextColumn::make('poto_kiri')
-                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                    ->url(fn($state): string => asset('storage/' . $state))
-                    ->openUrlInNewTab(),
-                Tables\Columns\TextColumn::make('poto_kanan')
-                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                    ->url(fn($state): string => asset('storage/' . $state))
-                    ->openUrlInNewTab(),
-                Tables\Columns\TextColumn::make('poto_ktp')
-                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO KTP'))
-                    ->url(fn($state): string => asset('storage/' . $state))
-                    ->openUrlInNewTab(),
-                Tables\Columns\TextColumn::make('video')
-                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('VIDEO'))
-                    ->url(fn($state): string => asset('storage/' . $state))
-                    ->openUrlInNewTab(),
-                Tables\Columns\TextColumn::make('limit'),
-                Tables\Columns\TextColumn::make('radius'),
-                Tables\Columns\TextColumn::make('latlong')
-                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('LOKASI'))
-                    ->url(fn($state): string => 'https://www.google.com/maps/place/' . $state)
-                    ->openUrlInNewTab(),
-                Tables\Columns\TextColumn::make('status_outlet'),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->date('d M Y')
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->date('d M Y')
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
+        ->columns([
+            Tables\Columns\TextColumn::make('kode_outlet')
+                ->label('Kode Outlet')
+                ->searchable(),
+            Tables\Columns\TextColumn::make('badanusaha.name')
+                ->label('Badan Usaha'),
+            Tables\Columns\TextColumn::make('divisi.name')
+                ->label('Divisi'),
+            Tables\Columns\TextColumn::make('region.name')
+                ->label('Region'),
+            Tables\Columns\TextColumn::make('cluster.name')
+                ->label('Cluster'),
+            Tables\Columns\TextColumn::make('nama_outlet')
+                ->label('Nama Outlet')
+                ->searchable(),
+            Tables\Columns\TextColumn::make('nama_pemilik_outlet')
+                ->label('Nama Pemilik Outlet'),
+            Tables\Columns\TextColumn::make('nomer_tlp_outlet')
+                ->label('Nomor Telepon Outlet'),
+            Tables\Columns\TextColumn::make('distric')
+                ->label('Distrik'),
+            Tables\Columns\TextColumn::make('poto_shop_sign')
+                ->label('Foto Tanda Outlet')
+                ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
+                ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                ->color('primary'),
+            Tables\Columns\TextColumn::make('poto_depan')
+                ->label('Foto Depan')
+                ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
+                ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                ->color('primary'),
+            Tables\Columns\TextColumn::make('poto_kiri')
+                ->label('Foto Kiri')
+                ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
+                ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                ->color('primary'),
+            Tables\Columns\TextColumn::make('poto_kanan')
+                ->label('Foto Kanan')
+                ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
+                ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                ->color('primary'),
+            Tables\Columns\TextColumn::make('poto_ktp')
+                ->label('Foto KTP')
+                ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO KTP'))
+                ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                ->color('primary'),
+            Tables\Columns\TextColumn::make('video')
+                ->label('Video Outlet')
+                ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('VIDEO'))
+                ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                ->color('primary'),
+            Tables\Columns\TextColumn::make('limit')
+                ->label('Limit'),
+            Tables\Columns\TextColumn::make('radius')
+                ->label('Radius'),
+            Tables\Columns\TextColumn::make('latlong')
+                ->label('Lokasi (LatLong)')
+                ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('LOKASI'))
+                ->url(fn($state): string => 'https://www.google.com/maps/place/' . $state, shouldOpenInNewTab: true)
+                ->color('primary'),
+            Tables\Columns\TextColumn::make('status_outlet')
+                ->label('Status Outlet'),
+            Tables\Columns\TextColumn::make('created_at')
+                ->label('Tanggal Dibuat')
+                ->date('d M Y')
+                ->toggleable(isToggledHiddenByDefault: true),
+            Tables\Columns\TextColumn::make('updated_at')
+                ->label('Terakhir Diperbarui')
+                ->date('d M Y')
+                ->toggleable(isToggledHiddenByDefault: true),
+        ])
             ->defaultSort('kode_outlet', 'asc')
             ->deferLoading()
             ->filters([
