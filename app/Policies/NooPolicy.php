@@ -8,6 +8,20 @@ use Illuminate\Support\Facades\Gate;
 
 class NooPolicy
 {
+    public function restoreAny(User $user): bool
+    {
+        return Gate::allows('restore_any_noo');
+    }
+
+    public function deleteAny(User $user): bool
+    {
+        return Gate::allows('delete_any_noo');
+    }
+
+    public function forceDeleteAny(User $user): bool
+    {
+        return Gate::allows('force_delete_any_noo');
+    }
     public function viewAny(User $user): bool
     {
         return Gate::allows('view_any_noo');
