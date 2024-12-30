@@ -88,6 +88,12 @@ class User extends Authenticatable implements FilamentUser, HasName
         return $this->belongsTo(Role::class);
     }
 
+    public function permissions()
+    {
+        return $this->role->permissions();
+    }
+
+
     public function divisi(): BelongsTo
     {
         return $this->belongsTo(Division::class);

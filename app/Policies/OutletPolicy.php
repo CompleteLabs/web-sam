@@ -4,7 +4,7 @@ namespace App\Policies;
 
 use App\Models\Outlet;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\Gate;
 
 class OutletPolicy
 {
@@ -13,7 +13,7 @@ class OutletPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR' || $user->role->name === 'FINANCE';
+        return Gate::allows('view_any_outlet');
     }
 
     /**
@@ -21,7 +21,7 @@ class OutletPolicy
      */
     public function view(User $user, Outlet $outlet): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR' ||$user->role->name === 'FINANCE';
+        return Gate::allows('view_outlet');
     }
 
     /**
@@ -29,7 +29,7 @@ class OutletPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
+        return Gate::allows('create_outlet');
     }
 
     /**
@@ -37,7 +37,7 @@ class OutletPolicy
      */
     public function update(User $user, Outlet $outlet): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
+        return Gate::allows('update_outlet');
     }
 
     /**
@@ -45,7 +45,7 @@ class OutletPolicy
      */
     public function delete(User $user, Outlet $outlet): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
+        return Gate::allows('delete_outlet');
     }
 
     /**
@@ -53,7 +53,7 @@ class OutletPolicy
      */
     public function restore(User $user, Outlet $outlet): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
+        return Gate::allows('restore_outlet');
     }
 
     /**
@@ -61,11 +61,11 @@ class OutletPolicy
      */
     public function forceDelete(User $user, Outlet $outlet): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
+        return Gate::allows('force_delete_outlet');
     }
 
     public function exportAll(User $user): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR' || $user->role->name === 'FINANCE';
+        return Gate::allows('export_outlet');
     }
 }
