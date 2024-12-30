@@ -13,7 +13,7 @@ class OutletPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR' || $user->role->name === 'FINANCE';
     }
 
     /**
@@ -21,7 +21,7 @@ class OutletPolicy
      */
     public function view(User $user, Outlet $outlet): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR' ||$user->role->name === 'FINANCE';
     }
 
     /**
@@ -66,6 +66,6 @@ class OutletPolicy
 
     public function exportAll(User $user): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR' || $user->role->name === 'FINANCE';
     }
 }

@@ -13,7 +13,7 @@ class VisitPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR' || $user->role->name === 'FINANCE';
     }
 
     /**
@@ -21,7 +21,7 @@ class VisitPolicy
      */
     public function view(User $user, Visit $visit): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR' || $user->role->name === 'FINANCE';
     }
 
     /**
@@ -66,6 +66,6 @@ class VisitPolicy
 
     public function export(User $user): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
+        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR' || $user->role->name === 'FINANCE';
     }
 }

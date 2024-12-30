@@ -221,7 +221,7 @@ class VisitResource extends Resource
     {
         $user = auth()->user();
 
-        if ($user->role->name == 'SUPER ADMIN') {
+        if ($user->role->name == 'SUPER ADMIN' || $user->role->name == 'FINANCE') {
             return parent::getEloquentQuery();
         }
 

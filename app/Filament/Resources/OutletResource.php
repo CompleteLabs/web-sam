@@ -361,7 +361,7 @@ class OutletResource extends Resource
             ->where(function ($query) {
                 $user = auth()->user();
                 // Display all tickets to Super Admin
-                if ($user->role->name == 'SUPER ADMIN') {
+                if ($user->role->name == 'SUPER ADMIN' || $user->role->name == 'FINANCE') {
                     return;
                 } else {
                     $query->where('outlets.badanusaha_id', $user->badanusaha_id);
