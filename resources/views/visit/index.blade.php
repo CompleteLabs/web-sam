@@ -78,7 +78,7 @@
                                     @foreach ($visits as $visit)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ date('d M Y', $visit->tanggal_visit / 1000) }}</td>
+                                            <td>{{ date('d M Y', strtotime($visit->tanggal_visit )) }}</td>
                                             <td>{{ $visit->user->nama_lengkap ?? '-' }}</td>
                                             <td>{{ $visit->outlet->nama_outlet ?? '-' }}</td>
                                             <td>{{ $visit->outlet->divisi->name ?? '-' }}</td>
@@ -95,9 +95,9 @@
                                             @else
                                                 <td>-</td>
                                             @endif
-                                            <td>{{ date('H:i', $visit->check_in_time / 1000) }}</td>
+                                            <td>{{ date('H:i', strtotime($visit->check_in_time)) }}</td>
                                             @if ($visit->check_out_time)
-                                                <td>{{ date('H:i', $visit->check_out_time / 1000) }}</td>
+                                                <td>{{ date('H:i', strtotime($visit->check_out_time)) }}</td>
                                             @else
                                                 <td>-</td>
                                             @endif

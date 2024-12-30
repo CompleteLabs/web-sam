@@ -4,17 +4,18 @@ namespace App\Exports;
 
 use App\Models\Noo;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class NooExport implements FromCollection,WithHeadings,WithMapping
+class NooExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
 {
     /**
-    * @return \Illuminate\Support\Collection
-    */
+     * @return \Illuminate\Support\Collection
+     */
     public function collection()
     {
-        return Noo::with(['cluster','region','badanusaha'])->get();
+        return Noo::with(['cluster', 'region', 'badanusaha'])->get();
     }
 
     public function headings(): array
@@ -44,10 +45,10 @@ class NooExport implements FromCollection,WithHeadings,WithMapping
         ];
     }
 
-    public function map($noo) : array
+    public function map($noo): array
     {
         return [
-            date('d M Y',$noo->created_at/1000),
+            date('d M Y', strtotime($noo->created_at)),
             $noo->created_by ?? '-',
             $noo->kode_outlet ?? '-',
             $noo->badanusaha->name,
@@ -61,11 +62,11 @@ class NooExport implements FromCollection,WithHeadings,WithMapping
             $noo->nomer_wakil_outlet,
             $noo->region->name ?? '-',
             $noo->cluster->name ?? '-',
-            'Rp '.number_format($noo->limit,0,',','.'),
+            'Rp ' . number_format($noo->limit, 0, ',', '.'),
             $noo->status,
-            $noo->approved_at == null ? '-' : date('d M Y',$noo->created_at/1000),
+            $noo->approved_at == null ? '-' : date('d M Y', strtotime($noo->approved_at)),
             $noo->approved_by ?? '-',
-            $noo->rejected_at == null ? '-' : date('d M Y',$noo->created_at/1000),
+            $noo->rejected_at == null ? '-' : date('d M Y', strtotime($noo->rejected_at)),
             $noo->rejected_by ?? '-',
             $noo->keterangan ?? '-'
         ];

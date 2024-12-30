@@ -4,10 +4,11 @@ namespace App\Exports;
 
 use App\Models\PlanVisit;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class PlanVisitExport implements FromCollection, WithHeadings, WithMapping
+class PlanVisitExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
 {
     protected $tanggal1;
     protected $tanggal2;
@@ -15,7 +16,7 @@ class PlanVisitExport implements FromCollection, WithHeadings, WithMapping
     function __construct($tanggal1, $tanggal2)
     {
         $this->tanggal1 = $tanggal1;
-        $this->tanggal2 = $tanggal2;
+        $this->tanggal2 = date('Y-m-d 23:59:59', strtotime($tanggal2));
     }
     /**
      * @return \Illuminate\Support\Collection
@@ -45,7 +46,7 @@ class PlanVisitExport implements FromCollection, WithHeadings, WithMapping
             $plan->outlet->region->name ?? '-',
             $plan->outlet->cluster->name ?? '-',
             $plan->outlet->nama_outlet ?? '-',
-            date('d M Y',$plan->tanggal_visit/1000),
+            date('d M Y', strtotime($plan->tanggal_visit)),
         ];
     }
 }

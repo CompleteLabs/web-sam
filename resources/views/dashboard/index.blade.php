@@ -7,7 +7,7 @@
     <div class="container-fluid">
         <h5 class="my-2">Dashboard</h5>
             <div class="row">
-            @if (Auth::user()->role_id === 5)
+            @if (Auth::user()->role_id === 5 || Auth::user()->role_id === 13)
                 <div class="col-md-3 col-sm-6 col-12">
             <div class="info-box">
                 <span class="info-box-icon bg-info"><i class="fas fa-users"></i></span>
@@ -53,7 +53,7 @@
           <!-- /.info-box -->
         </div>
         <!-- /.col -->
-        @if (Auth::user()->role_id === 5 || Auth::user()->role_id === 4)
+        @if (Auth::user()->role_id === 5 || Auth::user()->role_id === 13 || Auth::user()->role_id === 4)
         <div class="col-md-3 col-sm-6 col-12">
           <div class="info-box">
             <span class="info-box-icon bg-danger"><i class="fas fa-map-marker-alt"></i></span>
@@ -69,7 +69,7 @@
           <!-- /.info-box -->
         </div>
         @endif
-        @if (Auth::user()->role_id === 5)
+        @if (Auth::user()->role_id === 5 || Auth::user()->role_id === 13)
         <div class="col-md-3 col-sm-6 col-12">
             <div class="info-box">
               <span class="info-box-icon bg-danger"><i class="fas fa-map-marked"></i></span>

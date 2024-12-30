@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlanVisit extends Model
 {
@@ -21,28 +22,28 @@ class PlanVisit extends Model
         }
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function outlet()
+    public function outlet(): BelongsTo
     {
         return $this->belongsTo(Outlet::class);
     }
 
     public function getTanggalVisitAttribute($value)
     {
-        return Carbon::parse($value)->getPreciseTimestamp(3);
+        return Carbon::parse($value)->timestamp;
     }
 
     public function getCreatedAtAttribute($value)
     {
-        return Carbon::parse($value)->getPreciseTimestamp(3);
+        return Carbon::parse($value)->timestamp;
     }
 
     public function getUpdatedAtAttribute($value)
     {
-        return Carbon::parse($value)->getPreciseTimestamp(3);
+        return Carbon::parse($value)->timestamp;
     }
 }

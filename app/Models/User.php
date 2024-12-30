@@ -3,15 +3,20 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+use Filament\Models\Contracts\HasName;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Jetstream\HasProfilePhoto;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser, HasName
 {
     use HasApiTokens;
     use HasFactory;
@@ -20,66 +25,82 @@ class User extends Authenticatable
     use TwoFactorAuthenticatable;
     use SoftDeletes;
 
+    public function canImpersonate()
+    {
+        return $this->nama_lengkap === 'APP DEVELOPER';
+    }
+
+    public function getFilamentName(): string
+    {
+        return "{$this->nama_lengkap}";
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // return $this->role->name === 'ADMIN';
+        return $this->role->name === 'ADMIN' || $this->role->name === 'AR' || $this->role->name === 'AUDIT' || $this->role->name === 'SUPER ADMIN' ||  $this->role->name === 'FINANCE';
+    }
+
     public function scopeFilter($query)
     {
-        if(request('search')){
-            $query->where('nama_lengkap',"like",'%'.request('search').'%');
+        if (request('search')) {
+            $query->where('nama_lengkap', "like", '%' . request('search') . '%');
         }
     }
 
-    public function outlet()
+    public function outlet(): HasMany
     {
         return $this->hasMany(Outlet::class);
     }
 
-    public function nootm()
+    public function nootm(): HasMany
     {
-        return $this->hasMany(Noo::class,'tm_id');
+        return $this->hasMany(Noo::class, 'tm_id');
     }
 
-    public function visit()
+    public function visit(): HasMany
     {
         return $this->hasMany(Visit::class);
     }
 
-    public function planvisit()
+    public function planvisit(): HasMany
     {
         return $this->hasMany(Planvisit::class);
     }
 
-    public function cluster()
+    public function cluster(): BelongsTo
     {
         return $this->belongsTo(Cluster::class);
     }
 
-    public function cluster2()
+    public function cluster2(): BelongsTo
     {
         return $this->belongsTo(Cluster::class, 'cluster_id2');
     }
 
-    public function region()
+    public function region(): BelongsTo
     {
         return $this->belongsTo(Region::class);
     }
 
-    public function role()
+    public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
     }
 
-    public function divisi()
+    public function divisi(): BelongsTo
     {
         return $this->belongsTo(Division::class);
     }
 
-    public function badanusaha()
+    public function badanusaha(): BelongsTo
     {
         return $this->belongsTo(BadanUsaha::class);
     }
 
-    public function tm()
+    public function tm(): BelongsTo
     {
-        return $this->belongsTo(User::class,'tm_id');
+        return $this->belongsTo(User::class, 'tm_id');
     }
 
     /**
@@ -123,13 +144,32 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
-    public function getCreatedAtAttribute($value)
+    public function formatForAPI()
     {
-        return Carbon::parse($value)->getPreciseTimestamp(3);
-    }
-
-    public function getUpdatedAtAttribute($value)
-    {
-        return Carbon::parse($value)->getPreciseTimestamp(3);
+        return [
+            'username' => $this->username,
+            'nama_lengkap' => $this->nama_lengkap,
+            'region' => $this->region ? [
+                'id' => $this->region->id,
+                'name' => $this->region->name,
+            ] : null,
+            'cluster' => $this->cluster ? [
+                'id' => $this->cluster->id,
+                'name' => $this->cluster->name,
+            ] : null,
+            'role' => $this->role ? [
+                'id' => $this->role->id,
+                'name' => $this->role->name,
+            ] : null,
+            'divisi' => $this->divisi ? [
+                'id' => $this->divisi->id,
+                'name' => $this->divisi->name,
+            ] : null,
+            'badanusaha' => $this->badanusaha ? [
+                'id' => $this->badanusaha->id,
+                'name' => $this->badanusaha->name,
+            ] : null,
+            'id_notif' => $this->id_notif,
+        ];
     }
 }

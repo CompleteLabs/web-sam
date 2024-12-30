@@ -34,8 +34,8 @@ class VisitController extends Controller
             return redirect('visit')->with(['success' => 'berhasil hapus data visit secara bulk']);
         }
 
-        $visits = Visit::with(['user','outlet.divisi','outlet.cluster','outlet.region'])->latest()->simplePaginate(100);
-        return view('visit.index',[
+        $visits = Visit::with(['user', 'outlet.divisi', 'outlet.cluster', 'outlet.region'])->latest()->simplePaginate(100);
+        return view('visit.index', [
             'visits' => $visits,
             'title' => 'Visit',
             'active' => 'visit',
@@ -45,16 +45,15 @@ class VisitController extends Controller
 
     public function export(Request $request)
     {
-        if($request->tanggal1 && $request->tanggal2)
-        {
-            return Excel::download(new VisitExport($request->tanggal1,$request->tanggal2),'visit.xlsx');
-        }else{
-            $visits = Visit::with(['user','outlet'])->get();
-            return view('visit.index',[
+        if ($request->tanggal1 && $request->tanggal2) {
+            return Excel::download(new VisitExport($request->tanggal1, $request->tanggal2), 'visit.xlsx');
+        } else {
+            $visits = Visit::with(['user', 'outlet'])->get();
+            return view('visit.index', [
                 'visits' => $visits,
                 'title' => 'Visit',
                 'active' => 'visit',
-        ]);
+            ]);
         }
     }
 
@@ -81,12 +80,11 @@ class VisitController extends Controller
     public function deleteBulk($visit)
     {
         try {
-            foreach($visit as $item){
+            foreach ($visit as $item) {
                 $this->deleteAssets($item);
                 $item->forceDelete($item);
             }
             return redirect('visit')->with(['success' => 'berhasil hapus media visit secara bulk']);
-
         } catch (Exception $e) {
             return redirect('outlet')->with(['error' => $e->getMessage()]);
         }

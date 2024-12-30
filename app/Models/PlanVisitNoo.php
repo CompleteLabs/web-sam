@@ -31,16 +31,16 @@ class PlanVisitNoo extends Model
 
     public function getTanggalVisitAttribute($value)
     {
-        return Carbon::parse($value)->getPreciseTimestamp(3);
+        return Carbon::parse($value)->timestamp;
     }
 
     public function getCreatedAtAttribute($value)
     {
-        return Carbon::parse($value)->getPreciseTimestamp(3);
+        return Carbon::parse($value)->timestamp;
     }
 
     public function getUpdatedAtAttribute($value)
     {
-        return Carbon::parse($value)->getPreciseTimestamp(3);
+        return Carbon::parse($value)->timestamp;
     }
 }

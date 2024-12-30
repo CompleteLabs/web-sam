@@ -22,17 +22,19 @@ class OutletImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         try {
-            $badanusaha_id = BadanUsaha::where('name', preg_replace('/\s+/', '', $row['badan_usaha']))->firstOrFail()->id;
-            $divisi_id = Division::where('name', preg_replace('/\s+/', '', $row['divisi']))
-                ->where('badanusaha_id', $badanusaha_id)->firstOrFail()->id;
-            $region_id = Region::where('name', preg_replace('/\s+/', '', $row['region']))
-                ->where('divisi_id', $divisi_id)->where('badanusaha_id', $badanusaha_id)->firstOrFail()->id;
+            // Get Badan Usaha ID
+            $badanusaha_id = $this->getBadanUsahaId($row['badan_usaha']);
 
-            $cluster_name = preg_replace('/\s+/', '', $row['cluster']);
-            Log::info('Searching for cluster: ' . $cluster_name);
-            $cluster_id = Cluster::where('name', $cluster_name)->firstOrFail()->id;
-            Log::info('Found cluster ID: ' . $cluster_id);
+            // Get Division ID
+            $divisi_id = $this->getDivisionId($row['divisi'], $badanusaha_id);
 
+            // Get Region ID, or create Region if not found
+            $region_id = $this->getRegionId($row['region'], $divisi_id, $badanusaha_id);
+
+            // Get Cluster ID, or create Cluster if not found
+            $cluster_id = $this->getClusterId($row['cluster'], $badanusaha_id, $divisi_id, $region_id);
+
+            // Search for existing Outlet, and update or create a new one
             $outlet = Outlet::where('kode_outlet', preg_replace('/\s+/', '', strtoupper($row['kode_outlet'])))
                 ->where('divisi_id', $divisi_id);
 
@@ -73,6 +75,71 @@ class OutletImport implements ToModel, WithHeadingRow
             Log::error('Error importing row: ' . json_encode($row) . ' - ' . $e->getMessage());
             Session::flash('error', 'Error importing row: ' . json_encode($row) . ' - ' . $e->getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Get Badan Usaha ID
+     */
+    private function getBadanUsahaId($name)
+    {
+        return BadanUsaha::where('name', preg_replace('/\s+/', '', $name))->firstOrFail()->id;
+    }
+
+    /**
+     * Get Division ID
+     */
+    private function getDivisionId($name, $badanusaha_id)
+    {
+        return Division::where('name', preg_replace('/\s+/', '', $name))
+            ->where('badanusaha_id', $badanusaha_id)
+            ->firstOrFail()->id;
+    }
+
+    /**
+     * Get Region ID or create Region if not found
+     */
+    private function getRegionId($name, $divisi_id, $badanusaha_id)
+    {
+        $region = Region::where('name', preg_replace('/\s+/', '', $name))
+            ->where('divisi_id', $divisi_id)
+            ->where('badanusaha_id', $badanusaha_id)
+            ->first();
+
+        if ($region) {
+            return $region->id;
+        } else {
+            // Create new region if not found
+            $newRegion = Region::create([
+                'name' => strtoupper($name),
+                'divisi_id' => $divisi_id,
+                'badanusaha_id' => $badanusaha_id
+            ]);
+            Log::info("Region created: {$name}");
+            return $newRegion->id;
+        }
+    }
+
+    /**
+     * Get Cluster ID or create Cluster if not found
+     */
+    private function getClusterId($name, $badanusaha_id, $divisi_id, $region_id)
+    {
+        $cluster = Cluster::where('name', preg_replace('/\s+/', '', $name))
+            ->first();
+
+        if ($cluster) {
+            return $cluster->id;
+        } else {
+            // Create new cluster if not found
+            $newCluster = Cluster::create([
+                'name' => strtoupper($name),
+                'badanusaha_id' => $badanusaha_id,
+                'divisi_id' => $divisi_id,
+                'region_id' => $region_id
+            ]);
+            Log::info("Cluster created: {$name}");
+            return $newCluster->id;
         }
     }
 }

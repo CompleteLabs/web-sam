@@ -106,7 +106,7 @@
                                     @foreach ($noos as $noo)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ date('d M Y', $noo->created_at / 1000) }}</td>
+                                            <td>{{ date('d M Y', strtotime($noo->created_at)) }}</td>
                                             <td>{{ $noo->created_by }}</td>
                                             <td>{{ $noo->kode_outlet ?? '-' }}</td>
                                             <td>{{ $noo->divisi->name }}</td>
@@ -145,12 +145,12 @@
                                             <td>Rp {{ number_format($noo->limit, 0, ',', '.') }}</td>
                                             <td>{{ $noo->status }}</td>
                                             <td>{{ $noo->confirmed_by ?? '-' }}</td>
-                                            <td>{{ $noo->confirmed_at == null ? '-' : date('d M Y', $noo->confirmed_at / 1000) }}
+                                            <td>{{ $noo->confirmed_at == null ? '-' : date('d M Y', strtotime($noo->confirmed_at)) }}
                                             <td>{{ $noo->approved_by ?? '-' }}</td>
-                                            <td>{{ $noo->approved_at == null ? '-' : date('d M Y', $noo->approved_at / 1000) }}
+                                            <td>{{ $noo->approved_at == null ? '-' : date('d M Y', strtotime($noo->approved_at)) }}
                                             </td>
                                             <td>{{ $noo->rejected_by ?? '-' }}</td>
-                                            <td>{{ $noo->rejected_at == null ? '-' : date('d M Y', $noo->rejected_at / 1000) }}
+                                            <td>{{ $noo->rejected_at == null ? '-' : date('d M Y', strtotime($noo->rejected_at)) }}
                                             </td>
                                             <td>{{ $noo->keterangan ?? '-' }}</td>
                                             @if ($noo->status != 'APPROVED')

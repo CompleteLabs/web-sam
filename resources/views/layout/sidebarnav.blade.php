@@ -20,7 +20,7 @@
              <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                  <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
-                @if (Auth::user()->role_id === 5)
+                @if (Auth::user()->role_id === 5 || Auth::user()->role_id === 13)
                  <li class="nav-item">
                      <a href="/user" class="nav-link {{ $active === 'user' ? 'active' : '' }}">
                          <i class="nav-icon fas fa-users"></i>
@@ -28,7 +28,7 @@
                      </a>
                  </li>
                 @endif
-                @if (Auth::user()->role_id === 5 || Auth::user()->role_id === 4)
+                @if (Auth::user()->role_id === 5 || Auth::user()->role_id === 4 || Auth::user()->role_id === 13)
                  <li class="nav-item">
                      <a href="/outlet" class="nav-link {{ $active === 'outlet' ? 'active' : '' }}">
                          <i class="nav-icon fas fa-store"></i>
@@ -36,7 +36,7 @@
                      </a>
                  </li>
                 @endif
-                @if (Auth::user()->role_id === 5 || Auth::user()->role_id === 4)
+                @if (Auth::user()->role_id === 5 || Auth::user()->role_id === 4 || Auth::user()->role_id === 13)
                  <li class="nav-item">
                      <a href="/noo" class="nav-link {{ $active === 'noo' ? 'active' : '' }}">
                          <i class="nav-icon fas fa-store-alt"></i>
@@ -44,7 +44,7 @@
                      </a>
                  </li>
                 @endif
-                @if (Auth::user()->role_id === 5 || Auth::user()->role_id === 4)
+                @if (Auth::user()->role_id === 5 || Auth::user()->role_id === 4 || Auth::user()->role_id === 13)
                  <li class="nav-item">
                      <a href="/visit" class="nav-link {{ $active === 'visit' ? 'active' : '' }}">
                          <i class="nav-icon fas fa-map-marker-alt"></i>
@@ -52,7 +52,7 @@
                      </a>
                  </li>
                 @endif
-                @if (Auth::user()->role_id === 5)
+                @if (Auth::user()->role_id === 5 || Auth::user()->role_id === 13)
                  <li class="nav-item">
                      <a href="/planvisit" class="nav-link {{ $active === 'planvisit' ? 'active' : '' }}">
                          <i class="nav-icon fas fa-map-marked"></i>
@@ -60,7 +60,7 @@
                      </a>
                  </li>
                 @endif
-                @if (Auth::user()->role_id === 5)
+                @if (Auth::user()->role_id === 5 || Auth::user()->role_id === 13)
                 <li class="nav-item">
                     <a href="#" class="nav-link {{ $active === 'report' ? 'active' : '' }}">
                         <i class="nav-icon far fa-file-alt"></i>
@@ -80,7 +80,7 @@
                     </ul>
                 </li>
             @endif
-                @if (Auth::user()->role_id === 5)
+                @if (Auth::user()->role_id === 5 || Auth::user()->role_id === 13)
                  <li class="nav-item">
                      <a href="#" class="nav-link {{ $active === 'setting' ? 'active' : '' }}">
                          <i class="nav-icon fas fa-cogs"></i>
