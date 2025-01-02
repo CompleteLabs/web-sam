@@ -15,6 +15,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
@@ -56,12 +57,19 @@ class UserResource extends Resource
                             ->placeholder('Pilih badan usaha')
                             ->options(function (callable $get) {
                                 $user = auth()->user();
-                                if ($user->role->name !== 'SUPER ADMIN') {
-                                    return \App\Models\BadanUsaha::where('id', $user->badanusaha_id)
+                                $role = $user->role;
+
+                                if ($role->filter_type === 'badanusaha') {
+                                    return \App\Models\BadanUsaha::whereIn('id', $role->filter_data ?? [])
                                         ->pluck('name', 'id');
+                                } elseif ($role->filter_type === 'all') {
+                                    return \App\Models\BadanUsaha::pluck('name', 'id');
                                 }
-                                return \App\Models\BadanUsaha::pluck('name', 'id');
+
+                                return \App\Models\BadanUsaha::where('id', $user->badanusaha_id)
+                                    ->pluck('name', 'id');
                             })
+
                             ->afterStateUpdated(function ($state, callable $set) {
                                 $set('divisi_id', null);
                                 $set('region_id', null);
@@ -225,6 +233,8 @@ class UserResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Region'),
+                Tables\Filters\TrashedFilter::make()
+                    ->hidden(fn() => !Gate::any(['restore_any_visit', 'force_delete_any_visit'], User::class)),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -232,6 +242,8 @@ class UserResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -248,14 +260,27 @@ class UserResource extends Resource
         return parent::getEloquentQuery()
             ->where(function ($query) {
                 $user = auth()->user();
-                // Display all tickets to Super Admin
-                if ($user->role->name == 'SUPER ADMIN') {
-                    return;
-                } else {
-                    $query->where('users.badanusaha_id', $user->badanusaha_id);
+                $role = $user->role;
+                switch ($role->filter_type) {
+                    case 'badanusaha':
+                        $query->whereIn('users.badanusaha_id', $role->filter_data ?? []);
+                        break;
+                    case 'divisi':
+                        $query->whereIn('users.divisi_id', $role->filter_data ?? []);
+                        break;
+                    case 'region':
+                        $query->whereIn('users.region_id', $role->filter_data ?? []);
+                        break;
+                    case 'cluster':
+                        $query->whereIn('users.cluster_id', $role->filter_data ?? []);
+                        break;
+                    case 'all':
+                    default:
+                        return;
                 }
             });
     }
+
 
     public static function getPages(): array
     {

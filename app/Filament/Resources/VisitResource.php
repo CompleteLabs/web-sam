@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\VisitResource\Pages;
 use App\Filament\Resources\VisitResource\RelationManagers;
+use App\Models\Outlet;
 use App\Models\User;
 use App\Models\Visit;
 use Carbon\Carbon;
@@ -18,6 +19,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 
@@ -52,19 +55,37 @@ class VisitResource extends Resource
                 Forms\Components\Section::make('User and Outlet')
                     ->schema([
                         Forms\Components\Select::make('user_id')
-                            ->relationship('user', 'nama_lengkap')
                             ->searchable()
                             ->preload()
                             ->required()
                             ->reactive()
                             ->label('Pilih User')
-                            ->placeholder('Cari User berdasarkan nama lengkap'),
+                            ->placeholder('Cari User berdasarkan nama lengkap')
+                            ->options(function () {
+                                $users = User::with(['badanusaha', 'divisi'])->get();
+
+                                return $users->mapWithKeys(function ($user) {
+                                    $badanusahaName = $user->badanusaha ? $user->badanusaha->name : 'Tidak ada badan usaha';
+                                    $divisiName = $user->divisi ? $user->divisi->name : 'Tidak ada divisi';
+                                    return [$user->id => "{$user->nama_lengkap} - {$badanusahaName} / {$divisiName}"];
+                                });
+                            }),
                         Forms\Components\Select::make('outlet_id')
-                            ->relationship('outlet', 'nama_outlet')
                             ->searchable()
                             ->preload()
                             ->required()
-                            ->label('Pilih Outlet'),
+                            ->label('Pilih Outlet')
+                            ->options(function () {
+                                // Eager load badanusaha dan divisi
+                                $outlets = Outlet::with(['badanusaha', 'divisi'])->get();
+
+                                return $outlets->mapWithKeys(function ($outlet) {
+                                    // Menggabungkan nama outlet, badan usaha, dan divisi untuk label
+                                    $badanusahaName = $outlet->badanusaha ? $outlet->badanusaha->name : 'Tidak ada badan usaha';
+                                    $divisiName = $outlet->divisi ? $outlet->divisi->name : 'Tidak ada divisi';
+                                    return [$outlet->id => "[{$outlet->kode_outlet}] {$outlet->nama_outlet} - {$badanusahaName} / {$divisiName}"];
+                                });
+                            }),
                     ])
                     ->columns(2),
                 Forms\Components\Section::make('Location & Timing')
@@ -189,6 +210,8 @@ class VisitResource extends Resource
             ->defaultSort('id', 'desc')
             ->deferLoading()
             ->filters([
+                Tables\Filters\TrashedFilter::make()
+                    ->hidden(fn() => !Gate::any(['restore_any_visit', 'force_delete_any_visit'], Visit::class)),
                 Filter::make('created_at')
                     ->form([
                         DatePicker::make('tanggal_visit_from')
@@ -207,6 +230,7 @@ class VisitResource extends Resource
                                 fn(Builder $query, $date): Builder => $query->whereDate('tanggal_visit', '<=', $date),
                             );
                     })
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -214,21 +238,48 @@ class VisitResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
+
     public static function getEloquentQuery(): Builder
     {
         $user = auth()->user();
+        $role = $user->role;
 
-        if ($user->role->name == 'SUPER ADMIN' || $user->role->name == 'FINANCE') {
+        if ($role->filter_type === 'all') {
             return parent::getEloquentQuery();
         }
 
-        return parent::getEloquentQuery()
-            ->join('users', 'visits.user_id', '=', 'users.id')
+        $query = parent::getEloquentQuery()
+            ->leftJoin('users', 'visits.user_id', '=', 'users.id')
             ->select('visits.*', 'users.id as user_id')
-            ->where('users.badanusaha_id', $user->badanusaha_id);
+            ->when($role->filter_type === 'badanusaha', function ($query) use ($user) {
+                $query->where('users.badanusaha_id', $user->badanusaha_id);
+            })
+            ->when($role->filter_type === 'divisi', function ($query) use ($role) {
+                $query->whereIn('users.divisi_id', $role->filter_data ?? []);
+            })
+            ->when($role->filter_type === 'region', function ($query) use ($role) {
+                $query->whereIn('users.region_id', $role->filter_data ?? []);
+            })
+            ->when($role->filter_type === 'cluster', function ($query) use ($role) {
+                $query->whereIn('users.cluster_id', $role->filter_data ?? []);
+            });
+
+        return $query;
+    }
+
+    public static function getRecordId(): null|string
+    {
+        return Route::current()->parameter('record');
+    }
+
+    public static function resolveRecordRouteBinding(int | string $key): ?Visit
+    {
+        return self::getEloquentQuery()->first();
     }
 
     public static function getRelations(): array

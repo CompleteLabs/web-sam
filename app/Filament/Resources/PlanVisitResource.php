@@ -4,7 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PlanVisitResource\Pages;
 use App\Filament\Resources\PlanVisitResource\RelationManagers;
+use App\Models\Outlet;
 use App\Models\PlanVisit;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Routing\Route;
 
 class PlanVisitResource extends Resource
 {
@@ -26,20 +29,37 @@ class PlanVisitResource extends Resource
                 Forms\Components\Section::make('User Information')
                     ->schema([
                         Forms\Components\Select::make('user_id')
-                            ->relationship('user', 'nama_lengkap')
-                            ->searchable()
-                            ->preload()
-                            ->required()
-                            ->label('Pilih User')
-                            ->placeholder('Cari User berdasarkan nama lengkap'),
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->reactive()
+                        ->label('Pilih User')
+                        ->placeholder('Cari User berdasarkan nama lengkap')
+                        ->options(function () {
+                            $users = User::with(['badanusaha', 'divisi'])->get();
 
-                        Forms\Components\Select::make('outlet_id')
-                            ->relationship('outlet', 'nama_outlet')
-                            ->searchable()
-                            ->preload()
-                            ->required()
-                            ->label('Pilih Outlet')
-                            ->placeholder('Cari Outlet berdasarkan nama'),
+                            return $users->mapWithKeys(function ($user) {
+                                $badanusahaName = $user->badanusaha ? $user->badanusaha->name : 'Tidak ada badan usaha';
+                                $divisiName = $user->divisi ? $user->divisi->name : 'Tidak ada divisi';
+                                return [$user->id => "{$user->nama_lengkap} - {$badanusahaName} / {$divisiName}"];
+                            });
+                        }),
+                    Forms\Components\Select::make('outlet_id')
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->label('Pilih Outlet')
+                        ->options(function () {
+                            // Eager load badanusaha dan divisi
+                            $outlets = Outlet::with(['badanusaha', 'divisi'])->get();
+
+                            return $outlets->mapWithKeys(function ($outlet) {
+                                // Menggabungkan nama outlet, badan usaha, dan divisi untuk label
+                                $badanusahaName = $outlet->badanusaha ? $outlet->badanusaha->name : 'Tidak ada badan usaha';
+                                $divisiName = $outlet->divisi ? $outlet->divisi->name : 'Tidak ada divisi';
+                                return [$outlet->id => "[{$outlet->kode_outlet}] {$outlet->nama_outlet} - {$badanusahaName} / {$divisiName}"];
+                            });
+                        }),
                     ])
                     ->collapsible()
                     ->columns(2),
@@ -103,15 +123,39 @@ class PlanVisitResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $user = auth()->user();
+        $role = $user->role;
 
-        if ($user->role->name == 'SUPER ADMIN') {
+        if ($role->filter_type === 'all') {
             return parent::getEloquentQuery();
         }
 
-        return parent::getEloquentQuery()
-            ->join('users', 'plan_visits.user_id', '=', 'users.id')
+        $query = parent::getEloquentQuery()
+            ->leftJoin('users', 'plan_visits.user_id', '=', 'users.id')
             ->select('plan_visits.*', 'users.id as user_id')
-            ->where('users.badanusaha_id', $user->badanusaha_id);
+            ->when($role->filter_type === 'badanusaha', function ($query) use ($user) {
+                $query->where('users.badanusaha_id', $user->badanusaha_id);
+            })
+            ->when($role->filter_type === 'divisi', function ($query) use ($role) {
+                $query->whereIn('users.divisi_id', $role->filter_data ?? []);
+            })
+            ->when($role->filter_type === 'region', function ($query) use ($role) {
+                $query->whereIn('users.region_id', $role->filter_data ?? []);
+            })
+            ->when($role->filter_type === 'cluster', function ($query) use ($role) {
+                $query->whereIn('users.cluster_id', $role->filter_data ?? []);
+            });
+
+        return $query;
+    }
+
+    public static function getRecordId(): null|string
+    {
+        return Route::current()->parameter('record');
+    }
+
+    public static function resolveRecordRouteBinding(int | string $key): ?PlanVisit
+    {
+        return self::getEloquentQuery()->first();
     }
 
 

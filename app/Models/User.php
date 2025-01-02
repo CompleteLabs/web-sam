@@ -37,8 +37,7 @@ class User extends Authenticatable implements FilamentUser, HasName
 
     public function canAccessPanel(Panel $panel): bool
     {
-        // return $this->role->name === 'ADMIN';
-        return $this->role->name === 'ADMIN' || $this->role->name === 'AR' || $this->role->name === 'AUDIT' || $this->role->name === 'SUPER ADMIN' ||  $this->role->name === 'FINANCE';
+        return $this->role->can_access_web == 1;
     }
 
     public function scopeFilter($query)
@@ -87,6 +86,12 @@ class User extends Authenticatable implements FilamentUser, HasName
     {
         return $this->belongsTo(Role::class);
     }
+
+    public function permissions()
+    {
+        return $this->role->permissions();
+    }
+
 
     public function divisi(): BelongsTo
     {

@@ -4,88 +4,76 @@ namespace App\Policies;
 
 use App\Models\Noo;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\Gate;
 
 class NooPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
+    public function restoreAny(User $user): bool
+    {
+        return Gate::allows('restore_any_noo');
+    }
+
+    public function deleteAny(User $user): bool
+    {
+        return Gate::allows('delete_any_noo');
+    }
+
+    public function forceDeleteAny(User $user): bool
+    {
+        return Gate::allows('force_delete_any_noo');
+    }
     public function viewAny(User $user): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
+        return Gate::allows('view_any_noo');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Noo $noo): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
+        return Gate::allows('view_noo');
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN';
+        return Gate::allows('create_noo');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Noo $noo): bool
     {
-        return $user->role->name === 'SUPER ADMIN';
+        return Gate::allows('update_noo');
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Noo $noo): bool
     {
-        return $user->role->name === 'SUPER ADMIN';
+        return Gate::allows('delete_noo');
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
     public function restore(User $user, Noo $noo): bool
     {
-        return $user->role->name === 'SUPER ADMIN';
+        return Gate::allows('restore_noo');
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, Noo $noo): bool
     {
-        return $user->role->name === 'SUPER ADMIN';
+        return Gate::allows('force_delete_noo');
     }
 
     public function export(User $user): bool
     {
-        // Check if the user has the 'SUPER ADMIN' or 'ADMIN' role
-        return $user->role->name === 'SUPER ADMIN' || $user->role->name === 'ADMIN' || $user->role->name === 'AR';
+        return Gate::allows('export_noo');
     }
 
     public function confirm(User $user, Noo $noo)
     {
-        // Logika untuk memeriksa apakah user bisa melakukan approve
-        return $user->role->name === 'AR';
+        return Gate::allows('confirm_noo');
     }
 
     public function approve(User $user, Noo $noo)
     {
-        // Logika untuk memeriksa apakah user bisa melakukan approve
-        return $user->role->name === 'AR';
+        return Gate::allows('approve_noo');
     }
 
-    // Method untuk memeriksa apakah user bisa reject
     public function reject(User $user, Noo $noo)
     {
-        // Logika untuk memeriksa apakah user bisa melakukan reject
-        return $user->role->name === 'AR';
+        return Gate::allows('reject_noo');
     }
 }
