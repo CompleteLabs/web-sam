@@ -62,4 +62,9 @@ class OutletPolicy
     {
         return Gate::allows('export_outlet');
     }
+
+    public function resetAny(User $user) : bool
+    {
+        return Gate::allows('reset_any_outlet');
+    }
 }

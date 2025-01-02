@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 
@@ -209,6 +210,8 @@ class VisitResource extends Resource
             ->defaultSort('id', 'desc')
             ->deferLoading()
             ->filters([
+                Tables\Filters\TrashedFilter::make()
+                    ->hidden(fn() => !Gate::any(['restore_any_visit', 'force_delete_any_visit'], Visit::class)),
                 Filter::make('created_at')
                     ->form([
                         DatePicker::make('tanggal_visit_from')
@@ -227,6 +230,7 @@ class VisitResource extends Resource
                                 fn(Builder $query, $date): Builder => $query->whereDate('tanggal_visit', '<=', $date),
                             );
                     })
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -234,6 +238,8 @@ class VisitResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }

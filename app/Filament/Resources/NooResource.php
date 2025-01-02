@@ -102,7 +102,7 @@ class NooResource extends Resource
                             ->required()
                             ->reactive()
                             ->placeholder('Pilih badan usaha')
-                                                        ->options(function (callable $get) {
+                            ->options(function (callable $get) {
                                 $user = auth()->user();
                                 $role = $user->role;
 
@@ -438,6 +438,8 @@ class NooResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Divisi'),
+                Tables\Filters\TrashedFilter::make()
+                    ->hidden(fn() => !Gate::any(['restore_any_visit', 'force_delete_any_visit'], Noo::class)),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -509,6 +511,8 @@ class NooResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
                     Tables\Actions\BulkAction::make('createOutlets')
                         ->label('Create Outlets')
                         ->icon('heroicon-o-plus-circle')

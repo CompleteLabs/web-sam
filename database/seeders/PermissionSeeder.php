@@ -84,6 +84,7 @@ class PermissionSeeder extends Seeder
             'force_delete_any_outlet',
             'force_delete_outlet',
             'export_outlet',
+            'reset_any_outlet',
             'view_any_noo',
             'view_noo',
             'create_noo',

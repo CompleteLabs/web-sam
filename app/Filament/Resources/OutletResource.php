@@ -13,10 +13,14 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 
 class OutletResource extends Resource
@@ -152,7 +156,7 @@ class OutletResource extends Resource
                             ->required()
                             ->reactive()
                             ->placeholder('Pilih badan usaha')
-                                                        ->options(function (callable $get) {
+                            ->options(function (callable $get) {
                                 $user = auth()->user();
                                 $role = $user->role;
 
@@ -271,77 +275,77 @@ class OutletResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        ->columns([
-            Tables\Columns\TextColumn::make('kode_outlet')
-                ->label('Kode Outlet')
-                ->searchable(),
-            Tables\Columns\TextColumn::make('badanusaha.name')
-                ->label('Badan Usaha'),
-            Tables\Columns\TextColumn::make('divisi.name')
-                ->label('Divisi'),
-            Tables\Columns\TextColumn::make('region.name')
-                ->label('Region'),
-            Tables\Columns\TextColumn::make('cluster.name')
-                ->label('Cluster'),
-            Tables\Columns\TextColumn::make('nama_outlet')
-                ->label('Nama Outlet')
-                ->searchable(),
-            Tables\Columns\TextColumn::make('nama_pemilik_outlet')
-                ->label('Nama Pemilik Outlet'),
-            Tables\Columns\TextColumn::make('nomer_tlp_outlet')
-                ->label('Nomor Telepon Outlet'),
-            Tables\Columns\TextColumn::make('distric')
-                ->label('Distrik'),
-            Tables\Columns\TextColumn::make('poto_shop_sign')
-                ->label('Foto Tanda Outlet')
-                ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
-                ->color('primary'),
-            Tables\Columns\TextColumn::make('poto_depan')
-                ->label('Foto Depan')
-                ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
-                ->color('primary'),
-            Tables\Columns\TextColumn::make('poto_kiri')
-                ->label('Foto Kiri')
-                ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
-                ->color('primary'),
-            Tables\Columns\TextColumn::make('poto_kanan')
-                ->label('Foto Kanan')
-                ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
-                ->color('primary'),
-            Tables\Columns\TextColumn::make('poto_ktp')
-                ->label('Foto KTP')
-                ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO KTP'))
-                ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
-                ->color('primary'),
-            Tables\Columns\TextColumn::make('video')
-                ->label('Video Outlet')
-                ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('VIDEO'))
-                ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
-                ->color('primary'),
-            Tables\Columns\TextColumn::make('limit')
-                ->label('Limit'),
-            Tables\Columns\TextColumn::make('radius')
-                ->label('Radius'),
-            Tables\Columns\TextColumn::make('latlong')
-                ->label('Lokasi (LatLong)')
-                ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('LOKASI'))
-                ->url(fn($state): string => 'https://www.google.com/maps/place/' . $state, shouldOpenInNewTab: true)
-                ->color('primary'),
-            Tables\Columns\TextColumn::make('status_outlet')
-                ->label('Status Outlet'),
-            Tables\Columns\TextColumn::make('created_at')
-                ->label('Tanggal Dibuat')
-                ->date('d M Y')
-                ->toggleable(isToggledHiddenByDefault: true),
-            Tables\Columns\TextColumn::make('updated_at')
-                ->label('Terakhir Diperbarui')
-                ->date('d M Y')
-                ->toggleable(isToggledHiddenByDefault: true),
-        ])
+            ->columns([
+                Tables\Columns\TextColumn::make('kode_outlet')
+                    ->label('Kode Outlet')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('badanusaha.name')
+                    ->label('Badan Usaha'),
+                Tables\Columns\TextColumn::make('divisi.name')
+                    ->label('Divisi'),
+                Tables\Columns\TextColumn::make('region.name')
+                    ->label('Region'),
+                Tables\Columns\TextColumn::make('cluster.name')
+                    ->label('Cluster'),
+                Tables\Columns\TextColumn::make('nama_outlet')
+                    ->label('Nama Outlet')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('nama_pemilik_outlet')
+                    ->label('Nama Pemilik Outlet'),
+                Tables\Columns\TextColumn::make('nomer_tlp_outlet')
+                    ->label('Nomor Telepon Outlet'),
+                Tables\Columns\TextColumn::make('distric')
+                    ->label('Distrik'),
+                Tables\Columns\TextColumn::make('poto_shop_sign')
+                    ->label('Foto Tanda Outlet')
+                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->color('primary'),
+                Tables\Columns\TextColumn::make('poto_depan')
+                    ->label('Foto Depan')
+                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->color('primary'),
+                Tables\Columns\TextColumn::make('poto_kiri')
+                    ->label('Foto Kiri')
+                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->color('primary'),
+                Tables\Columns\TextColumn::make('poto_kanan')
+                    ->label('Foto Kanan')
+                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->color('primary'),
+                Tables\Columns\TextColumn::make('poto_ktp')
+                    ->label('Foto KTP')
+                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO KTP'))
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->color('primary'),
+                Tables\Columns\TextColumn::make('video')
+                    ->label('Video Outlet')
+                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('VIDEO'))
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->color('primary'),
+                Tables\Columns\TextColumn::make('limit')
+                    ->label('Limit'),
+                Tables\Columns\TextColumn::make('radius')
+                    ->label('Radius'),
+                Tables\Columns\TextColumn::make('latlong')
+                    ->label('Lokasi (LatLong)')
+                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('LOKASI'))
+                    ->url(fn($state): string => 'https://www.google.com/maps/place/' . $state, shouldOpenInNewTab: true)
+                    ->color('primary'),
+                Tables\Columns\TextColumn::make('status_outlet')
+                    ->label('Status Outlet'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Tanggal Dibuat')
+                    ->date('d M Y')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Terakhir Diperbarui')
+                    ->date('d M Y')
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
             ->defaultSort('kode_outlet', 'asc')
             ->deferLoading()
             ->filters([
@@ -350,6 +354,8 @@ class OutletResource extends Resource
                     ->searchable()
                     ->preload()
                     ->label('Region'),
+                    Tables\Filters\TrashedFilter::make()
+                    ->hidden(fn() => !Gate::any(['restore_any_visit', 'force_delete_any_visit'], Outlet::class)),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -357,6 +363,48 @@ class OutletResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\RestoreBulkAction::make(),
+                    BulkAction::make('reset')
+                        ->label('Reset Data Outlet')
+                        ->icon('heroicon-o-building-storefront')
+                        ->action(function (Collection $records) {
+                            foreach ($records as $record) {
+                                // Hapus file yang terkait dengan kolom gambar/video
+                                if ($record->poto_shop_sign) {
+                                    Storage::disk('public')->delete($record->poto_shop_sign);
+                                }
+                                if ($record->poto_depan) {
+                                    Storage::disk('public')->delete($record->poto_depan);
+                                }
+                                if ($record->poto_kiri) {
+                                    Storage::disk('public')->delete($record->poto_kiri);
+                                }
+                                if ($record->poto_kanan) {
+                                    Storage::disk('public')->delete($record->poto_kanan);
+                                }
+                                if ($record->poto_ktp) {
+                                    Storage::disk('public')->delete($record->poto_ktp);
+                                }
+                                if ($record->video) {
+                                    Storage::disk('public')->delete($record->video);
+                                }
+
+                                // Reset kolom data menjadi null
+                                $record->update([
+                                    'nama_pemilik_outlet' => null,
+                                    'nomer_tlp_outlet' => null,
+                                    'latlong' => null,
+                                    'poto_shop_sign' => null,
+                                    'poto_depan' => null,
+                                    'poto_kiri' => null,
+                                    'poto_kanan' => null,
+                                    'poto_ktp' => null,
+                                    'video' => null,
+                                ]);
+                            }
+                        })
+                        ->authorize(fn() => Gate::allows('reset_any_outlet')),
                 ]),
             ]);
     }
