@@ -61,15 +61,38 @@ class RoleResource extends Resource
                             ->label('Filter Data')
                             ->options(function ($get) {
                                 $filterType = $get('filter_type');
+
                                 switch ($filterType) {
                                     case 'badanusaha':
-                                        return BadanUsaha::pluck('name', 'id');
+                                        return \App\Models\BadanUsaha::pluck('name', 'id');
+
                                     case 'divisi':
-                                        return Division::pluck('name', 'id');
+                                        return \App\Models\Division::with(['badanusaha'])
+                                            ->get()
+                                            ->mapWithKeys(function ($division) {
+                                                $badanusahaName = $division->badanusaha ? $division->badanusaha->name : 'Tidak ada badan usaha';
+                                                return [$division->id => "{$division->name} [{$badanusahaName}]"];
+                                            });
+
                                     case 'region':
-                                        return Region::pluck('name', 'id');
+                                        return \App\Models\Region::with(['badanusaha'])
+                                            ->get()
+                                            ->mapWithKeys(function ($region) {
+                                                $badanusahaName = $region->badanusaha ? $region->badanusaha->name : 'Tidak ada badan usaha';
+                                                $divisiName = $region->divisi ? $region->divisi->name : 'Tidak ada divisi';
+                                                return [$region->id => "{$region->name} [{$badanusahaName}/{$divisiName}]"];
+                                            });
+
                                     case 'cluster':
-                                        return Cluster::pluck('name', 'id');
+                                        return \App\Models\Cluster::with(['badanusaha', 'divisi', 'region'])
+                                            ->get()
+                                            ->mapWithKeys(function ($cluster) {
+                                                $badanusahaName = $cluster->badanusaha ? $cluster->badanusaha->name : 'Tidak ada badan usaha';
+                                                $divisiName = $cluster->divisi ? $cluster->divisi->name : 'Tidak ada divisi';
+                                                $regionName = $cluster->region ? $cluster->region->name : 'Tidak ada region';
+                                                return [$cluster->id => "{$cluster->name} - {$regionName} [{$badanusahaName}/{$divisiName}]"];
+                                            });
+
                                     default:
                                         return [];
                                 }
@@ -101,9 +124,9 @@ class RoleResource extends Resource
                     ->label('Filter Type')
                     ->badge(),
                 Tables\Columns\TextColumn::make('permissions_count')
-                ->label('Jumlah Izin')
-                ->badge()
-                ->counts('permissions'),
+                    ->label('Jumlah Izin')
+                    ->badge()
+                    ->counts('permissions'),
             ])
             ->filters([])
             ->actions([

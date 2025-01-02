@@ -31,14 +31,20 @@ class DivisionResource extends Resource
                     ->searchable()
                     ->required()
                     ->placeholder('Pilih badan usaha')
-                    ->options(function (callable $get) {
-                        $user = auth()->user();
-                        if ($user->role->name !== 'SUPER ADMIN') {
-                            return \App\Models\BadanUsaha::where('id', $user->badanusaha_id)
-                                ->pluck('name', 'id');
-                        }
-                        return \App\Models\BadanUsaha::pluck('name', 'id');
-                    }),
+                            ->options(function (callable $get) {
+                                $user = auth()->user();
+                                $role = $user->role;
+
+                                if ($role->filter_type === 'badanusaha') {
+                                    return \App\Models\BadanUsaha::whereIn('id', $role->filter_data ?? [])
+                                        ->pluck('name', 'id');
+                                } elseif ($role->filter_type === 'all') {
+                                    return \App\Models\BadanUsaha::pluck('name', 'id');
+                                }
+
+                                return \App\Models\BadanUsaha::where('id', $user->badanusaha_id)
+                                    ->pluck('name', 'id');
+                            }),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
