@@ -53,11 +53,11 @@ class AdminPanelProvider extends PanelProvider
                     ->visible(fn() => auth()->user()?->role->name === 'SUPER ADMIN')
                     ->group('Developer'),
 
-                NavigationItem::make('old-dashboard')
-                    ->label('Old Dashboard')
-                    ->url('/dashboard', shouldOpenInNewTab: false)
-                    ->icon('heroicon-o-tv')
-                    ->group('Settings'),
+                // NavigationItem::make('old-dashboard')
+                //     ->label('Old Dashboard')
+                //     ->url('/dashboard', shouldOpenInNewTab: false)
+                //     ->icon('heroicon-o-tv')
+                //     ->group('Settings'),
             ])
             ->pages([
                 Pages\Dashboard::class,
