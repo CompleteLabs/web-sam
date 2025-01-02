@@ -557,10 +557,23 @@ class NooResource extends Resource
         return parent::getEloquentQuery()
             ->where(function ($query) {
                 $user = auth()->user();
-                if ($user->role->name == 'SUPER ADMIN') {
-                    return;
-                } else {
-                    $query->where('noos.badanusaha_id', $user->badanusaha_id);
+                $role = $user->role;
+                switch ($role->filter_type) {
+                    case 'badanusaha':
+                        $query->whereIn('noos.badanusaha_id', $role->filter_data ?? []);
+                        break;
+                    case 'divisi':
+                        $query->whereIn('noos.divisi_id', $role->filter_data ?? []);
+                        break;
+                    case 'region':
+                        $query->whereIn('noos.region_id', $role->filter_data ?? []);
+                        break;
+                    case 'cluster':
+                        $query->whereIn('noos.cluster_id', $role->filter_data ?? []);
+                        break;
+                    case 'all':
+                    default:
+                        return;
                 }
             })
             ->where(function ($query) {

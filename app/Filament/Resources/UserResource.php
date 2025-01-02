@@ -248,14 +248,27 @@ class UserResource extends Resource
         return parent::getEloquentQuery()
             ->where(function ($query) {
                 $user = auth()->user();
-                // Display all tickets to Super Admin
-                if ($user->role->name == 'SUPER ADMIN') {
-                    return;
-                } else {
-                    $query->where('users.badanusaha_id', $user->badanusaha_id);
+                $role = $user->role;
+                switch ($role->filter_type) {
+                    case 'badanusaha':
+                        $query->whereIn('users.badanusaha_id', $role->filter_data ?? []);
+                        break;
+                    case 'divisi':
+                        $query->whereIn('users.divisi_id', $role->filter_data ?? []);
+                        break;
+                    case 'region':
+                        $query->whereIn('users.region_id', $role->filter_data ?? []);
+                        break;
+                    case 'cluster':
+                        $query->whereIn('users.cluster_id', $role->filter_data ?? []);
+                        break;
+                    case 'all':
+                    default:
+                        return;
                 }
             });
     }
+
 
     public static function getPages(): array
     {

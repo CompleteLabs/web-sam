@@ -28,23 +28,23 @@ class ClusterResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('badanusaha_id')
-                ->label('Badan Usaha')
-                ->searchable()
-                ->required()
-                ->reactive()
-                ->placeholder('Pilih badan usaha')
-                ->options(function (callable $get) {
-                    $user = auth()->user();
-                    if ($user->role->name !== 'SUPER ADMIN') {
-                        return \App\Models\BadanUsaha::where('id', $user->badanusaha_id)
-                            ->pluck('name', 'id');
-                    }
-                    return \App\Models\BadanUsaha::pluck('name', 'id');
-                })
-                ->afterStateUpdated(function ($state, callable $set) {
-                    $set('divisi_id', null);
-                    $set('region_id', null);
-                }),
+                    ->label('Badan Usaha')
+                    ->searchable()
+                    ->required()
+                    ->reactive()
+                    ->placeholder('Pilih badan usaha')
+                    ->options(function (callable $get) {
+                        $user = auth()->user();
+                        if ($user->role->name !== 'SUPER ADMIN') {
+                            return \App\Models\BadanUsaha::where('id', $user->badanusaha_id)
+                                ->pluck('name', 'id');
+                        }
+                        return \App\Models\BadanUsaha::pluck('name', 'id');
+                    })
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $set('divisi_id', null);
+                        $set('region_id', null);
+                    }),
 
                 Forms\Components\Select::make('divisi_id')
                     ->label('Divisi')
@@ -128,11 +128,23 @@ class ClusterResource extends Resource
         return parent::getEloquentQuery()
             ->where(function ($query) {
                 $user = auth()->user();
-                // Display all tickets to Super Admin
-                if ($user->role->name == 'SUPER ADMIN') {
-                    return;
-                } else {
-                    $query->where('clusters.badanusaha_id', $user->badanusaha_id);
+                $role = $user->role;
+                switch ($role->filter_type) {
+                    case 'badanusaha':
+                        $query->whereIn('clusters.badanusaha_id', $role->filter_data ?? []);
+                        break;
+                    case 'divisi':
+                        $query->whereIn('clusters.divisi_id', $role->filter_data ?? []);
+                        break;
+                    case 'region':
+                        $query->whereIn('clusters.region_id', $role->filter_data ?? []);
+                        break;
+                    case 'cluster':
+                        $query->whereIn('clusters.cluster_id', $role->filter_data ?? []);
+                        break;
+                    case 'all':
+                    default:
+                        return;
                 }
             });
     }

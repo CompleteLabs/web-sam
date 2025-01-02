@@ -360,11 +360,23 @@ class OutletResource extends Resource
         return parent::getEloquentQuery()
             ->where(function ($query) {
                 $user = auth()->user();
-                // Display all tickets to Super Admin
-                if ($user->role->name == 'SUPER ADMIN' || $user->role->name == 'FINANCE') {
-                    return;
-                } else {
-                    $query->where('outlets.badanusaha_id', $user->badanusaha_id);
+                $role = $user->role;
+                switch ($role->filter_type) {
+                    case 'badanusaha':
+                        $query->whereIn('outlets.badanusaha_id', $role->filter_data ?? []);
+                        break;
+                    case 'divisi':
+                        $query->whereIn('outlets.divisi_id', $role->filter_data ?? []);
+                        break;
+                    case 'region':
+                        $query->whereIn('outlets.region_id', $role->filter_data ?? []);
+                        break;
+                    case 'cluster':
+                        $query->whereIn('outlets.cluster_id', $role->filter_data ?? []);
+                        break;
+                    case 'all':
+                    default:
+                        return;
                 }
             });
     }

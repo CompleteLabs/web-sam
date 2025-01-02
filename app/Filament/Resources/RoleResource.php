@@ -3,12 +3,18 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RoleResource\Pages;
+use App\Models\BadanUsaha;
+use App\Models\Cluster;
+use App\Models\Division;
 use App\Models\Permission;
+use App\Models\Region;
 use App\Models\Role;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -29,11 +35,56 @@ class RoleResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
+                Card::make()
+                    ->schema([
+                        TextInput::make('name')  // Misalnya, nama role
+                            ->required()
+                            ->maxLength(255),
+                        Toggle::make('can_access_web')
+                            ->label('Dapat Akses Web')
+                            ->helperText('Pilih untuk mengizinkan atau menonaktifkan akses web untuk role ini.')
+                            ->reactive()
+                            ->required(),
+                        Select::make('filter_type')
+                            ->options([
+                                'badanusaha' => 'Badan Usaha',
+                                'divisi' => 'Divisi',
+                                'region' => 'Region',
+                                'cluster' => 'Cluster',
+                                'all' => 'All Data',
+                            ])
+                            ->visible(fn($get) => $get('can_access_web') !== false)
+                            ->reactive()
+                            ->label('Filter Type')
+                            ->required(),
+                        Select::make('filter_data')
+                            ->label('Filter Data')
+                            ->options(function ($get) {
+                                $filterType = $get('filter_type');
+                                switch ($filterType) {
+                                    case 'badanusaha':
+                                        return BadanUsaha::pluck('name', 'id');
+                                    case 'divisi':
+                                        return Division::pluck('name', 'id');
+                                    case 'region':
+                                        return Region::pluck('name', 'id');
+                                    case 'cluster':
+                                        return Cluster::pluck('name', 'id');
+                                    default:
+                                        return [];
+                                }
+                            })
+                            ->placeholder('Pilih Data')
+                            ->reactive()
+                            ->visible(fn($get) => $get('filter_type') && $get('filter_type') !== 'all' && $get('can_access_web') !== false)
+                            ->required(fn($get) => $get('filter_type') !== 'all')
+                            ->multiple(),
+                    ])
+                    ->label('Role Settings')
+                    ->columns(2),
                 Section::make('Permissions')
                     ->schema(static::getPermissionSchema())
+                    ->visible(fn($get) => $get('can_access_web') !== false)
                     ->columnSpanFull(),
             ]);
     }
@@ -43,6 +94,16 @@ class RoleResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->searchable(),
+                Tables\Columns\IconColumn::make('can_access_web')
+                    ->label('Akses Web')
+                    ->boolean(),
+                Tables\Columns\TextColumn::make('filter_type')
+                    ->label('Filter Type')
+                    ->badge(),
+                Tables\Columns\TextColumn::make('permissions_count')
+                ->label('Jumlah Izin')
+                ->badge()
+                ->counts('permissions'),
             ])
             ->filters([])
             ->actions([
@@ -62,7 +123,6 @@ class RoleResource extends Resource
                     ? substr($permission->name, $lastUnderscorePosition + 1)
                     : $permission->name;
             });
-
         return [
             Forms\Components\Grid::make(3)
                 ->schema(
@@ -91,7 +151,6 @@ class RoleResource extends Resource
                                             $set("permissions.{$resource}", []);
                                         }
                                     }),
-
                                 CheckboxList::make("permissions.{$resource}")
                                     ->label('')
                                     ->options(self::formatOptions($operations))

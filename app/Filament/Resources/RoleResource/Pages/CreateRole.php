@@ -18,7 +18,7 @@ class CreateRole extends CreateRecord
             ->flatMap(fn($permission) => $permission)
             ->unique();
         session()->put('permissions_to_sync', $permissions);
-        return Arr::only($data, ['name']);
+        return Arr::only($data, ['name', 'can_access_web', 'filter_type', 'filter_data']);
     }
 
     protected function afterCreate(): void

@@ -83,7 +83,6 @@ class DivisionResource extends Resource
         return parent::getEloquentQuery()
             ->where(function ($query) {
                 $user = auth()->user();
-                // Display all tickets to Super Admin
                 if ($user->role->name == 'SUPER ADMIN') {
                     return;
                 } else {
