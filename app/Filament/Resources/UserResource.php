@@ -4,14 +4,19 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
+use App\Models\BadanUsaha;
 use App\Models\Cluster;
 use App\Models\Division;
 use App\Models\Region;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -58,7 +63,6 @@ class UserResource extends Resource
                             ->options(function (callable $get) {
                                 $user = auth()->user();
                                 $role = $user->role;
-
                                 if ($role->filter_type === 'badanusaha') {
                                     return \App\Models\BadanUsaha::whereIn('id', $role->filter_data ?? [])
                                         ->pluck('name', 'id');
@@ -213,29 +217,67 @@ class UserResource extends Resource
             ])
             ->defaultSort('nama_lengkap', 'asc')
             ->filters([
-                Tables\Filters\SelectFilter::make('role.name')
-                    ->relationship('role', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->label('Role'),
-                Tables\Filters\SelectFilter::make('badanusaha.name')
-                    ->relationship('badanusaha', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->label('Badan Usaha'),
-                Tables\Filters\SelectFilter::make('divisi.name')
-                    ->relationship('divisi', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->label('Divisi'),
-                Tables\Filters\SelectFilter::make('region.name')
-                    ->relationship('region', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->label('Region'),
+                Filter::make('region')
+                    ->form([
+                        Select::make('businessEntity')
+                            ->label('Badan Usaha')
+                            ->options(BadanUsaha::orderBy('name', 'asc')->pluck('name', 'id')->toArray())
+                            ->reactive()
+                            ->searchable()
+                            ->placeholder('Pilih Business Entity')
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                $set('division', null);
+                                $set('region', null);
+                            }),
+                        Select::make('division')
+                            ->label('Divisi')
+                            ->options(function (callable $get) {
+                                $businessEntityId = $get('businessEntity');
+                                if ($businessEntityId) {
+                                    return Division::where('badanusaha_id', $businessEntityId)
+                                        ->orderBy('name', 'asc')
+                                        ->pluck('name', 'id');
+                                }
+                                return [];
+                            })
+                            ->reactive()
+                            ->searchable()
+                            ->placeholder('Pilih Division')
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                $set('region', null);
+                            }),
+                        Select::make('region')
+                            ->label('Region')
+                            ->searchable()
+                            ->placeholder('Pilih Region')
+                            ->options(function (callable $get) {
+                                $divisionId = $get('division');
+                                if ($divisionId) {
+                                    return Region::where('divisi_id', $divisionId)
+                                        ->orderBy('name', 'asc')
+                                        ->pluck('name', 'id');
+                                }
+                                return [];
+                            })
+                            ->reactive(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if ($data['businessEntity'] ?? null) {
+                            $query->where('badanusaha_id', $data['businessEntity']);
+                        }
+                        if ($data['division'] ?? null) {
+                            $query->where('divisi_id', $data['division']);
+                        }
+                        if ($data['region'] ?? null) {
+                            $query->where('region_id', $data['region']);
+                        }
+                        return $query;
+                    }),
+
                 Tables\Filters\TrashedFilter::make()
                     ->hidden(fn() => !Gate::any(['restore_any_visit', 'force_delete_any_visit'], User::class)),
-            ])
+            ], layout: FiltersLayout::Modal)
+            ->filtersFormWidth(MaxWidth::Large)
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
