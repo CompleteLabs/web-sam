@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Contracts\HasCustomAttributes;
+use App\Filament\Concerns\CustomAttributes;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\Storage;
 
 class Outlet extends Model
@@ -109,5 +112,10 @@ class Outlet extends Model
             'cluster' => $this->cluster ? $this->cluster->only(['id', 'name']) : null,
             'divisi' => $this->divisi ? $this->divisi->only(['id', 'name']) : null,
         ];
+    }
+
+    public function attributes(): MorphMany
+    {
+        return $this->morphMany(CustomAttributeValue::class, 'entity');
     }
 }

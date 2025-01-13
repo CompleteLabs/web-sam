@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\DynamicAttributes;
 use App\Filament\Resources\NooResource\Pages;
 use App\Filament\Resources\NooResource\RelationManagers;
 use App\Models\BadanUsaha;
@@ -29,14 +30,20 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 
 class NooResource extends Resource
 {
+
+    use DynamicAttributes;
+
     protected static ?string $model = Noo::class;
+    protected static ?string $navigationLabel = 'NOO';
     protected static ?string $navigationIcon = 'heroicon-o-building-office';
     protected static ?int $navigationSort = 2;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -53,7 +60,7 @@ class NooResource extends Resource
                                     $divisiId = $get('divisi_id'); // Retrieve badanusaha_id using $get
                                     $outletId = $get('id'); // Ambil id outlet untuk proses edit (pastikan field ini tersedia)
                                     // Cek apakah kode_outlet sudah digunakan di divisi yang sama, kecuali oleh outlet ini sendiri
-                                    $exists = \DB::table('outlets')
+                                    $exists = DB::table('outlets')
                                         ->where('kode_outlet', $value)
                                         ->where('divisi_id', $divisiId)
                                         ->where('id', '!=', $outletId) // Abaikan data ini sendiri jika dalam mode edit
@@ -183,6 +190,45 @@ class NooResource extends Resource
                             }),
                     ])
                     ->columns(2), // Menyusun dropdown dalam dua kolom
+
+                Forms\Components\Section::make('Custom Attributes')
+                    ->schema(function (callable $get, $record) {
+                        $badanusahaId = $get('badanusaha_id');
+                        $divisiId = $get('divisi_id');
+                        $entityId = $record?->id; // Ambil ID dari record yang sedang diedit
+
+                        if ($badanusahaId && $divisiId) {
+                            $attributesBadanUsaha = static::dynamicAttributesSchema(
+                                'App\Models\Noo',
+                                'App\Models\BadanUsaha',
+                                $badanusahaId,
+                                $entityId
+                            );
+                            $attributesDivisi = static::dynamicAttributesSchema(
+                                'App\Models\Noo',
+                                'App\Models\Division',
+                                $divisiId,
+                                $entityId
+                            );
+                            return array_merge($attributesBadanUsaha, $attributesDivisi);
+                        } elseif ($badanusahaId) {
+                            return static::dynamicAttributesSchema(
+                                'App\Models\Noo',
+                                'App\Models\BadanUsaha',
+                                $badanusahaId,
+                                $entityId
+                            );
+                        } elseif ($divisiId) {
+                            return static::dynamicAttributesSchema(
+                                'App\Models\Noo',
+                                'App\Models\Division',
+                                $divisiId,
+                                $entityId
+                            );
+                        }
+                        return [];
+                    })
+                    ->columns(2),
 
                 // Foto dan Video
                 Forms\Components\Section::make('Dokumentasi')
@@ -347,90 +393,118 @@ class NooResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Tanggal Dibuat') // Capitalized the label for consistency
-                    ->date('d M Y'),
+                    ->label('Tanggal Dibuat')
+                    ->date('d M Y')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_by')
                     ->label('Dibuat Oleh')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('kode_outlet')
-                    ->label('Kode Outlet'),
+                    ->label('Kode Outlet')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('divisi.name')
-                    ->label('Divisi'),
+                    ->label('Divisi')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('badanusaha.name')
-                    ->label('Badan Usaha'),
+                    ->label('Badan Usaha')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('nama_outlet')
                     ->label('Nama Outlet')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('alamat_outlet')
-                    ->label('Alamat Outlet'),
+                    ->label('Alamat Outlet')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('nama_pemilik_outlet')
-                    ->label('Nama Pemilik Outlet'),
+                    ->label('Nama Pemilik Outlet')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('ktp_outlet')
-                    ->label('Nomor KTP Outlet'),
+                    ->label('Nomor KTP Outlet')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('nomer_tlp_outlet')
-                    ->label('Nomor Telepon Outlet'),
+                    ->label('Nomor Telepon Outlet')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('nomer_wakil_outlet')
-                    ->label('Nomor Wakil Outlet'),
+                    ->label('Nomor Wakil Outlet')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('distric')
-                    ->label('Distrik'),
+                    ->label('Distrik')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('region.name')
-                    ->label('Region'),
+                    ->label('Region')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('cluster.name')
-                    ->label('Cluster'),
+                    ->label('Cluster')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('poto_ktp')
                     ->label('Foto KTP')
                     ->color('primary')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('KTP'))
-                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true),
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('poto_shop_sign')
                     ->label('Foto Tanda Outlet')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
                     ->color('primary')
-                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true),
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('poto_depan')
                     ->label('Foto Depan')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
                     ->color('primary')
-                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true),
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('poto_kanan')
                     ->label('Foto Kanan')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
                     ->color('primary')
-                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true),
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('poto_kiri')
                     ->label('Foto Kiri')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
                     ->color('primary')
-                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true),
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('video')
                     ->label('Video Outlet')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('VIDEO'))
                     ->color('primary')
-                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true),
+                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('oppo')
-                    ->label('Oppo'),
+                    ->label('Oppo')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('vivo')
-                    ->label('Vivo'),
+                    ->label('Vivo')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('realme')
-                    ->label('Realme'),
+                    ->label('Realme')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('samsung')
-                    ->label('Samsung'),
+                    ->label('Samsung')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('xiaomi')
-                    ->label('Xiaomi'),
+                    ->label('Xiaomi')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('fl')
-                    ->label('Frontliner'),
+                    ->label('Frontliner')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('latlong')
                     ->label('Lokasi (LatLong)')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('LOKASI'))
                     ->color('primary')
-                    ->url(fn($state): string => 'https://www.google.com/maps/place/' . $state, shouldOpenInNewTab: true),
+                    ->url(fn($state): string => 'https://www.google.com/maps/place/' . $state, shouldOpenInNewTab: true)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('limit')
-                    ->label('Limit'),
+                    ->label('Limit')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('keterangan')
                     ->label('Keterangan')
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Terakhir Diperbarui') // Updated for clarity
+                    ->label('Terakhir Diperbarui')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -610,7 +684,6 @@ class NooResource extends Resource
                 ]),
             ]);
     }
-
 
     public static function getRelations(): array
     {

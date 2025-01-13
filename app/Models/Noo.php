@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Contracts\HasCustomAttributes;
+use App\Filament\Concerns\CustomAttributes;
+use App\Filament\Concerns\DynamicAttributes;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class Noo extends Model
@@ -153,5 +157,10 @@ class Noo extends Model
             'divisi' => $this->divisi ? $this->divisi->only(['id', 'name']) : null,
             'created_by' => $this->created_by,
         ];
+    }
+
+    public function attributes()
+    {
+        return $this->morphMany(CustomAttributeValue::class, 'entity');
     }
 }

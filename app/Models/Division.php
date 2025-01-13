@@ -48,4 +48,9 @@ class Division extends Model
     {
         return $this->hasMany(Cluster::class);
     }
+
+    public function entity()
+    {
+        return $this->morphTo(null, 'apply_entity_type', 'apply_entity_id');
+    }
 }

@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Concerns\DynamicAttributes;
 use App\Filament\Resources\OutletResource\Pages;
 use App\Filament\Resources\OutletResource\RelationManagers;
+use App\Helpers\AttributeSchemaHelper;
 use App\Models\BadanUsaha;
 use App\Models\Cluster;
 use App\Models\Division;
@@ -25,15 +27,19 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 
 class OutletResource extends Resource
 {
+    use DynamicAttributes;
+
     protected static ?string $model = Outlet::class;
     protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
     protected static ?int $navigationSort = 1;
+
 
     public static function form(Form $form): Form
     {
@@ -50,7 +56,7 @@ class OutletResource extends Resource
                                     $divisiId = $get('divisi_id'); // Retrieve badanusaha_id using $get
                                     $outletId = $get('id'); // Ambil id outlet untuk proses edit (pastikan field ini tersedia)
                                     // Cek apakah kode_outlet sudah digunakan di divisi yang sama, kecuali oleh outlet ini sendiri
-                                    $exists = \DB::table('outlets')
+                                    $exists = DB::table('outlets')
                                         ->where('kode_outlet', $value)
                                         ->where('divisi_id', $divisiId)
                                         ->where('id', '!=', $outletId) // Abaikan data ini sendiri jika dalam mode edit
@@ -97,6 +103,7 @@ class OutletResource extends Resource
                             ->placeholder('Masukkan nomor telepon outlet'),
                     ])
                     ->columns(2),
+
                 Forms\Components\Section::make('Foto & Video')
                     ->schema([
                         Forms\Components\FileUpload::make('poto_shop_sign')
@@ -239,6 +246,45 @@ class OutletResource extends Resource
                     ])
                     ->columns(2), // Menyusun dropdown dalam dua kolom
 
+                Forms\Components\Section::make('Custom Attributes')
+                    ->schema(function (callable $get, $record) {
+                        $badanusahaId = $get('badanusaha_id');
+                        $divisiId = $get('divisi_id');
+                        $entityId = $record?->id; // Ambil ID dari record yang sedang diedit
+
+                        if ($badanusahaId && $divisiId) {
+                            $attributesBadanUsaha = static::dynamicAttributesSchema(
+                                'App\Models\Outlet',
+                                'App\Models\BadanUsaha',
+                                $badanusahaId,
+                                $entityId
+                            );
+                            $attributesDivisi = static::dynamicAttributesSchema(
+                                'App\Models\Outlet',
+                                'App\Models\Division',
+                                $divisiId,
+                                $entityId
+                            );
+                            return array_merge($attributesBadanUsaha, $attributesDivisi);
+                        } elseif ($badanusahaId) {
+                            return static::dynamicAttributesSchema(
+                                'App\Models\Outlet',
+                                'App\Models\BadanUsaha',
+                                $badanusahaId,
+                                $entityId
+                            );
+                        } elseif ($divisiId) {
+                            return static::dynamicAttributesSchema(
+                                'App\Models\Outlet',
+                                'App\Models\Division',
+                                $divisiId,
+                                $entityId
+                            );
+                        }
+                        return [];
+                    })
+                    ->columns(2),
+
                 // Grup Status & Limit Outlet
                 Forms\Components\Section::make('Status & Limit Outlet')
                     ->schema([
@@ -284,65 +330,84 @@ class OutletResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('kode_outlet')
                     ->label('Kode Outlet')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(), // Bisa di-toggle oleh pengguna
                 Tables\Columns\TextColumn::make('badanusaha.name')
-                    ->label('Badan Usaha'),
+                    ->label('Badan Usaha')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('divisi.name')
-                    ->label('Divisi'),
+                    ->label('Divisi')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('region.name')
-                    ->label('Region'),
+                    ->label('Region')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('cluster.name')
-                    ->label('Cluster'),
+                    ->label('Cluster')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('nama_outlet')
                     ->label('Nama Outlet')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('nama_pemilik_outlet')
-                    ->label('Nama Pemilik Outlet'),
+                    ->label('Nama Pemilik Outlet')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('nomer_tlp_outlet')
-                    ->label('Nomor Telepon Outlet'),
+                    ->label('Nomor Telepon Outlet')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('distric')
-                    ->label('Distrik'),
+                    ->label('Distrik')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('poto_shop_sign')
                     ->label('Foto Tanda Outlet')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
                     ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
-                    ->color('primary'),
+                    ->color('primary')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('poto_depan')
                     ->label('Foto Depan')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
                     ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
-                    ->color('primary'),
+                    ->color('primary')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('poto_kiri')
                     ->label('Foto Kiri')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
                     ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
-                    ->color('primary'),
+                    ->color('primary')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('poto_kanan')
                     ->label('Foto Kanan')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
                     ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
-                    ->color('primary'),
+                    ->color('primary')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('poto_ktp')
                     ->label('Foto KTP')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO KTP'))
                     ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
-                    ->color('primary'),
+                    ->color('primary')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('video')
                     ->label('Video Outlet')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('VIDEO'))
                     ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
-                    ->color('primary'),
+                    ->color('primary')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('limit')
-                    ->label('Limit'),
+                    ->label('Limit')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('radius')
-                    ->label('Radius'),
+                    ->label('Radius')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('latlong')
                     ->label('Lokasi (LatLong)')
                     ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('LOKASI'))
                     ->url(fn($state): string => 'https://www.google.com/maps/place/' . $state, shouldOpenInNewTab: true)
-                    ->color('primary'),
+                    ->color('primary')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('status_outlet')
-                    ->label('Status Outlet'),
+                    ->label('Status Outlet')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Tanggal Dibuat')
                     ->date('d M Y')
