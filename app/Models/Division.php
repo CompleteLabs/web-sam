@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Division extends Model
 {
@@ -49,8 +50,8 @@ class Division extends Model
         return $this->hasMany(Cluster::class);
     }
 
-    public function entity()
+    public function customAttributes(): MorphMany
     {
-        return $this->morphTo(null, 'apply_entity_type', 'apply_entity_id');
+        return $this->morphMany(CustomAttribute::class, 'apply_entity');
     }
 }

@@ -64,6 +64,11 @@ class Outlet extends Model
         return $this->belongsTo(Division::class);
     }
 
+    public function customAttributeValues(): MorphMany
+    {
+        return $this->morphMany(CustomAttributeValue::class, 'entity');
+    }
+
     protected static function booted()
     {
         static::updating(function ($model) {
@@ -84,6 +89,23 @@ class Outlet extends Model
                     }
                 }
             }
+        });
+
+        static::forceDeleting(function ($model) {
+            $fields = [
+                'poto_shop_sign',
+                'poto_depan',
+                'poto_kiri',
+                'poto_kanan',
+                'poto_ktp',
+                'video',
+            ];
+            foreach ($fields as $field) {
+                if ($model->$field && Storage::disk('public')->exists($model->$field)) {
+                    Storage::disk('public')->delete($model->$field);
+                }
+            }
+            $model->customAttributeValues()->forceDelete();
         });
     }
 
@@ -112,10 +134,5 @@ class Outlet extends Model
             'cluster' => $this->cluster ? $this->cluster->only(['id', 'name']) : null,
             'divisi' => $this->divisi ? $this->divisi->only(['id', 'name']) : null,
         ];
-    }
-
-    public function attributes(): MorphMany
-    {
-        return $this->morphMany(CustomAttributeValue::class, 'entity');
     }
 }

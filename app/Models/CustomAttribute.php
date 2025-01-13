@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class CustomAttribute extends Model
 {
@@ -22,21 +23,13 @@ class CustomAttribute extends Model
         }
         return json_decode($value, true);
     }
-
-    public function badanusaha()
+    public function applyEntity(): MorphTo
     {
-        return $this->belongsTo(BadanUsaha::class);
-    }
-
-    public function divisi()
-    {
-        return $this->belongsTo(Division::class);
+        return $this->morphTo();
     }
 
     public function values(): HasMany
     {
         return $this->hasMany(CustomAttributeValue::class, 'custom_attribute_id');
     }
-
-
 }

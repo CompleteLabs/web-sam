@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -52,6 +53,11 @@ class Noo extends Model
     public function tm(): BelongsTo
     {
         return $this->belongsTo(User::class, 'tm_id');
+    }
+
+    public function customAttributeValues(): MorphMany
+    {
+        return $this->morphMany(CustomAttributeValue::class, 'entity');
     }
 
     protected static function booted()
@@ -112,6 +118,25 @@ class Noo extends Model
                 }
             }
         });
+
+        static::forceDeleting(function ($model) {
+            $fields = [
+                'poto_shop_sign',
+                'poto_depan',
+                'poto_kiri',
+                'poto_kanan',
+                'poto_ktp',
+                'video',
+            ];
+            foreach ($fields as $field) {
+                if ($model->$field && Storage::disk('public')->exists($model->$field)) {
+                    Storage::disk('public')->delete($model->$field);
+                }
+            }
+
+            // Hapus juga CustomAttributeValue terkait dengan model ini
+            $model->customAttributeValues()->forceDelete();
+        });
     }
 
     public function formatForAPI()
@@ -157,10 +182,5 @@ class Noo extends Model
             'divisi' => $this->divisi ? $this->divisi->only(['id', 'name']) : null,
             'created_by' => $this->created_by,
         ];
-    }
-
-    public function attributes()
-    {
-        return $this->morphMany(CustomAttributeValue::class, 'entity');
     }
 }
