@@ -39,7 +39,7 @@ class VisitController extends Controller
                     'user.role',
                 ])->whereHas('user', function ($query) {
                     $query->where('divisi_id', '8')
-                        ->whereIn('region_id', [78, 79, 80, 81]);
+                        ->whereIn('region_id', [63, 64, 66, 67, 68, 78, 79, 80, 81]);
                 })
                     ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
@@ -441,7 +441,6 @@ class VisitController extends Controller
             if ($checkIn) {
                 $outlet = Outlet::where('kode_outlet', $request->kode_outlet)->first();
                 $outletId = $outlet->id;
-                #validasi data
                 $request->validate([
                     'kode_outlet' => ['required'],
                     'picture_visit' => ['required', 'mimes:jpg,jpeg,png'],
@@ -466,7 +465,6 @@ class VisitController extends Controller
             if ($checkOut) {
                 $lastDataVisit = Visit::whereDate('tanggal_visit', date('Y-m-d'))->where('user_id', Auth::user()->id)->latest()->first();
                 if ($lastDataVisit != null) {
-                    # Validasi data
                     $request->validate([
                         'latlong_out' => ['required'],
                         'laporan_visit' => ['required'],
