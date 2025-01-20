@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Actions\Fortify\PasswordValidationRules;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -22,9 +23,22 @@ class UserController extends Controller
      */
     public function fetch(Request $request)
     {
-        $user = User::with(['cluster', 'region', 'role', 'divisi', 'badanusaha'])->where('id', Auth::user()->id)->first();
-        return ResponseFormatter::success(['user' => $user->formatForAPI(), 'message' => 'Data profile user berhasil diambil']);
+        try {
+            $user = User::with(['cluster', 'region', 'role', 'divisi', 'badanusaha'])
+                ->where('id', Auth::user()->id)
+                ->first();
+
+            return ResponseFormatter::success(
+                ['user' => $user->formatForAPI(), 'message' => 'Data profil pengguna berhasil diambil'],
+                'Fetch profile success'
+            );
+        } catch (Exception $error) {
+            return ResponseFormatter::error([
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
+        }
     }
+
 
     /**
      * User - Login ✅
@@ -33,30 +47,34 @@ class UserController extends Controller
      */
     public function login(Request $request)
     {
-        if ($request->version != '1.0.3') {
-            return ResponseFormatter::error([
-                'message' => 'Unauthorized'
-            ], 'Gagal login, Update versi aplikasi SAM anda ke V1.0.3.', 500);
-        }
-
-        // Validate the request parameters
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'version' => 'required|string|in:1.0.3',
             'username' => 'required|string',
             'password' => 'required|string',
-            /**
-             * @var string
-             * @example "68a4636e-c000-4dbf-bff9-c374e4a8c5ff"
-             */
             'notif_id' => 'required|string',
         ]);
+        if ($validator->fails()) {
+            $errors = $validator->errors();
+            $userMessage = 'Periksa kembali data yang Anda masukkan.';
 
+            if ($errors->has('version')) {
+                $userMessage = 'Perbarui aplikasi SAM Anda ke versi terbaru.';
+            }
+            if ($errors->has('notif_id')) {
+                $userMessage = 'Pastikan perangkat Anda terhubung dengan benar.';
+            }
+
+            return ResponseFormatter::error([
+                'errors' => $errors,
+                'message' => $userMessage
+            ], 'Invalid Input', 422);
+        }
         try {
             $credentials = request(['username', 'password']);
             if (!Auth::attempt($credentials)) {
                 return ResponseFormatter::error([
-                    'message' => 'Unauthorized'
-                ], 'Gagal login, cek kembali username dan password anda', 500);
+                    'message' => 'Cek kembali username dan password anda'
+                ], 'Unauthorized', 500);
             }
 
             $user = User::with(['region', 'cluster', 'role', 'divisi', 'badanusaha', 'tm'])
@@ -75,104 +93,30 @@ class UserController extends Controller
             return ResponseFormatter::success([
                 'access_token' => $tokenResult,
                 'token_type' => 'Bearer',
-                'user' => $user
+                'user' => $user->formatForAPI(),
             ], 'Authenticated');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Something went wrong',
-                'error' => $error,
-            ], 'Authentication Failed', 500);
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
         }
     }
-
-    // public function login(Request $request)
-    // {
-    //     // Validate the request parameters
-    //     $request->validate([
-    //         'version' => 'required|string|in:1.0.3',
-    //         'username' => 'required|string',
-    //         'password' => 'required|string',
-    //         /**
-    //          * @var string
-    //          * @example "68a4636e-c000-4dbf-bff9-c374e4a8c5ff"
-    //          */
-    //         'notif_id' => 'required|string',
-    //     ]);
-
-    //     try {
-    //         $credentials = request(['username', 'password']);
-
-    //         if (!Auth::attempt($credentials)) {
-    //             return ResponseFormatter::error(null, 'Gagal login, cek kembali username dan password anda', 401);
-    //         }
-
-    //         $user = User::with(['region', 'cluster', 'role', 'divisi', 'badanusaha', 'tm'])
-    //             ->where('username', $request->username)
-    //             ->first();
-
-    //         if (!Hash::check($request->password, $user->password)) {
-    //             return ResponseFormatter::error(null, 'Invalid credentials', 401);
-    //         }
-
-    //         $user->id_notif = $request->notif_id;
-    //         $user->update();
-
-    //         $tokenResult = $user->createToken('authToken')->plainTextToken;
-
-    //         return ResponseFormatter::success([
-    //             'access_token' => $tokenResult,
-    //             'token_type' => 'Bearer',
-    //             'user' => $user
-    //         ], 'Authenticated');
-    //     } catch (Exception $error) {
-    //         return ResponseFormatter::error(null, 'Authentication failed', 500);
-    //     }
-    // }
 
     /**
      * User - Logout ✅
      */
     public function logout(Request $request)
     {
-        $token = $request->user()->currentAccessToken()->delete();
-        return ResponseFormatter::success($token, 'Token Revoked');
+        try {
+            $request->user()->currentAccessToken()->delete();
+            return ResponseFormatter::success(
+                ['message' => 'Anda telah berhasil keluar dari aplikasi'],
+                'Token Revoked'
+            );
+        } catch (Exception $error) {
+            return ResponseFormatter::error([
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
+        }
     }
-
-    // public function register(Request $request)
-    // {
-    //     try {
-    //         $request->validate([
-    //             'username' => ['required', 'string', 'min:3', 'max:255', 'unique:users'],
-    //             'nama_lengkap' => ['required', 'string'],
-    //             'region' => ['required', 'string'],
-    //             'cluster_id' => ['required'],
-    //             'password' => $this->passwordRules()
-    //         ]);
-
-    //         User::create([
-    //             'username' => $request->username,
-    //             'nama_lengkap' => $request->nama_lengkap,
-    //             'region' => $request->region,
-    //             'cluster_id' => $request->cluster_id,
-    //             'password' => Hash::make($request->password),
-    //         ]);
-
-
-
-    //         $user = User::where('username', $request->username)->first();
-
-    //         $tokenResult = $user->createToken('authToken')->plainTextToken;
-
-    //         return ResponseFormatter::success([
-    //             'access_token' => $tokenResult,
-    //             'token_type' => 'Bearer',
-    //             'user' => $user
-    //         ], 'User Registered');
-    //     } catch (Exception $error) {
-    //         return ResponseFormatter::error([
-    //             'message' => 'Something went wrong',
-    //             'error' => $error,
-    //         ], 'Authentication Failed', 500);
-    //     }
-    // }
 }

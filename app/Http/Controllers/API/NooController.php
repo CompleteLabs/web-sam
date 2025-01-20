@@ -121,10 +121,10 @@ class NooController extends Controller
                 $noos->map->formatForAPI(),
                 'fetch noo success',
             );
-        } catch (Exception $err) {
+        } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => $err,
-            ], 'something wrong', 500);
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
         }
     }
 
@@ -137,10 +137,10 @@ class NooController extends Controller
                 $noos->map->formatForAPI(),
                 'fetch noo success',
             );
-        } catch (Exception $err) {
+        } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => $err,
-            ], 'something wrong', 500);
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
         }
     }
 
@@ -284,9 +284,10 @@ class NooController extends Controller
                 SendNotif::sendMessage('Noo baru ' . $request->nama_outlet . ' ditambahkan oleh ' . Auth::user()->nama_lengkap, $notifId);
             }
             return ResponseFormatter::success(null, 'berhasil menambahkan NOO ' . $request->nama_outlet);
-        } catch (Exception $e) {
-            error_log($e);
-            return ResponseFormatter::error($e, 'gagal');
+        } catch (Exception $error) {
+            return ResponseFormatter::error([
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
         }
     }
 
@@ -316,9 +317,10 @@ class NooController extends Controller
 
             );
             return ResponseFormatter::success($noo, 'berhasil update');
-        } catch (Exception $e) {
-            error_log($e);
-            return ResponseFormatter::error($e, 'gagal');
+        } catch (Exception $error) {
+            return ResponseFormatter::error([
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
         }
     }
 
@@ -383,9 +385,10 @@ class NooController extends Controller
                 );
             }
             return ResponseFormatter::success($noo, 'berhasil update');
-        } catch (Exception $e) {
-            error_log($e);
-            return ResponseFormatter::error($e, 'gagal');
+        } catch (Exception $error) {
+            return ResponseFormatter::error([
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
         }
     }
 
@@ -409,8 +412,10 @@ class NooController extends Controller
             SendNotif::sendMessage('Noo ' . $noo->nama_outlet . ' ditolak oleh ' . Auth::user()->nama_lengkap . PHP_EOL . 'Alasan : ' . $request->alasan, array($noo->tm->id_notif));
 
             return ResponseFormatter::success($noo, 'berhasil update');
-        } catch (Exception $e) {
-            return ResponseFormatter::error($e, 'gagal');
+        } catch (Exception $error) {
+            return ResponseFormatter::error([
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
         }
     }
 
@@ -419,8 +424,10 @@ class NooController extends Controller
         try {
             $badanusahas = BadanUsaha::all();
             return ResponseFormatter::success($badanusahas, 'berhasil');
-        } catch (Exception $e) {
-            return ResponseFormatter::error([], $e->getMessage());
+        } catch (Exception $error) {
+            return ResponseFormatter::error([
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
         }
     }
 
@@ -430,8 +437,10 @@ class NooController extends Controller
             $badanusaha_id = BadanUsaha::where('name', $request->bu)->first()->id;
             $divisi = Division::where('badanusaha_id', $badanusaha_id)->get();
             return ResponseFormatter::success($divisi, 'berhasil');
-        } catch (Exception $e) {
-            return ResponseFormatter::error([], $e->getMessage());
+        } catch (Exception $error) {
+            return ResponseFormatter::error([
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
         }
     }
 
@@ -442,8 +451,10 @@ class NooController extends Controller
             $divisi_id = Division::where('badanusaha_id', $badanusaha_id)->where('name', $request->div)->first()->id;
             $region = Region::where('badanusaha_id', $badanusaha_id)->where('divisi_id', $divisi_id)->get();
             return ResponseFormatter::success($region, 'berhasil');
-        } catch (Exception $e) {
-            return ResponseFormatter::error([], $e->getMessage());
+        } catch (Exception $error) {
+            return ResponseFormatter::error([
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
         }
     }
 
@@ -460,8 +471,10 @@ class NooController extends Controller
                 $cluster = Cluster::where('badanusaha_id', $badanusaha_id)->where('divisi_id', $divisi_id)->where('region_id', $region_id)->get();
             }
             return ResponseFormatter::success($cluster, 'berhasil');
-        } catch (Exception $e) {
-            return ResponseFormatter::error($e->getMessage(), $e->getMessage());
+        } catch (Exception $error) {
+            return ResponseFormatter::error([
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
         }
     }
 
@@ -479,8 +492,10 @@ class NooController extends Controller
                 $cluster = Cluster::where('badanusaha_id', $badanusaha_id)->where('divisi_id', $divisi_id)->where('region_id', $region_id)->get();
             }
             return ResponseFormatter::success($cluster, 'berhasil');
-        } catch (Exception $e) {
-            return ResponseFormatter::error($e->getMessage(), $e->getMessage());
+        } catch (Exception $error) {
+            return ResponseFormatter::error([
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
         }
     }
 
@@ -533,10 +548,10 @@ class NooController extends Controller
                 $noos,
                 'fetch noo success',
             );
-        } catch (Exception $err) {
+        } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => $err,
-            ], 'something wrong', 500);
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
         }
     }
 
@@ -548,8 +563,10 @@ class NooController extends Controller
                 ->where('id', $kodeOutlet)
                 ->get();
             return ResponseFormatter::success($noo, 'berhasil');
-        } catch (Exception $err) {
-            return ResponseFormatter::error(null, 'ada kesalahan');
+        } catch (Exception $error) {
+            return ResponseFormatter::error([
+                'message' => 'Terjadi kesalahan pada server.'
+            ], $error->getMessage(), 500);
         }
     }
 }
