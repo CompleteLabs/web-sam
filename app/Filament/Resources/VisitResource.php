@@ -277,9 +277,9 @@ class VisitResource extends Resource
         return Route::current()->parameter('record');
     }
 
-    public static function resolveRecordRouteBinding(int | string $key): ?Visit
+    public static function resolveRecordRouteBinding(int|string $key): ?Visit
     {
-        return self::getEloquentQuery()->first();
+        return self::getEloquentQuery()->where('visits.id', $key)->first();
     }
 
     public static function getRelations(): array

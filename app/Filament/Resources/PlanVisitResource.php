@@ -153,9 +153,9 @@ class PlanVisitResource extends Resource
         return Route::current()->parameter('record');
     }
 
-    public static function resolveRecordRouteBinding(int | string $key): ?PlanVisit
+    public static function resolveRecordRouteBinding(int|string $key): ?PlanVisit
     {
-        return self::getEloquentQuery()->first();
+        return self::getEloquentQuery()->where('plan_visits.id', $key)->first();
     }
 
 
