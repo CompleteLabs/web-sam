@@ -29,37 +29,37 @@ class PlanVisitResource extends Resource
                 Forms\Components\Section::make('User Information')
                     ->schema([
                         Forms\Components\Select::make('user_id')
-                        ->searchable()
-                        ->preload()
-                        ->required()
-                        ->reactive()
-                        ->label('Pilih User')
-                        ->placeholder('Cari User berdasarkan nama lengkap')
-                        ->options(function () {
-                            $users = User::with(['badanusaha', 'divisi'])->get();
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->reactive()
+                            ->label('Pilih User')
+                            ->placeholder('Cari User berdasarkan nama lengkap')
+                            ->options(function () {
+                                $users = User::with(['badanusaha', 'divisi'])->get();
 
-                            return $users->mapWithKeys(function ($user) {
-                                $badanusahaName = $user->badanusaha ? $user->badanusaha->name : 'Tidak ada badan usaha';
-                                $divisiName = $user->divisi ? $user->divisi->name : 'Tidak ada divisi';
-                                return [$user->id => "{$user->nama_lengkap} - {$badanusahaName} / {$divisiName}"];
-                            });
-                        }),
-                    Forms\Components\Select::make('outlet_id')
-                        ->searchable()
-                        ->preload()
-                        ->required()
-                        ->label('Pilih Outlet')
-                        ->options(function () {
-                            // Eager load badanusaha dan divisi
-                            $outlets = Outlet::with(['badanusaha', 'divisi'])->get();
+                                return $users->mapWithKeys(function ($user) {
+                                    $badanusahaName = $user->badanusaha ? $user->badanusaha->name : 'Tidak ada badan usaha';
+                                    $divisiName = $user->divisi ? $user->divisi->name : 'Tidak ada divisi';
+                                    return [$user->id => "{$user->nama_lengkap} - {$badanusahaName} / {$divisiName}"];
+                                });
+                            }),
+                        Forms\Components\Select::make('outlet_id')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->label('Pilih Outlet')
+                            ->options(function () {
+                                // Eager load badanusaha dan divisi
+                                $outlets = Outlet::with(['badanusaha', 'divisi'])->get();
 
-                            return $outlets->mapWithKeys(function ($outlet) {
-                                // Menggabungkan nama outlet, badan usaha, dan divisi untuk label
-                                $badanusahaName = $outlet->badanusaha ? $outlet->badanusaha->name : 'Tidak ada badan usaha';
-                                $divisiName = $outlet->divisi ? $outlet->divisi->name : 'Tidak ada divisi';
-                                return [$outlet->id => "[{$outlet->kode_outlet}] {$outlet->nama_outlet} - {$badanusahaName} / {$divisiName}"];
-                            });
-                        }),
+                                return $outlets->mapWithKeys(function ($outlet) {
+                                    // Menggabungkan nama outlet, badan usaha, dan divisi untuk label
+                                    $badanusahaName = $outlet->badanusaha ? $outlet->badanusaha->name : 'Tidak ada badan usaha';
+                                    $divisiName = $outlet->divisi ? $outlet->divisi->name : 'Tidak ada divisi';
+                                    return [$outlet->id => "[{$outlet->kode_outlet}] {$outlet->nama_outlet} - {$badanusahaName} / {$divisiName}"];
+                                });
+                            }),
                     ])
                     ->collapsible()
                     ->columns(2),
@@ -90,7 +90,7 @@ class PlanVisitResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('outlet.kode_outlet'),
                 Tables\Columns\TextColumn::make('tanggal_visit')
-                    ->date('d M Y'),
+                    ->formatStateUsing(fn($state) => $state ? \Carbon\Carbon::createFromTimestamp($state / 1000)->format('d M Y') : '-'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->date('d M Y')
                     ->toggleable(isToggledHiddenByDefault: true),
