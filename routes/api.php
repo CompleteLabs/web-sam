@@ -8,11 +8,7 @@ use App\Http\Controllers\API\PlanVisitController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\VisitController;
 use App\Http\Controllers\SettingController;
-use Carbon\Carbon;
-use FFMpeg\FFMpeg;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\OutletController as outlet;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,14 +31,11 @@ Route::middleware(['auth:sanctum', 'logku'])->group(function () {
     Route::get('outlet/{nama}', [OutletController::class, 'singleOutlet']);
     Route::post('outlet', [OutletController::class, 'updatefoto']);
 
-
     //VISIT
     Route::get('visit', [VisitController::class, 'fetch']);
     Route::get('visit/check', [VisitController::class, 'check']);
     Route::post('visit', [VisitController::class, 'submit']);
     Route::get('visit/monitor', [VisitController::class, 'monitor']);
-    Route::post('visitNoo', [VisitController::class, 'submitNoo']);
-
 
     //PLANVISIT
     Route::get('planvisit', [PlanVisitController::class, 'fetch']);
@@ -50,8 +43,6 @@ Route::middleware(['auth:sanctum', 'logku'])->group(function () {
     Route::get('planvisit/filter', [PlanVisitController::class, 'bymonth']);
     Route::delete('planvisit', [PlanVisitController::class, 'delete']);
     Route::delete('planvisitrealme', [PlanVisitController::class, 'deleterealme']);
-    Route::get('planvisitnoo', [PlanVisitController::class, 'fetchnoo']);
-    Route::delete('planvisitnoo', [PlanVisitController::class, 'deletenoo']);
 
     //NOO
     Route::get('noo/getbu', [NooController::class, 'getbu']);

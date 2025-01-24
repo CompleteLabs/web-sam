@@ -39,13 +39,13 @@ class VisitController extends Controller
             ]);
 
             // Logika untuk setiap role
-            if ($user->id == 2 && $user->role_id == 1) {
+            if ($user->id == 2 && $user->role_id == 8) {
                 // Robby (GM ZTE)
                 $visitQuery->whereHas('user', function ($query) {
                     $query->where('divisi_id', '8')
                         ->whereIn('region_id', [63, 64, 66, 67, 68, 78, 79, 80, 81]);
                 });
-            } elseif ($user->id == 689 && $user->role_id == 1) {
+            } elseif ($user->id == 689 && $user->role_id == 8) {
                 // Hendra Setia (GM Techno)
                 $visitQuery->whereHas('user', function ($query) {
                     $query->where('divisi_id', '11');
