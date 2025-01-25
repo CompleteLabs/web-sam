@@ -24,7 +24,7 @@ class IsAdmin
         if(!Auth::user()){
             return redirect('/masuk');
         }
-        if(auth()->user()->role_id == 13 || auth()->user()->role_id == 5 || auth()->user()->role_id == 4){
+        if(auth()->user()->role->can_access_web == 1){
             return $next($request);
         }
         return redirect('/masuk');
