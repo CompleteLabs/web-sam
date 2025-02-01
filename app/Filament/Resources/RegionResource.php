@@ -4,13 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\RegionResource\Pages;
 use App\Filament\Resources\RegionResource\RelationManagers;
-use App\Models\Division;
 use App\Models\Region;
+use App\Services\OrganizationalStructureService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,20 +33,10 @@ class RegionResource extends Resource
                     ->required()
                     ->reactive()
                     ->placeholder('Pilih badan usaha')
-                            ->options(function (callable $get) {
-                                $user = auth()->user();
-                                $role = $user->role;
-
-                                if ($role->filter_type === 'badanusaha') {
-                                    return \App\Models\BadanUsaha::whereIn('id', $role->filter_data ?? [])
-                                        ->pluck('name', 'id');
-                                } elseif ($role->filter_type === 'all') {
-                                    return \App\Models\BadanUsaha::pluck('name', 'id');
-                                }
-
-                                return \App\Models\BadanUsaha::where('id', $user->badanusaha_id)
-                                    ->pluck('name', 'id');
-                            })
+                    ->options(function (callable $get) {
+                        $organizationalStructureService = new OrganizationalStructureService();
+                        return $organizationalStructureService->getBadanUsahaOptions();
+                    })
                     ->afterStateUpdated(function ($state, callable $set) {
                         $set('divisi_id', null);
                     }),
@@ -62,8 +51,8 @@ class RegionResource extends Resource
                         if (!$badanusahaId) {
                             return [];
                         }
-                        return Division::where('badanusaha_id', $badanusahaId)
-                            ->pluck('name', 'id');
+                        $organizationalStructureService = new OrganizationalStructureService();
+                        return $organizationalStructureService->getDivisiOptions($badanusahaId);
                     }),
                 Forms\Components\TextInput::make('name')
                     ->required()

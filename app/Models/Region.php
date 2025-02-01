@@ -16,7 +16,8 @@ class Region extends Model
     ];
 
     protected $hidden = [
-        "created_at", "updated_at"
+        "created_at",
+        "updated_at"
     ];
 
     public function user(): HasMany
@@ -36,12 +37,12 @@ class Region extends Model
 
     public function badanusaha(): BelongsTo
     {
-        return $this->belongsTo(BadanUsaha::class);
+        return $this->belongsTo(BadanUsaha::class, 'badanusaha_id');
     }
 
     public function divisi(): BelongsTo
     {
-        return $this->belongsTo(Division::class);
+        return $this->belongsTo(Division::class, 'divisi_id');
     }
 
     public function cluster(): HasMany

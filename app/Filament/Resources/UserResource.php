@@ -4,11 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
-use App\Models\BadanUsaha;
 use App\Models\Cluster;
-use App\Models\Division;
-use App\Models\Region;
 use App\Models\User;
+use App\Services\OrganizationalStructureService;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
@@ -51,8 +49,9 @@ class UserResource extends Resource
                             ->placeholder('Masukkan nama lengkap')
                             ->dehydrateStateUsing(fn($state) => strtoupper($state))
                     ])
+                    ->collapsible()
                     ->columns(2),
-                Forms\Components\Section::make('Organization Information')
+                Forms\Components\Section::make('Badan Usaha & Divisi')
                     ->schema([
                         Forms\Components\Select::make('badanusaha_id')
                             ->label('Badan Usaha')
@@ -61,19 +60,9 @@ class UserResource extends Resource
                             ->reactive()
                             ->placeholder('Pilih badan usaha')
                             ->options(function (callable $get) {
-                                $user = auth()->user();
-                                $role = $user->role;
-                                if ($role->filter_type === 'badanusaha') {
-                                    return \App\Models\BadanUsaha::whereIn('id', $role->filter_data ?? [])
-                                        ->pluck('name', 'id');
-                                } elseif ($role->filter_type === 'all') {
-                                    return \App\Models\BadanUsaha::pluck('name', 'id');
-                                }
-
-                                return \App\Models\BadanUsaha::where('id', $user->badanusaha_id)
-                                    ->pluck('name', 'id');
+                                $badanUsahaService = new OrganizationalStructureService();
+                                return $badanUsahaService->getBadanUsahaOptions();
                             })
-
                             ->afterStateUpdated(function ($state, callable $set) {
                                 $set('divisi_id', null);
                                 $set('region_id', null);
@@ -92,8 +81,8 @@ class UserResource extends Resource
                                 if (!$badanusahaId) {
                                     return [];
                                 }
-                                return Division::where('badanusaha_id', $badanusahaId)
-                                    ->pluck('name', 'id');
+                                $badanUsahaService = new OrganizationalStructureService();
+                                return $badanUsahaService->getDivisiOptions($badanusahaId);
                             })
                             ->afterStateUpdated(function ($state, callable $set) {
                                 $set('region_id', null);
@@ -112,8 +101,8 @@ class UserResource extends Resource
                                 if (!$divisiId) {
                                     return [];
                                 }
-                                return Region::where('divisi_id', $divisiId)
-                                    ->pluck('name', 'id');
+                                $badanUsahaService = new OrganizationalStructureService();
+                                return $badanUsahaService->getRegionOptions($divisiId);
                             })
                             ->afterStateUpdated(function ($state, callable $set) {
                                 $set('cluster_id', null);
@@ -131,10 +120,9 @@ class UserResource extends Resource
                                 if (!$regionId) {
                                     return [];
                                 }
-                                return Cluster::where('region_id', $regionId)
-                                    ->pluck('name', 'id');
+                                $badanUsahaService = new OrganizationalStructureService();
+                                return $badanUsahaService->getClusterOptions($regionId);
                             }),
-
                         Forms\Components\Select::make('cluster_id2')
                             ->label('Cluster 2')
                             ->searchable()
@@ -147,9 +135,11 @@ class UserResource extends Resource
                                     return [];
                                 }
                                 return Cluster::where('region_id', $clusterId)
+                                    ->orderBy('name')
                                     ->pluck('name', 'id');
                             }),
                     ])
+                    ->collapsible()
                     ->columns(2),
                 Forms\Components\Section::make('Role & TM')
                     ->schema([
@@ -163,7 +153,7 @@ class UserResource extends Resource
                             ->options(function (callable $get) {
                                 $user = auth()->user();
                                 if ($user->role->name !== 'SUPER ADMIN') {
-                                    return \App\Models\Role::whereIn('name', ['AR', 'ASC', 'ASM', 'DSF/DM'])
+                                    return \App\Models\Role::whereIn('name', ['ASC', 'ASM', 'DSF/DM'])
                                         ->pluck('name', 'id')->toArray();
                                 }
                                 return \App\Models\Role::pluck('name', 'id')->toArray();
@@ -176,6 +166,7 @@ class UserResource extends Resource
                             ->required()
                             ->placeholder('Pilih TM'),
                     ])
+                    ->collapsible()
                     ->columns(2),
                 Forms\Components\Section::make('Password')
                     ->schema([
@@ -199,8 +190,6 @@ class UserResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('nama_lengkap')
                     ->searchable(),
-                // Tables\Columns\TextColumn::make('username')
-                //     ->searchable(),
                 Tables\Columns\TextColumn::make('role.name'),
                 Tables\Columns\TextColumn::make('badanusaha.name'),
                 Tables\Columns\TextColumn::make('divisi.name'),
@@ -221,7 +210,10 @@ class UserResource extends Resource
                     ->form([
                         Select::make('businessEntity')
                             ->label('Badan Usaha')
-                            ->options(BadanUsaha::orderBy('name', 'asc')->pluck('name', 'id')->toArray())
+                            ->options(function (callable $get) {
+                                $badanUsahaService = new OrganizationalStructureService();
+                                return $badanUsahaService->getBadanUsahaOptions();
+                            })
                             ->reactive()
                             ->searchable()
                             ->placeholder('Pilih Business Entity')
@@ -234,9 +226,8 @@ class UserResource extends Resource
                             ->options(function (callable $get) {
                                 $businessEntityId = $get('businessEntity');
                                 if ($businessEntityId) {
-                                    return Division::where('badanusaha_id', $businessEntityId)
-                                        ->orderBy('name', 'asc')
-                                        ->pluck('name', 'id');
+                                    $badanUsahaService = new OrganizationalStructureService();
+                                    return $badanUsahaService->getDivisiOptions($businessEntityId);
                                 }
                                 return [];
                             })
@@ -253,9 +244,8 @@ class UserResource extends Resource
                             ->options(function (callable $get) {
                                 $divisionId = $get('division');
                                 if ($divisionId) {
-                                    return Region::where('divisi_id', $divisionId)
-                                        ->orderBy('name', 'asc')
-                                        ->pluck('name', 'id');
+                                    $badanUsahaService = new OrganizationalStructureService();
+                                    return $badanUsahaService->getRegionOptions($divisionId);
                                 }
                                 return [];
                             })
@@ -322,7 +312,6 @@ class UserResource extends Resource
                 }
             });
     }
-
 
     public static function getPages(): array
     {

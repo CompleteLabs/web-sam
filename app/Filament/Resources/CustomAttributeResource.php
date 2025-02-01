@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Clusters\CustomField;
 use App\Filament\Resources\CustomAttributeResource\Pages;
 use App\Filament\Resources\CustomAttributeResource\RelationManagers;
 use App\Models\BadanUsaha;

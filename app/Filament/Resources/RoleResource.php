@@ -3,12 +3,9 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RoleResource\Pages;
-use App\Models\BadanUsaha;
-use App\Models\Cluster;
-use App\Models\Division;
 use App\Models\Permission;
-use App\Models\Region;
 use App\Models\Role;
+use App\Services\FilterOptionsService;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\CheckboxList;
@@ -19,9 +16,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Illuminate\Support\Collection;
 
 class RoleResource extends Resource
 {
@@ -47,12 +42,13 @@ class RoleResource extends Resource
                             ->required(),
                         Select::make('filter_type')
                             ->options([
-                                'badanusaha' => 'Badan Usaha',
-                                'divisi' => 'Divisi',
-                                'region' => 'Region',
-                                'cluster' => 'Cluster',
+                                '\App\Models\BadanUsaha' => 'Badan Usaha',
+                                '\App\Models\Division' => 'Divisi',
+                                '\App\Models\Region' => 'Region',
+                                '\App\Models\Cluster' => 'Cluster',
                                 'all' => 'All Data',
                             ])
+                            ->searchable()
                             ->visible(fn($get) => $get('can_access_web') !== false)
                             ->reactive()
                             ->label('Filter Type')
@@ -61,41 +57,8 @@ class RoleResource extends Resource
                             ->label('Filter Data')
                             ->options(function ($get) {
                                 $filterType = $get('filter_type');
-
-                                switch ($filterType) {
-                                    case 'badanusaha':
-                                        return \App\Models\BadanUsaha::pluck('name', 'id');
-
-                                    case 'divisi':
-                                        return \App\Models\Division::with(['badanusaha'])
-                                            ->get()
-                                            ->mapWithKeys(function ($division) {
-                                                $badanusahaName = $division->badanusaha ? $division->badanusaha->name : 'Tidak ada badan usaha';
-                                                return [$division->id => "{$division->name} [{$badanusahaName}]"];
-                                            });
-
-                                    case 'region':
-                                        return \App\Models\Region::with(['badanusaha'])
-                                            ->get()
-                                            ->mapWithKeys(function ($region) {
-                                                $badanusahaName = $region->badanusaha ? $region->badanusaha->name : 'Tidak ada badan usaha';
-                                                $divisiName = $region->divisi ? $region->divisi->name : 'Tidak ada divisi';
-                                                return [$region->id => "{$region->name} [{$badanusahaName}/{$divisiName}]"];
-                                            });
-
-                                    case 'cluster':
-                                        return \App\Models\Cluster::with(['badanusaha', 'divisi', 'region'])
-                                            ->get()
-                                            ->mapWithKeys(function ($cluster) {
-                                                $badanusahaName = $cluster->badanusaha ? $cluster->badanusaha->name : 'Tidak ada badan usaha';
-                                                $divisiName = $cluster->divisi ? $cluster->divisi->name : 'Tidak ada divisi';
-                                                $regionName = $cluster->region ? $cluster->region->name : 'Tidak ada region';
-                                                return [$cluster->id => "{$cluster->name} - {$regionName} [{$badanusahaName}/{$divisiName}]"];
-                                            });
-
-                                    default:
-                                        return [];
-                                }
+                                $filterOptionsService = new FilterOptionsService();
+                                return $filterOptionsService->getOptionsByFilterType($filterType);
                             })
                             ->placeholder('Pilih Data')
                             ->reactive()

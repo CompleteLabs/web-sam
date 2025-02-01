@@ -5,8 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ClusterResource\Pages;
 use App\Filament\Resources\ClusterResource\RelationManagers;
 use App\Models\Cluster;
-use App\Models\Division;
-use App\Models\Region;
+use App\Services\OrganizationalStructureService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -33,20 +32,10 @@ class ClusterResource extends Resource
                     ->required()
                     ->reactive()
                     ->placeholder('Pilih badan usaha')
-                            ->options(function (callable $get) {
-                                $user = auth()->user();
-                                $role = $user->role;
-
-                                if ($role->filter_type === 'badanusaha') {
-                                    return \App\Models\BadanUsaha::whereIn('id', $role->filter_data ?? [])
-                                        ->pluck('name', 'id');
-                                } elseif ($role->filter_type === 'all') {
-                                    return \App\Models\BadanUsaha::pluck('name', 'id');
-                                }
-
-                                return \App\Models\BadanUsaha::where('id', $user->badanusaha_id)
-                                    ->pluck('name', 'id');
-                            })
+                    ->options(function (callable $get) {
+                        $organizationalStructureService = new OrganizationalStructureService();
+                        return $organizationalStructureService->getBadanUsahaOptions();
+                    })
                     ->afterStateUpdated(function ($state, callable $set) {
                         $set('divisi_id', null);
                         $set('region_id', null);
@@ -63,8 +52,8 @@ class ClusterResource extends Resource
                         if (!$badanusahaId) {
                             return [];
                         }
-                        return Division::where('badanusaha_id', $badanusahaId)
-                            ->pluck('name', 'id');
+                        $organizationalStructureService = new OrganizationalStructureService();
+                        return $organizationalStructureService->getDivisiOptions($badanusahaId);
                     })
                     ->afterStateUpdated(function ($state, callable $set) {
                         $set('region_id', null);
@@ -80,8 +69,8 @@ class ClusterResource extends Resource
                         if (!$divisiId) {
                             return [];
                         }
-                        return Region::where('divisi_id', $divisiId)
-                            ->pluck('name', 'id');
+                        $organizationalStructureService = new OrganizationalStructureService();
+                        return $organizationalStructureService->getRegionOptions($divisiId);
                     }),
                 Forms\Components\TextInput::make('name')
                     ->required()

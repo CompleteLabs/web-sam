@@ -10,7 +10,6 @@ use App\Models\Visit;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -21,7 +20,6 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 
 use function Laravel\Prompts\search;
@@ -51,6 +49,7 @@ class VisitResource extends Resource
                             ->placeholder('Select a type')
                             ->searchable(),
                     ])
+                    ->collapsible()
                     ->columns(2),
                 Forms\Components\Section::make('User and Outlet')
                     ->schema([
@@ -76,17 +75,16 @@ class VisitResource extends Resource
                             ->required()
                             ->label('Pilih Outlet')
                             ->options(function () {
-                                // Eager load badanusaha dan divisi
                                 $outlets = Outlet::with(['badanusaha', 'divisi'])->get();
 
                                 return $outlets->mapWithKeys(function ($outlet) {
-                                    // Menggabungkan nama outlet, badan usaha, dan divisi untuk label
                                     $badanusahaName = $outlet->badanusaha ? $outlet->badanusaha->name : 'Tidak ada badan usaha';
                                     $divisiName = $outlet->divisi ? $outlet->divisi->name : 'Tidak ada divisi';
                                     return [$outlet->id => "[{$outlet->kode_outlet}] {$outlet->nama_outlet} - {$badanusahaName} / {$divisiName}"];
                                 });
                             }),
                     ])
+                    ->collapsible()
                     ->columns(2),
                 Forms\Components\Section::make('Location & Timing')
                     ->schema([
@@ -105,6 +103,7 @@ class VisitResource extends Resource
                             ->label('Check-out Time')
                             ->visible(fn(string $context): bool => $context === 'edit'),
                     ])
+                    ->collapsible()
                     ->columns(2),
                 Forms\Components\Section::make('Files')
                     ->schema([
@@ -133,7 +132,8 @@ class VisitResource extends Resource
                                 return Carbon::now()->format('Y-m-d') . '-' . $username . '-OUT-' . Carbon::now()->getPreciseTimestamp(3) . '.' . $file->getClientOriginalExtension();
                             })
                             ->visible(fn(string $context): bool => $context === 'edit'),
-                    ]),
+                    ])
+                    ->collapsible(),
                 Forms\Components\Section::make('Transaction Information')
                     ->schema([
                         Forms\Components\Select::make('transaksi')
@@ -149,6 +149,7 @@ class VisitResource extends Resource
                             ->columnSpanFull()
                             ->label('Laporan Visit'),
                     ])
+                    ->collapsible()
                     ->visible(fn(string $context): bool => $context === 'edit'),
             ]);
     }

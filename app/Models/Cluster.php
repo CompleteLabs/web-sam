@@ -36,12 +36,12 @@ class Cluster extends Model
 
     public function badanusaha(): BelongsTo
     {
-        return $this->belongsTo(BadanUsaha::class);
+        return $this->belongsTo(BadanUsaha::class, 'badanusaha_id');
     }
 
     public function divisi(): BelongsTo
     {
-        return $this->belongsTo(Division::class);
+        return $this->belongsTo(Division::class, 'divisi_id');
     }
 
     public function region(): BelongsTo

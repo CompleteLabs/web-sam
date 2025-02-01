@@ -43,7 +43,7 @@ class BadanUsaha extends Model
 
     public function region(): HasMany
     {
-        return $this->hasMany(Region::class);
+        return $this->hasMany(Region::class, 'badanusaha_id');
     }
 
     public function cluster(): HasMany

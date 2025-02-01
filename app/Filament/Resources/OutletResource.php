@@ -5,15 +5,10 @@ namespace App\Filament\Resources;
 use App\Filament\Concerns\DynamicAttributes;
 use App\Filament\Resources\OutletResource\Pages;
 use App\Filament\Resources\OutletResource\RelationManagers;
-use App\Helpers\AttributeSchemaHelper;
-use App\Models\BadanUsaha;
-use App\Models\Cluster;
-use App\Models\Division;
 use App\Models\Outlet;
-use App\Models\Region;
+use App\Services\OrganizationalStructureService;
 use Carbon\Carbon;
 use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -53,13 +48,12 @@ class OutletResource extends Resource
                             ->helperText('Kode outlet tidak boleh mengandung spasi')
                             ->rule(function (callable $get) {
                                 return function ($attribute, $value, $fail) use ($get) {
-                                    $divisiId = $get('divisi_id'); // Retrieve badanusaha_id using $get
-                                    $outletId = $get('id'); // Ambil id outlet untuk proses edit (pastikan field ini tersedia)
-                                    // Cek apakah kode_outlet sudah digunakan di divisi yang sama, kecuali oleh outlet ini sendiri
+                                    $divisiId = $get('divisi_id');
+                                    $outletId = $get('id');
                                     $exists = DB::table('outlets')
                                         ->where('kode_outlet', $value)
                                         ->where('divisi_id', $divisiId)
-                                        ->where('id', '!=', $outletId) // Abaikan data ini sendiri jika dalam mode edit
+                                        ->where('id', '!=', $outletId)
                                         ->where('deleted_at', null)
                                         ->exists();
                                     if ($exists) {
@@ -90,6 +84,7 @@ class OutletResource extends Resource
                             ->label('Alamat Outlet')
                             ->placeholder('Masukkan alamat lengkap outlet'),
                     ])
+                    ->collapsible()
                     ->columns(2),
                 Forms\Components\Section::make('Kontak & Pemilik Outlet')
                     ->schema([
@@ -102,6 +97,7 @@ class OutletResource extends Resource
                             ->label('Nomor Telepon Outlet')
                             ->placeholder('Masukkan nomor telepon outlet'),
                     ])
+                    ->collapsible()
                     ->columns(2),
 
                 Forms\Components\Section::make('Foto & Video')
@@ -160,6 +156,7 @@ class OutletResource extends Resource
                                 return $outletName . '-video-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
                             }),
                     ])
+                    ->collapsible()
                     ->columns(2),
                 Forms\Components\Section::make('Badan Usaha & Divisi')
                     ->schema([
@@ -170,87 +167,76 @@ class OutletResource extends Resource
                             ->reactive()
                             ->placeholder('Pilih badan usaha')
                             ->options(function (callable $get) {
-                                $user = auth()->user();
-                                $role = $user->role;
-
-                                if ($role->filter_type === 'badanusaha') {
-                                    return \App\Models\BadanUsaha::whereIn('id', $role->filter_data ?? [])
-                                        ->pluck('name', 'id');
-                                } elseif ($role->filter_type === 'all') {
-                                    return \App\Models\BadanUsaha::pluck('name', 'id');
-                                }
-
-                                return \App\Models\BadanUsaha::where('id', $user->badanusaha_id)
-                                    ->pluck('name', 'id');
+                                $organizationalStructureService = new OrganizationalStructureService();
+                                return $organizationalStructureService->getBadanUsahaOptions();
                             })
                             ->afterStateUpdated(function ($state, callable $set) {
                                 $set('divisi_id', null);
                                 $set('region_id', null);
                                 $set('cluster_id', null);
-                                $set('cluster_id2', null);
                             }),
-
                         Forms\Components\Select::make('divisi_id')
                             ->label('Divisi')
                             ->searchable()
                             ->preload()
                             ->required()
                             ->reactive()
+                            ->placeholder('Pilih divisi')
                             ->options(function (callable $get) {
                                 $badanusahaId = $get('badanusaha_id');
                                 if (!$badanusahaId) {
                                     return [];
                                 }
-                                return Division::where('badanusaha_id', $badanusahaId)
-                                    ->pluck('name', 'id');
+                                $organizationalStructureService = new OrganizationalStructureService();
+                                return $organizationalStructureService->getDivisiOptions($badanusahaId);
                             })
                             ->afterStateUpdated(function ($state, callable $set) {
                                 $set('region_id', null);
                                 $set('cluster_id', null);
                                 $set('cluster_id2', null);
                             }),
-
                         Forms\Components\Select::make('region_id')
                             ->label('Region')
                             ->searchable()
                             ->preload()
                             ->required()
                             ->reactive()
+                            ->placeholder('Pilih region')
                             ->options(function (callable $get) {
                                 $divisiId = $get('divisi_id');
                                 if (!$divisiId) {
                                     return [];
                                 }
-                                return Region::where('divisi_id', $divisiId)
-                                    ->pluck('name', 'id');
+                                $organizationalStructureService = new OrganizationalStructureService();
+                                return $organizationalStructureService->getRegionOptions($divisiId);
                             })
                             ->afterStateUpdated(function ($state, callable $set) {
                                 $set('cluster_id', null);
                                 $set('cluster_id2', null);
                             }),
-
                         Forms\Components\Select::make('cluster_id')
                             ->label('Cluster')
                             ->searchable()
                             ->preload()
                             ->required()
                             ->reactive()
+                            ->placeholder('Pilih cluster')
                             ->options(function (callable $get) {
                                 $regionId = $get('region_id');
                                 if (!$regionId) {
                                     return [];
                                 }
-                                return Cluster::where('region_id', $regionId)
-                                    ->pluck('name', 'id');
+                                $organizationalStructureService = new OrganizationalStructureService();
+                                return $organizationalStructureService->getClusterOptions($regionId);
                             }),
                     ])
-                    ->columns(2), // Menyusun dropdown dalam dua kolom
-
+                    ->collapsible()
+                    ->columns(2),
                 Forms\Components\Section::make('Custom Attributes')
                     ->schema(function (callable $get, $record) {
                         $badanusahaId = $get('badanusaha_id');
                         $divisiId = $get('divisi_id');
-                        $entityId = $record?->id; // Ambil ID dari record yang sedang diedit
+                        $entityId = $record?->id;
 
                         if ($badanusahaId && $divisiId) {
                             $attributesBadanUsaha = static::dynamicAttributesSchema(
@@ -283,9 +269,9 @@ class OutletResource extends Resource
                         }
                         return [];
                     })
+                    ->collapsible()
                     ->columns(2),
 
-                // Grup Status & Limit Outlet
                 Forms\Components\Section::make('Status & Limit Outlet')
                     ->schema([
                         Forms\Components\Select::make('status_outlet')
@@ -320,7 +306,8 @@ class OutletResource extends Resource
                             ->helperText('Default 100 meter untuk checkin sales visit')
                             ->placeholder('Masukkan radius outlet'),
                     ])
-                    ->columns(4), // Menyusun status dan limit dalam dua kolom
+                    ->collapsible()
+                    ->columns(4),
             ]);
     }
 
@@ -331,7 +318,7 @@ class OutletResource extends Resource
                 Tables\Columns\TextColumn::make('kode_outlet')
                     ->label('Kode Outlet')
                     ->searchable()
-                    ->toggleable(), // Bisa di-toggle oleh pengguna
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('badanusaha.name')
                     ->label('Badan Usaha')
                     ->toggleable(),
@@ -421,61 +408,62 @@ class OutletResource extends Resource
             ->deferLoading()
             ->filters([
                 Filter::make('region')
-                    ->form([
-                        Select::make('businessEntity')
-                            ->label('Badan Usaha')
-                            ->options(BadanUsaha::orderBy('name', 'asc')->pluck('name', 'id')->toArray())
-                            ->reactive()
-                            ->searchable()
-                            ->placeholder('Pilih Business Entity')
-                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                $set('division', null);
-                                $set('region', null);
-                            }),
-                        Select::make('division')
-                            ->label('Divisi')
-                            ->options(function (callable $get) {
-                                $businessEntityId = $get('businessEntity');
-                                if ($businessEntityId) {
-                                    return Division::where('badanusaha_id', $businessEntityId)
-                                        ->orderBy('name', 'asc')
-                                        ->pluck('name', 'id');
-                                }
-                                return [];
-                            })
-                            ->reactive()
-                            ->searchable()
-                            ->placeholder('Pilih Division')
-                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                $set('region', null);
-                            }),
-                        Select::make('region')
-                            ->label('Region')
-                            ->searchable()
-                            ->placeholder('Pilih Region')
-                            ->options(function (callable $get) {
-                                $divisionId = $get('division');
-                                if ($divisionId) {
-                                    return Region::where('divisi_id', $divisionId)
-                                        ->orderBy('name', 'asc')
-                                        ->pluck('name', 'id');
-                                }
-                                return [];
-                            })
-                            ->reactive(),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        if ($data['businessEntity'] ?? null) {
-                            $query->where('badanusaha_id', $data['businessEntity']);
-                        }
-                        if ($data['division'] ?? null) {
-                            $query->where('divisi_id', $data['division']);
-                        }
-                        if ($data['region'] ?? null) {
-                            $query->where('region_id', $data['region']);
-                        }
-                        return $query;
-                    }),
+                ->form([
+                    Select::make('businessEntity')
+                        ->label('Badan Usaha')
+                        ->options(function (callable $get) {
+                            $badanUsahaService = new OrganizationalStructureService();
+                            return $badanUsahaService->getBadanUsahaOptions();
+                        })
+                        ->reactive()
+                        ->searchable()
+                        ->placeholder('Pilih Business Entity')
+                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                            $set('division', null);
+                            $set('region', null);
+                        }),
+                    Select::make('division')
+                        ->label('Divisi')
+                        ->options(function (callable $get) {
+                            $businessEntityId = $get('businessEntity');
+                            if ($businessEntityId) {
+                                $badanUsahaService = new OrganizationalStructureService();
+                                return $badanUsahaService->getDivisiOptions($businessEntityId);
+                            }
+                            return [];
+                        })
+                        ->reactive()
+                        ->searchable()
+                        ->placeholder('Pilih Division')
+                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                            $set('region', null);
+                        }),
+                    Select::make('region')
+                        ->label('Region')
+                        ->searchable()
+                        ->placeholder('Pilih Region')
+                        ->options(function (callable $get) {
+                            $divisionId = $get('division');
+                            if ($divisionId) {
+                                $badanUsahaService = new OrganizationalStructureService();
+                                return $badanUsahaService->getRegionOptions($divisionId);
+                            }
+                            return [];
+                        })
+                        ->reactive(),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    if ($data['businessEntity'] ?? null) {
+                        $query->where('badanusaha_id', $data['businessEntity']);
+                    }
+                    if ($data['division'] ?? null) {
+                        $query->where('divisi_id', $data['division']);
+                    }
+                    if ($data['region'] ?? null) {
+                        $query->where('region_id', $data['region']);
+                    }
+                    return $query;
+                }),
                 Tables\Filters\TrashedFilter::make()
                     ->hidden(fn() => !Gate::any(['restore_any_visit', 'force_delete_any_visit'], Outlet::class)),
 
@@ -494,7 +482,6 @@ class OutletResource extends Resource
                         ->icon('heroicon-o-building-storefront')
                         ->action(function (Collection $records) {
                             foreach ($records as $record) {
-                                // Hapus file yang terkait dengan kolom gambar/video
                                 if ($record->poto_shop_sign) {
                                     Storage::disk('public')->delete($record->poto_shop_sign);
                                 }
@@ -514,7 +501,6 @@ class OutletResource extends Resource
                                     Storage::disk('public')->delete($record->video);
                                 }
 
-                                // Reset kolom data menjadi null
                                 $record->update([
                                     'nama_pemilik_outlet' => null,
                                     'nomer_tlp_outlet' => null,
