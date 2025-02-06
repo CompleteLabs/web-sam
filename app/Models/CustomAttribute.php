@@ -11,8 +11,12 @@ class CustomAttribute extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['key', 'label', 'type', 'options', 'required', 'active', 'system_defined', 'entity_type', 'apply_entity_type', 'apply_entity_id'];
-    protected $casts = ['options' => 'array'];
+    protected $fillable = ['key', 'label', 'type', 'options', 'active', 'system_defined', 'entity_type', 'apply_entity_type', 'apply_entity_id', 'validation_rules'];
+
+    protected $casts = [
+        'options' => 'array',
+        'validation_rules' => 'array',
+    ];
 
     public function getOptionsAttribute($value)
     {

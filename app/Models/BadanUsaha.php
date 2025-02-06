@@ -38,17 +38,17 @@ class BadanUsaha extends Model
 
     public function divisi(): HasMany
     {
-        return $this->hasMany(Division::class);
+        return $this->hasMany(Division::class, 'badanusaha_id', 'id');
     }
 
     public function region(): HasMany
     {
-        return $this->hasMany(Region::class, 'badanusaha_id');
+        return $this->hasMany(Region::class, 'badanusaha_id', 'id');
     }
 
     public function cluster(): HasMany
     {
-        return $this->hasMany(Cluster::class);
+        return $this->hasMany(Cluster::class, 'badanusaha_id', 'id');
     }
 
     public function customAttributes(): MorphMany

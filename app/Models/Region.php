@@ -47,6 +47,6 @@ class Region extends Model
 
     public function cluster(): HasMany
     {
-        return $this->hasMany(Cluster::class);
+        return $this->hasMany(Cluster::class, 'region_id', 'id');
     }
 }

@@ -19,24 +19,24 @@ class ManageCustomAttributes extends ManageRecords
         ];
     }
 
-    public function getTabs(): array
-    {
-        // Ambil query yang sudah difilter berdasarkan role
-        $query = CustomAttributeResource::getEloquentQuery(); // Panggil getEloquentQuery() dari Resource
+    // public function getTabs(): array
+    // {
+    //     // Ambil query yang sudah difilter berdasarkan role
+    //     $query = CustomAttributeResource::getEloquentQuery(); // Panggil getEloquentQuery() dari Resource
 
-        return [
-            'NOO' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query
-                    ->where('entity_type', 'App\Models\Noo')
-                    ->orWhereNull('entity_type')
-                ),
+    //     return [
+    //         'NOO' => Tab::make()
+    //             ->modifyQueryUsing(fn(Builder $query) => $query
+    //                 ->where('entity_type', 'App\Models\Noo')
+    //                 ->orWhereNull('entity_type')
+    //             ),
 
-            'Outlet' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query
-                    ->where('entity_type', 'App\Models\Outlet')
-                    ->orWhereNull('entity_type')
-                ),
-        ];
+    //         'Outlet' => Tab::make()
+    //             ->modifyQueryUsing(fn(Builder $query) => $query
+    //                 ->where('entity_type', 'App\Models\Outlet')
+    //                 ->orWhereNull('entity_type')
+    //             ),
+    //     ];
 
-    }
+    // }
 }

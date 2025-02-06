@@ -42,10 +42,10 @@ class RoleResource extends Resource
                             ->required(),
                         Select::make('filter_type')
                             ->options([
-                                '\App\Models\BadanUsaha' => 'Badan Usaha',
-                                '\App\Models\Division' => 'Divisi',
-                                '\App\Models\Region' => 'Region',
-                                '\App\Models\Cluster' => 'Cluster',
+                                'App\Models\BadanUsaha' => 'Badan Usaha',
+                                'App\Models\Division' => 'Divisi',
+                                'App\Models\Region' => 'Region',
+                                'App\Models\Cluster' => 'Cluster',
                                 'all' => 'All Data',
                             ])
                             ->searchable()

@@ -250,23 +250,23 @@ class VisitResource extends Resource
         $user = auth()->user();
         $role = $user->role;
 
-        if ($role->filter_type === 'all') {
+        if ($role->filter_type === null || $role->filter_type === 'all') {
             return parent::getEloquentQuery();
         }
 
         $query = parent::getEloquentQuery()
             ->leftJoin('users', 'visits.user_id', '=', 'users.id')
             ->select('visits.*', 'users.id as user_id')
-            ->when($role->filter_type === 'badanusaha', function ($query) use ($user) {
+            ->when($role->filter_type === 'App\Models\BadanUsaha', function ($query) use ($user) {
                 $query->where('users.badanusaha_id', $user->badanusaha_id);
             })
-            ->when($role->filter_type === 'divisi', function ($query) use ($role) {
+            ->when($role->filter_type === 'App\Models\Division', function ($query) use ($role) {
                 $query->whereIn('users.divisi_id', $role->filter_data ?? []);
             })
-            ->when($role->filter_type === 'region', function ($query) use ($role) {
+            ->when($role->filter_type === 'App\Models\Region', function ($query) use ($role) {
                 $query->whereIn('users.region_id', $role->filter_data ?? []);
             })
-            ->when($role->filter_type === 'cluster', function ($query) use ($role) {
+            ->when($role->filter_type === 'App\Models\Cluster', function ($query) use ($role) {
                 $query->whereIn('users.cluster_id', $role->filter_data ?? []);
             });
 

@@ -102,15 +102,24 @@ class RegionResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->where(function ($query) {
-                $user = auth()->user();
-                if ($user->role->name == 'SUPER ADMIN') {
-                    return;
-                } else {
-                    $query->where('regions.badanusaha_id', $user->badanusaha_id);
-                }
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+        $role = $user->role;
+        $filterData = $role->filter_data ?? [];
+
+        if ($role->filter_type === 'App\Models\BadanUsaha') {
+            $query->whereIn('regions.badanusaha_id', $filterData);
+        } elseif ($role->filter_type === 'App\Models\Division') {
+            $query->whereIn('regions.divisi_id', $filterData);
+        } elseif ($role->filter_type === 'App\Models\Region') {
+            $query->whereIn('regions.id', $filterData);
+        } elseif ($role->filter_type === 'App\Models\Cluster') {
+            $query->whereHas('cluster', function ($q) use ($filterData) {
+                $q->whereIn('clusters.id', $filterData);
             });
+        }
+
+        return $query;
     }
 
     public static function getPages(): array

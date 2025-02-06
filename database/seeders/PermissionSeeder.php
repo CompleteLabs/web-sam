@@ -99,6 +99,12 @@ class PermissionSeeder extends Seeder
             'confirm_noo',
             'approve_noo',
             'reject_noo',
+            'view_any_custom::attribute',
+            'view_custom::attribute',
+            'create_custom::attribute',
+            'update_custom::attribute',
+            'delete_any_custom::attribute',
+            'delete_custom::attribute',
         ];
 
         $superAdminRole = Role::where('name', 'SUPER ADMIN')->first();

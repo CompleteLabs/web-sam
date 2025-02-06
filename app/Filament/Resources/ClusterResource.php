@@ -120,28 +120,22 @@ class ClusterResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->where(function ($query) {
-                $user = auth()->user();
-                $role = $user->role;
-                switch ($role->filter_type) {
-                    case 'badanusaha':
-                        $query->whereIn('clusters.badanusaha_id', $role->filter_data ?? []);
-                        break;
-                    case 'divisi':
-                        $query->whereIn('clusters.divisi_id', $role->filter_data ?? []);
-                        break;
-                    case 'region':
-                        $query->whereIn('clusters.region_id', $role->filter_data ?? []);
-                        break;
-                    case 'cluster':
-                        $query->whereIn('clusters.cluster_id', $role->filter_data ?? []);
-                        break;
-                    case 'all':
-                    default:
-                        return;
-                }
-            });
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+        $role = $user->role;
+        $filterData = $role->filter_data ?? [];
+
+        if ($role->filter_type === 'App\Models\BadanUsaha') {
+            $query->whereIn('clusters.badanusaha_id', $filterData);
+        } elseif ($role->filter_type === 'App\Models\Division') {
+            $query->whereIn('clusters.divisi_id', $filterData);
+        } elseif ($role->filter_type === 'App\Models\Region') {
+            $query->whereIn('clusters.region_id', $filterData);
+        } elseif ($role->filter_type === 'App\Models\Cluster') {
+            $query->whereIn('clusters.id', $filterData);
+        }
+
+        return $query;
     }
 
     public static function getPages(): array

@@ -14,6 +14,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Grid;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\MaxWidth;
@@ -28,6 +29,12 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\Tabs;
+use Filament\Infolists\Components\Tabs\Tab;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 
 class NooResource extends Resource
 {
@@ -100,7 +107,7 @@ class NooResource extends Resource
                     ->collapsible()
                     ->columns(2),
 
-                    Forms\Components\Section::make('Badan Usaha & Divisi')
+                Forms\Components\Section::make('Badan Usaha & Divisi')
                     ->schema([
                         Forms\Components\Select::make('badanusaha_id')
                             ->label('Badan Usaha')
@@ -260,8 +267,8 @@ class NooResource extends Resource
                         Forms\Components\FileUpload::make('poto_ktp')
                             ->required()
                             ->image()
-                            ->disk('public')
                             ->resize(30)
+                            ->disk('public')
                             ->label('Foto KTP Pemilik')
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
@@ -498,72 +505,73 @@ class NooResource extends Resource
             ->deferLoading()
             ->filters([
                 Filter::make('region')
-                ->form([
-                    Select::make('businessEntity')
-                        ->label('Badan Usaha')
-                        ->options(function (callable $get) {
-                            $badanUsahaService = new OrganizationalStructureService();
-                            return $badanUsahaService->getBadanUsahaOptions();
-                        })
-                        ->reactive()
-                        ->searchable()
-                        ->placeholder('Pilih Business Entity')
-                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                            $set('division', null);
-                            $set('region', null);
-                        }),
-                    Select::make('division')
-                        ->label('Divisi')
-                        ->options(function (callable $get) {
-                            $businessEntityId = $get('businessEntity');
-                            if ($businessEntityId) {
+                    ->form([
+                        Select::make('businessEntity')
+                            ->label('Badan Usaha')
+                            ->options(function (callable $get) {
                                 $badanUsahaService = new OrganizationalStructureService();
-                                return $badanUsahaService->getDivisiOptions($businessEntityId);
-                            }
-                            return [];
-                        })
-                        ->reactive()
-                        ->searchable()
-                        ->placeholder('Pilih Division')
-                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                            $set('region', null);
-                        }),
-                    Select::make('region')
-                        ->label('Region')
-                        ->searchable()
-                        ->placeholder('Pilih Region')
-                        ->options(function (callable $get) {
-                            $divisionId = $get('division');
-                            if ($divisionId) {
-                                $badanUsahaService = new OrganizationalStructureService();
-                                return $badanUsahaService->getRegionOptions($divisionId);
-                            }
-                            return [];
-                        })
-                        ->reactive(),
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    if ($data['businessEntity'] ?? null) {
-                        $query->where('badanusaha_id', $data['businessEntity']);
-                    }
-                    if ($data['division'] ?? null) {
-                        $query->where('divisi_id', $data['division']);
-                    }
-                    if ($data['region'] ?? null) {
-                        $query->where('region_id', $data['region']);
-                    }
-                    return $query;
-                }),
+                                return $badanUsahaService->getBadanUsahaOptions();
+                            })
+                            ->reactive()
+                            ->searchable()
+                            ->placeholder('Pilih Business Entity')
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                $set('division', null);
+                                $set('region', null);
+                            }),
+                        Select::make('division')
+                            ->label('Divisi')
+                            ->options(function (callable $get) {
+                                $businessEntityId = $get('businessEntity');
+                                if ($businessEntityId) {
+                                    $badanUsahaService = new OrganizationalStructureService();
+                                    return $badanUsahaService->getDivisiOptions($businessEntityId);
+                                }
+                                return [];
+                            })
+                            ->reactive()
+                            ->searchable()
+                            ->placeholder('Pilih Division')
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                $set('region', null);
+                            }),
+                        Select::make('region')
+                            ->label('Region')
+                            ->searchable()
+                            ->placeholder('Pilih Region')
+                            ->options(function (callable $get) {
+                                $divisionId = $get('division');
+                                if ($divisionId) {
+                                    $badanUsahaService = new OrganizationalStructureService();
+                                    return $badanUsahaService->getRegionOptions($divisionId);
+                                }
+                                return [];
+                            })
+                            ->reactive(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if ($data['businessEntity'] ?? null) {
+                            $query->where('badanusaha_id', $data['businessEntity']);
+                        }
+                        if ($data['division'] ?? null) {
+                            $query->where('divisi_id', $data['division']);
+                        }
+                        if ($data['region'] ?? null) {
+                            $query->where('region_id', $data['region']);
+                        }
+                        return $query;
+                    }),
                 Tables\Filters\TrashedFilter::make()
                     ->hidden(fn() => !Gate::any(['restore_any_visit', 'force_delete_any_visit'], Noo::class)),
             ], layout: FiltersLayout::Modal)
             ->filtersFormWidth(MaxWidth::Large)
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\Action::make('confirm')
                     ->label('Confirm')
                     ->icon('heroicon-o-check-circle')
-                    ->color('success')
+                    ->color('primary')
                     ->visible(fn($record) => $record->status === 'PENDING' && Gate::allows('confirm', $record))
                     ->form([
                         TextInput::make('kode_outlet')
@@ -590,6 +598,9 @@ class NooResource extends Resource
                 Tables\Actions\Action::make('approve')
                     ->label('Approve')
                     ->icon('heroicon-o-check-circle')
+                    ->requiresConfirmation() // Menampilkan modal konfirmasi
+                    ->modalHeading('Konfirmasi Persetujuan')
+                    ->modalSubheading('Apakah Anda yakin ingin mengapprove record ini?')
                     ->color('success')
                     ->visible(fn($record) => $record->status === 'CONFIRMED' && Gate::allows('approve', $record))
                     ->action(function ($record, $data) {
@@ -671,6 +682,143 @@ class NooResource extends Resource
             ]);
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                // Section Informasi Outlet
+                Tabs::make('Informasi')
+                    ->tabs([
+                        Tab::make('Informasi Outlet')
+                            ->schema([
+                                TextEntry::make('kode_outlet')->label('Kode Outlet'),
+                                TextEntry::make('nama_outlet')->label('Nama Outlet'),
+                                TextEntry::make('distric')->label('Distrik'),
+                                TextEntry::make('alamat_outlet')->label('Alamat Outlet'),
+                                TextEntry::make('nama_pemilik_outlet')->label('Nama Pemilik Outlet'),
+                                TextEntry::make('nomer_tlp_outlet')->label('Nomor Telepon Outlet'),
+                                TextEntry::make('nomer_wakil_outlet')->label('Nomor Wakil Outlet'),
+                                TextEntry::make('ktp_outlet')->label('KTP Pemilik Outlet'),
+                                TextEntry::make('tm.nama_lengkap')->label('Nama TM'),
+                            ])
+                            ->columns(2),
+                        Tab::make('Promotor dan Frontliner')
+                            ->schema([
+                                TextEntry::make('oppo')->label('Oppo'),
+                                TextEntry::make('vivo')->label('Vivo'),
+                                TextEntry::make('realme')->label('Realme'),
+                                TextEntry::make('samsung')->label('Samsung'),
+                                TextEntry::make('xiaomi')->label('Xiaomi'),
+                                TextEntry::make('fl')->label('FL'),
+                            ])
+                            ->columns(3),
+                        Tab::make('Dokumentasi Outlet')
+                            ->schema([
+                                ImageEntry::make('poto_shop_sign')
+                                    ->label('Foto Tanda Toko')
+                                    ->height(40)
+                                    ->width(100)
+                                    ->url(fn($state): string => asset('storage' . $state), shouldOpenInNewTab: true),
+                                ImageEntry::make('poto_depan')
+                                    ->label('Foto Depan')
+                                    ->height(40)
+                                    ->width(100)
+                                    ->url(fn($state): string => asset('storage' . $state), shouldOpenInNewTab: true),
+                                ImageEntry::make('poto_kiri')
+                                    ->label('Foto Kiri')
+                                    ->height(40)
+                                    ->width(100)
+                                    ->url(fn($state): string => asset('storage' . $state), shouldOpenInNewTab: true),
+                                ImageEntry::make('poto_kanan')
+                                    ->label('Foto Kanan')
+                                    ->height(40)
+                                    ->width(100)
+                                    ->url(fn($state): string => asset('storage' . $state), shouldOpenInNewTab: true),
+                                ImageEntry::make('poto_ktp')
+                                    ->label('Foto KTP Pemilik')
+                                    ->height(40)
+                                    ->width(100)
+                                    ->url(fn($state): string => asset('storage' . $state), shouldOpenInNewTab: true),
+                                ImageEntry::make('video')
+                                    ->label('Video Outlet')
+                                    ->height(40)
+                                    ->width(100)
+                                    ->url(fn($state): string => asset('storage' . $state), shouldOpenInNewTab: true),
+                            ])
+                            ->columns(3),
+                        Tab::make('Persetujuan & Tanggal')
+                            ->schema([
+                                TextEntry::make('rejected_at')
+                                    ->label('Tanggal Ditolak')
+                                    ->hidden(fn($record) => empty($record->rejected_at)),
+                                TextEntry::make('rejected_by')
+                                    ->label('Ditolak Oleh')
+                                    ->hidden(fn($record) => empty($record->rejected_by)),
+                                TextEntry::make('confirmed_at')
+                                    ->label('Tanggal Dikonfirmasi')
+                                    ->hidden(fn($record) => empty($record->confirmed_at)),
+                                TextEntry::make('confirmed_by')
+                                    ->label('Dikonfirmasi Oleh')
+                                    ->hidden(fn($record) => empty($record->confirmed_by)),
+                                TextEntry::make('approved_at')
+                                    ->label('Tanggal Disetujui')
+                                    ->hidden(fn($record) => empty($record->approved_at)),
+                                TextEntry::make('approved_by')
+                                    ->label('Disetujui Oleh')
+                                    ->hidden(fn($record) => empty($record->approved_by)),
+                            ])
+                            ->columns(2),
+                    ])
+                    ->columns(2)
+                    ->columnSpan(2),
+                Section::make('Badan Usaha & Divisi')
+                    ->schema([
+                        TextEntry::make('badanusaha.name')->label('Badan Usaha'),
+                        TextEntry::make('divisi.name')->label('Divisi'),
+                        TextEntry::make('region.name')->label('Region'),
+                        TextEntry::make('cluster.name')->label('Cluster'),
+                    ])
+                    ->collapsible()
+                    ->columns(1)
+                    ->columnSpan(1),
+                Section::make('Custom Attribute Values')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema(function ($record) {
+                                return $record->customAttributeValues->map(function ($attributeValue) {
+                                    $value = $attributeValue->value;
+                                    $label = optional($attributeValue->attribute)->label ?? 'Unknown Attribute';
+                                    $imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg'];
+                                    $extension = strtolower(pathinfo($value, PATHINFO_EXTENSION));
+                                    if (in_array($extension, $imageExtensions)) {
+                                        $linkHtml = "<a href='/{$value}' target='_blank'>Lihat Gambar</a>";
+                                        return TextEntry::make("custom_attribute_{$attributeValue->custom_attribute_id}")
+                                            ->label($label)
+                                            ->state($linkHtml)
+                                            ->html();
+                                    }
+                                    return TextEntry::make("custom_attribute_{$attributeValue->custom_attribute_id}")
+                                        ->label($label)
+                                        ->state($value);
+                                })->toArray();
+                            }),
+                    ])
+                    ->collapsible()
+                    ->columns(3)
+                    ->hidden(fn($record) => $record->customAttributeValues->isEmpty())
+                    ->columnSpan(2),
+                Section::make('Status & Keterangan')
+                    ->schema([
+                        TextEntry::make('status')->label('Status'),
+                        TextEntry::make('created_by')->label('Dibuat Oleh'),
+                        TextEntry::make('keterangan')->label('Keterangan'),
+                    ])
+                    ->collapsible()
+                    ->columns(3)
+                    ->columnSpan(2),
+            ])->columns(3);
+    }
+
     public static function getRelations(): array
     {
         return [
@@ -680,32 +828,27 @@ class NooResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->where(function ($query) {
-                $user = auth()->user();
-                $role = $user->role;
-                switch ($role->filter_type) {
-                    case 'badanusaha':
-                        $query->whereIn('noos.badanusaha_id', $role->filter_data ?? []);
-                        break;
-                    case 'divisi':
-                        $query->whereIn('noos.divisi_id', $role->filter_data ?? []);
-                        break;
-                    case 'region':
-                        $query->whereIn('noos.region_id', $role->filter_data ?? []);
-                        break;
-                    case 'cluster':
-                        $query->whereIn('noos.cluster_id', $role->filter_data ?? []);
-                        break;
-                    case 'all':
-                    default:
-                        return;
-                }
-            })
-            ->where(function ($query) {
-                $query->whereNull('keterangan')
-                    ->orWhere('keterangan', '!=', 'LEAD');
-            });
+        $query = parent::getEloquentQuery();
+        $user  = auth()->user();
+        $role  = $user->role;
+        $filterData = $role->filter_data ?? [];
+
+        if ($role->filter_type === 'badanusaha') {
+            $query->whereIn('noos.badanusaha_id', $filterData);
+        } elseif ($role->filter_type === 'divisi') {
+            $query->whereIn('noos.divisi_id', $filterData);
+        } elseif ($role->filter_type === 'region') {
+            $query->whereIn('noos.region_id', $filterData);
+        } elseif ($role->filter_type === 'cluster') {
+            $query->whereIn('noos.cluster_id', $filterData);
+        }
+
+        $query->where(function ($q) {
+            $q->whereNull('keterangan')
+                ->orWhere('keterangan', '!=', 'LEAD');
+        });
+
+        return $query;
     }
 
     public static function getPages(): array
@@ -713,6 +856,7 @@ class NooResource extends Resource
         return [
             'index' => Pages\ListNoos::route('/'),
             'create' => Pages\CreateNoo::route('/create'),
+            'view' => Pages\ViewNoo::route('/{record}'),
             'edit' => Pages\EditNoo::route('/{record}/edit'),
         ];
     }

@@ -22,12 +22,24 @@ class OrganizationalStructureService
             if (class_exists($filterType)) {
                 $query = $model::query();
 
-                if ($filterType === '\App\Models\BadanUsaha') {
+                if ($filterType === 'App\Models\BadanUsaha' && $model === \App\Models\Division::class) {
+                    $divisions = \App\Models\Division::whereIn('badanusaha_id', $filterData);
+                    if ($badanUsahaId) {
+                        $divisions->where('badanusaha_id', $badanUsahaId);
+                    }
+                    $divisions = $divisions->with('badanusaha')->get();
+                    return [
+                        'badanusahas' => $divisions->pluck('badanusaha.name', 'badanusaha_id')->toArray(),
+                        'divisions'   => $divisions->pluck('name', 'id')->toArray(),
+                    ];
+                }
+
+                if ($filterType === 'App\Models\BadanUsaha') {
                     $badanUsahas = \App\Models\BadanUsaha::whereIn('id', $filterData)->get();
                     return $badanUsahas->pluck('name', 'id');
                 }
 
-                if ($filterType === '\App\Models\Division') {
+                if  ($filterType === 'App\Models\Division') {
                     $divisions = \App\Models\Division::whereIn('id', $filterData);
                     if ($badanUsahaId) {
                         $divisions->where('badanusaha_id', $badanUsahaId);
@@ -35,11 +47,11 @@ class OrganizationalStructureService
                     $divisions = $divisions->with('badanusaha')->get();
                     return [
                         'badanusahas' => $divisions->pluck('badanusaha.name', 'badanusaha_id')->toArray(),
-                        'divisions' => $divisions->pluck('name', 'id')->toArray(),
+                        'divisions'   => $divisions->pluck('name', 'id')->toArray(),
                     ];
                 }
 
-                if ($filterType === '\App\Models\Region') {
+                if ($filterType === 'App\Models\Region') {
                     $regions = \App\Models\Region::whereIn('id', $filterData);
                     if ($badanUsahaId) {
                         $regions->where('badanusaha_id', $badanUsahaId);
@@ -55,7 +67,7 @@ class OrganizationalStructureService
                     ];
                 }
 
-                if ($filterType === '\App\Models\Cluster') {
+                if ($filterType === 'App\Models\Cluster') {
                     $clusters = \App\Models\Cluster::whereIn('id', $filterData);
                     if ($badanUsahaId) {
                         $clusters->where('badanusaha_id', $badanUsahaId);
@@ -97,19 +109,19 @@ class OrganizationalStructureService
         $user = Auth::user();
         $role = $user->role;
 
-        if ($role->filter_type === '\App\Models\BadanUsaha') {
+        if ($role->filter_type === 'App\Models\BadanUsaha') {
             return $this->getFilteredOptions(BadanUsaha::class, $role->filter_type, $role->filter_data);
         }
 
-        if ($role->filter_type === '\App\Models\Division') {
+        if ($role->filter_type === 'App\Models\Division') {
             return $this->getFilteredOptions(BadanUsaha::class, $role->filter_type, $role->filter_data)['badanusahas'];
         }
 
-        if ($role->filter_type === '\App\Models\Region') {
+        if ($role->filter_type === 'App\Models\Region') {
             return $this->getFilteredOptions(BadanUsaha::class, $role->filter_type, $role->filter_data)['badanusahas'];
         }
 
-        if ($role->filter_type === '\App\Models\Cluster') {
+        if ($role->filter_type === 'App\Models\Cluster') {
             return $this->getFilteredOptions(BadanUsaha::class, $role->filter_type, $role->filter_data)['badanusahas'];
         }
 
@@ -121,15 +133,19 @@ class OrganizationalStructureService
         $user = Auth::user();
         $role = $user->role;
 
-        if ($role->filter_type === '\App\Models\Division') {
+        if ($role->filter_type === 'App\Models\BadanUsaha') {
             return $this->getFilteredOptions(Division::class, $role->filter_type, $role->filter_data, [], $badanUsahaId)['divisions'];
         }
 
-        if ($role->filter_type === '\App\Models\Region') {
+        if ($role->filter_type === 'App\Models\Division') {
             return $this->getFilteredOptions(Division::class, $role->filter_type, $role->filter_data, [], $badanUsahaId)['divisions'];
         }
 
-        if ($role->filter_type === '\App\Models\Cluster') {
+        if ($role->filter_type === 'App\Models\Region') {
+            return $this->getFilteredOptions(Division::class, $role->filter_type, $role->filter_data, [], $badanUsahaId)['divisions'];
+        }
+
+        if ($role->filter_type === 'App\Models\Cluster') {
             return $this->getFilteredOptions(Division::class, $role->filter_type, $role->filter_data, [], $badanUsahaId)['divisions'];
         }
 
@@ -141,11 +157,11 @@ class OrganizationalStructureService
         $user = Auth::user();
         $role = $user->role;
 
-        if ($role->filter_type === '\App\Models\Region') {
+        if ($role->filter_type === 'App\Models\Region') {
             return $this->getFilteredOptions(Region::class, $role->filter_type, $role->filter_data, [], null, $divisiId)['regions'];
         }
 
-        if ($role->filter_type === '\App\Models\Cluster') {
+        if ($role->filter_type === 'App\Models\Cluster') {
             return $this->getFilteredOptions(Region::class, $role->filter_type, $role->filter_data, [], null, $divisiId)['regions'];
         }
 
@@ -157,7 +173,7 @@ class OrganizationalStructureService
         $user = Auth::user();
         $role = $user->role;
 
-        if ($role->filter_type === '\App\Models\Cluster') {
+        if ($role->filter_type === 'App\Models\Cluster') {
             return $this->getFilteredOptions(Cluster::class, $role->filter_type, $role->filter_data, [], null, null, $regionId)['clusters'];
         }
 

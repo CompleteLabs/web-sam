@@ -37,17 +37,17 @@ class Division extends Model
 
     public function badanusaha(): BelongsTo
     {
-        return $this->belongsTo(BadanUsaha::class, 'badanusaha_id');
+        return $this->belongsTo(BadanUsaha::class);
     }
 
     public function region(): HasMany
     {
-        return $this->hasMany(Region::class, 'divisi_id');
+        return $this->hasMany(Region::class, 'divisi_id', 'id');
     }
 
     public function cluster(): HasMany
     {
-        return $this->hasMany(Cluster::class);
+        return $this->hasMany(Cluster::class, 'divisi_id', 'id');
     }
 
     public function customAttributes(): MorphMany

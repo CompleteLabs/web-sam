@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('roles', function (Blueprint $table) {
             $table->boolean('can_access_web')->default(true)->after('name');
-            $table->enum('filter_type', ['badanusaha', 'divisi', 'region', 'cluster', 'all'])->default('all')->after('can_access_web');
+            $table->string('filter_type')->nullable()->after('can_access_web');
             $table->json('filter_data')->nullable()->after('filter_type');
         });
     }

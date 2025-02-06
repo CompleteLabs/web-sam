@@ -12,10 +12,10 @@ class FilterOptionsService
     public function getOptionsByFilterType(string $filterType)
     {
         switch ($filterType) {
-            case '\App\Models\BadanUsaha':
+            case 'App\Models\BadanUsaha':
                 return BadanUsaha::orderBy('name')->pluck('name', 'id');
 
-            case '\App\Models\Division':
+            case 'App\Models\Division':
                 return Division::with(['badanusaha'])
                     ->orderBy('badanusaha_id')
                     ->get()
@@ -24,7 +24,7 @@ class FilterOptionsService
                         return [$division->id => "[{$badanusahaName}] {$division->name}"];
                     });
 
-            case '\App\Models\Region':
+            case 'App\Models\Region':
                 return Region::with(['badanusaha'])
                     ->orderBy('badanusaha_id')
                     ->get()
@@ -34,7 +34,7 @@ class FilterOptionsService
                         return [$region->id => "[{$badanusahaName}/{$divisiName}] {$region->name}"];
                     });
 
-            case '\App\Models\Cluster':
+            case 'App\Models\Cluster':
                 return Cluster::with(['badanusaha', 'divisi', 'region'])
                     ->orderBy('badanusaha_id')
                     ->get()

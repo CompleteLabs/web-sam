@@ -289,28 +289,22 @@ class UserResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->where(function ($query) {
-                $user = auth()->user();
-                $role = $user->role;
-                switch ($role->filter_type) {
-                    case 'badanusaha':
-                        $query->whereIn('users.badanusaha_id', $role->filter_data ?? []);
-                        break;
-                    case 'divisi':
-                        $query->whereIn('users.divisi_id', $role->filter_data ?? []);
-                        break;
-                    case 'region':
-                        $query->whereIn('users.region_id', $role->filter_data ?? []);
-                        break;
-                    case 'cluster':
-                        $query->whereIn('users.cluster_id', $role->filter_data ?? []);
-                        break;
-                    case 'all':
-                    default:
-                        return;
-                }
-            });
+        $query = parent::getEloquentQuery();
+        $user  = auth()->user();
+        $role  = $user->role;
+        $filterData = $role->filter_data ?? [];
+
+        if ($role->filter_type === 'App\Models\BadanUsaha') {
+            $query->whereIn('users.badanusaha_id', $filterData);
+        } elseif ($role->filter_type === 'App\Models\Division') {
+            $query->whereIn('users.divisi_id', $filterData);
+        } elseif ($role->filter_type === 'App\Models\Region') {
+            $query->whereIn('users.region_id', $filterData);
+        } elseif ($role->filter_type === 'App\Models\Cluster') {
+            $query->whereIn('users.cluster_id', $filterData);
+        }
+
+        return $query;
     }
 
     public static function getPages(): array

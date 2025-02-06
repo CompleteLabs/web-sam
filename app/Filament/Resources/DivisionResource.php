@@ -32,10 +32,10 @@ class DivisionResource extends Resource
                     ->searchable()
                     ->required()
                     ->placeholder('Pilih badan usaha')
-                            ->options(function (callable $get) {
-                                $badanUsahaService = new OrganizationalStructureService();
-                                return $badanUsahaService->getBadanUsahaOptions();
-                            }),
+                    ->options(function (callable $get) {
+                        $badanUsahaService = new OrganizationalStructureService();
+                        return $badanUsahaService->getBadanUsahaOptions();
+                    }),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
@@ -77,15 +77,26 @@ class DivisionResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->where(function ($query) {
-                $user = auth()->user();
-                if ($user->role->name == 'SUPER ADMIN') {
-                    return;
-                } else {
-                    $query->where('divisions.badanusaha_id', $user->badanusaha_id);
-                }
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+        $role = $user->role;
+        $filterData = $role->filter_data ?? [];
+
+        if ($role->filter_type === 'App\Models\BadanUsaha') {
+            $query->whereIn('divisions.badanusaha_id', $filterData);
+        } elseif ($role->filter_type === 'App\Models\Division') {
+            $query->whereIn('divisions.divisi_id', $filterData);
+        } elseif ($role->filter_type === 'App\Models\Region') {
+            $query->whereHas('region', function ($q) use ($filterData) {
+                $q->whereIn('regions.id', $filterData);
             });
+        } elseif ($role->filter_type === 'App\Models\Cluster') {
+            $query->whereHas('cluster', function ($q) use ($filterData) {
+                $q->whereIn('clusters.id', $filterData);
+            });
+        }
+
+        return $query;
     }
 
     public static function getPages(): array

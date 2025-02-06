@@ -17,12 +17,13 @@ return new class extends Migration
             $table->string('label');
             $table->string('type');
             $table->text('options')->nullable();
-            $table->boolean('required')->default(false);
             $table->boolean('active')->default(true);
             $table->boolean('system_defined')->default(false);
             $table->string('entity_type')->nullable();
             $table->string('apply_entity_type')->nullable();
             $table->unsignedBigInteger('apply_entity_id')->nullable();
+
+            $table->json('validation_rules')->nullable();
 
             $table->timestamps();
 

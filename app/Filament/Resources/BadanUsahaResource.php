@@ -61,6 +61,33 @@ class BadanUsahaResource extends Resource
             ]);
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user  = auth()->user();
+        $role  = $user->role;
+        $filterData = $role->filter_data ?? [];
+
+        if ($role->filter_type === 'App\Models\BadanUsaha') {
+            $query->whereIn('badanusahas.id', $filterData);
+        } elseif ($role->filter_type === 'App\Models\Division') {
+            $query->whereHas('divisi', function ($q) use ($filterData) {
+                $q->whereIn('divisions.id', $filterData);
+            });
+        } elseif ($role->filter_type === 'App\Models\Region') {
+            $query->whereHas('region', function ($q) use ($filterData) {
+                $q->whereIn('regions.id', $filterData);
+            });
+        } elseif ($role->filter_type === 'App\Models\Cluster') {
+            $query->whereHas('cluster', function ($q) use ($filterData) {
+                $q->whereIn('clusters.id', $filterData);
+            });
+        }
+
+        return $query;
+    }
+
+
     public static function getPages(): array
     {
         return [
