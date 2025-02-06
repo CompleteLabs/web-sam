@@ -100,6 +100,7 @@ class ClusterResource extends Resource
                     ->label('Region')
                     ->collapsible(),
             ])
+            ->deferLoading()
             ->filters([
                 Tables\Filters\SelectFilter::make('divisi.name')
                     ->relationship('divisi', 'name')

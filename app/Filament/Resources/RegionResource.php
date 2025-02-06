@@ -82,6 +82,7 @@ class RegionResource extends Resource
                     ->label('Divisi')
                     ->collapsible(),
             ])
+            ->deferLoading()
             ->filters([
                 Tables\Filters\SelectFilter::make('badanusaha.name')
                     ->relationship('badanusaha', 'name')

@@ -268,6 +268,7 @@ class UserResource extends Resource
                     ->hidden(fn() => !Gate::any(['restore_any_visit', 'force_delete_any_visit'], User::class)),
             ], layout: FiltersLayout::Modal)
             ->filtersFormWidth(MaxWidth::Large)
+            ->deferLoading()
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])
