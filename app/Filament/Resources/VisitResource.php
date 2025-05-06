@@ -39,8 +39,9 @@ class VisitResource extends Resource
                 Forms\Components\Section::make('Visit Information')
                     ->schema([
                         Forms\Components\DateTimePicker::make('tanggal_visit')
-                            ->required()
-                            ->label('Tanggal Visit'),
+                        ->default(\Carbon\Carbon::parse(now())->startOfDay()) // Setel waktu ke 00:00:00
+                        ->required()
+                        ->label('Tanggal Visit'),                                      
                         Forms\Components\Select::make('tipe_visit')
                             ->options([
                                 'PLANNED' => 'PLANNED',
@@ -72,7 +73,6 @@ class VisitResource extends Resource
                             }),
                         Forms\Components\Select::make('outlet_id')
                             ->searchable()
-                            ->preload()
                             ->required()
                             ->label('Pilih Outlet')
                             ->options(function () {
@@ -123,7 +123,7 @@ class VisitResource extends Resource
                         Forms\Components\FileUpload::make('picture_visit_out')
                             ->image()
                             ->columnSpanFull()
-                            ->required()
+                            // ->required()
                             ->disk('public')
                             ->resize(30)
                             ->label('Picture at End of Visit')
@@ -142,7 +142,7 @@ class VisitResource extends Resource
                                 'YES' => 'YES',
                                 'NO' => 'NO',
                             ])
-                            ->required()
+                            // ->required()
                             ->placeholder('Select Yes or No')
                             ->searchable(),
                         Forms\Components\Textarea::make('laporan_visit')
@@ -254,7 +254,7 @@ class VisitResource extends Resource
         }
 
         $query = parent::getEloquentQuery()
-            ->leftJoin('users', 'visits.user_id', '=', 'users.id')
+            ->join('users', 'visits.user_id', '=', 'users.id')
             ->select('visits.*', 'users.id as user_id')
             ->when($role->filter_type === 'badanusaha', function ($query) use ($user) {
                 $query->where('users.badanusaha_id', $user->badanusaha_id);
@@ -270,16 +270,6 @@ class VisitResource extends Resource
             });
 
         return $query;
-    }
-
-    public static function getRecordId(): null|string
-    {
-        return Route::current()->parameter('record');
-    }
-
-    public static function resolveRecordRouteBinding(int | string $key): ?Visit
-    {
-        return self::getEloquentQuery()->first();
     }
 
     public static function getRelations(): array

@@ -13,6 +13,7 @@ use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class VisitController extends Controller
 {
@@ -26,7 +27,7 @@ class VisitController extends Controller
 
             $user = Auth::user();
             // Robby (GM ZTE)
-            if ($user->id == 2 && $user->role_id == 1) {
+            if ($user->id == 2 && $user->role_id == 8) {
                 $visit = Visit::with([
                     'outlet.badanusaha',
                     'outlet.region',
@@ -39,7 +40,7 @@ class VisitController extends Controller
                     'user.role',
                 ])->whereHas('user', function ($query) {
                     $query->where('divisi_id', '8')
-                        ->whereIn('region_id', [78, 79, 80, 81]);
+                        ->whereIn('region_id', [63, 64, 66, 67, 68, 78, 79, 80, 81]);
                 })
                     ->whereDate('tanggal_visit', $request->date ? date('Y-m-d', strtotime($request->date))  : date('Y-m-d'))
                     ->latest()
@@ -65,7 +66,7 @@ class VisitController extends Controller
                 $visit = $visit->merge($visitnoo);
             }
             // Hendra Setia (GM Techno)
-            else if ($user->id == 689 && $user->role_id == 1) {
+            else if ($user->id == 689 && $user->role_id == 8) {
                 $visit = Visit::with([
                     'outlet.badanusaha',
                     'outlet.region',
@@ -433,69 +434,29 @@ class VisitController extends Controller
         }
     }
 
-    // Tambah validasi radius 100meter
-    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
-    {
-        $earthRadius = 6371000; // Jari-jari bumi dalam meter
-
-        // Menghitung perbedaan koordinat
-        $dLat = deg2rad($lat2 - $lat1);
-        $dLon = deg2rad($lon2 - $lon1);
-
-        // Menghitung jarak dengan Haversine formula
-        $a = sin($dLat / 2) * sin($dLat / 2) +
-            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-            sin($dLon / 2) * sin($dLon / 2);
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-
-        // Menghitung jarak dalam meter
-        return $earthRadius * $c;
-    }
-
     public function submit(Request $request)
     {
         try {
-
             $checkIn = $request->latlong_in;
             $checkOut = $request->latlong_out;
-
-
-            #aturan checkin
             if ($checkIn) {
-                $outlet = Outlet::where('kode_outlet', $request->kode_outlet)->first();
-
+                $user = Auth::user();
+                if ($user->role->name === 'DSF/DM' || $user->role->name === 'ASC') {
+                    $outlet = Outlet::where('kode_outlet', $request->kode_outlet)
+                                    ->where('divisi_id', $user->divisi_id)
+                                    ->first();
+                } else {
+                    $outlet = Outlet::where('kode_outlet', $request->kode_outlet)->first();
+                }
                 $outletId = $outlet->id;
-                list($outletLat, $outletLon) = explode(',', $outlet->latlong);
-
-                // Ambil radius dari outlet atau gunakan default 100 meter jika radiusnya 0
-                $radius = $outlet->radius > 0 ? $outlet->radius : 100;
-
-                #validasi data
                 $request->validate([
                     'kode_outlet' => ['required'],
                     'picture_visit' => ['required', 'mimes:jpg,jpeg,png'],
                     'latlong_in' => ['required', 'string'],
                     'tipe_visit' => ['required'],
                 ]);
-
-                list($latIn, $lonIn) = explode(',', $request->latlong_in);
-
-                // Hitung jarak antara latlong_in dan latlong outlet
-                $distanceIn = $this->calculateDistance($outletLat, $outletLon, $latIn, $lonIn);
-
-                // Validasi jarak check-in
-                if ($distanceIn > $radius) {
-                    return ResponseFormatter::error([
-                        'error' => 'Jarak check-in melebihi 100 meter dari outlet.'
-                    ], 'Validasi gagal pada check-in', 500);
-                }
-
-
-                ##buat nama gambar
                 $imageName = date('Y-m-d') . '-' . Auth::user()->username . '-' . 'IN-' . Carbon::parse(time())->getPreciseTimestamp(3)  . '.' . $request->picture_visit->extension();
-                ##simpan gambar di folder public/images
                 $request->picture_visit->move(storage_path('app/public/'), $imageName);
-                ##simpan ke database
                 $visit = Visit::create([
                     'tanggal_visit' => date('Y-m-d'),
                     'user_id' => Auth::user()->id,
@@ -505,34 +466,24 @@ class VisitController extends Controller
                     'check_in_time' => Carbon::now(),
                     'picture_visit_in' => $imageName,
                 ]);
-                ##API berhasil
                 return ResponseFormatter::success([
                     'visit' => $visit
                 ], 'berhasil check in');
             }
-
             if ($checkOut) {
                 $lastDataVisit = Visit::whereDate('tanggal_visit', date('Y-m-d'))->where('user_id', Auth::user()->id)->latest()->first();
                 if ($lastDataVisit != null) {
-                    # Validasi data
                     $request->validate([
                         'latlong_out' => ['required'],
                         'laporan_visit' => ['required'],
                         'picture_visit' => ['required', 'mimes:jpg,jpeg,png'],
                         'transaksi' => ['required'],
                     ]);
-            
-                    // Hitung durasi menggunakan Carbon
                     $awal = Carbon::parse($lastDataVisit->check_in_time);
                     $akhir = Carbon::now();
                     $durasi = $awal->diffInMinutes($akhir);
-            
-                    ## Buat nama gambar
                     $imageName = date('Y-m-d') . '-' . Auth::user()->username . '-' . 'OUT-' . Carbon::now()->getPreciseTimestamp(3) . '.' . $request->picture_visit->extension();
-            
-                    ## Simpan gambar di folder public/images
                     $request->picture_visit->move(storage_path('app/public/'), $imageName);
-            
                     $data = [
                         'tanggal_visit' => date('Y-m-d'),
                         'latlong_out' => $request->latlong_out,
@@ -543,12 +494,11 @@ class VisitController extends Controller
                         'transaksi' => $request->transaksi,
                     ];
                     $lastDataVisit->update($data);
-            
                     return ResponseFormatter::success([
                         'visit' => $data
                     ], 'berhasil check out');
                 }
-            }            
+            }
         } catch (Exception $error) {
             return ResponseFormatter::error([
                 'error' => $error

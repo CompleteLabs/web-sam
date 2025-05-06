@@ -25,7 +25,7 @@ class VisitExport implements FromCollection, WithMapping, WithHeadings, ShouldAu
     public function collection()
     {
         return Visit::with(['user.role', 'outlet.cluster', 'outlet.region', 'outlet.divisi', 'user'])->whereBetween('tanggal_visit', [$this->tanggal1, $this->tanggal2])->get();
-    }
+    }    
 
     public function headings(): array
     {

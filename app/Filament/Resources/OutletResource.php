@@ -346,6 +346,7 @@ class OutletResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Tanggal Dibuat')
                     ->date('d M Y')
+                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
                     ->label('Terakhir Diperbarui')

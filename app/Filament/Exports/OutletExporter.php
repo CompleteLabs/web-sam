@@ -99,6 +99,11 @@ class OutletExporter extends Exporter
                     return $state == 1 ? 'MEMBER' : ($state == 0 ? 'LEAD' : '-');
                 })
                 ->label('Status Outlet'),
+            ExportColumn::make('updated_at')
+                ->formatStateUsing(function ($state) {
+                    return \Carbon\Carbon::parse($state)->format('d M Y');
+                })
+                ->label('Diperbaharui pada'),
         ];
     }
 

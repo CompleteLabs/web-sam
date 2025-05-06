@@ -34,7 +34,7 @@ class PlanVisit extends Model
 
     public function getTanggalVisitAttribute($value)
     {
-        return Carbon::parse($value)->timestamp;
+        return Carbon::parse($value)->timestamp * 1000;
     }
 
     public function getCreatedAtAttribute($value)

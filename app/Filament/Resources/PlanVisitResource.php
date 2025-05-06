@@ -90,7 +90,7 @@ class PlanVisitResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('outlet.kode_outlet'),
                 Tables\Columns\TextColumn::make('tanggal_visit')
-                    ->date('d M Y'),
+    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::createFromTimestamp($state / 1000)->format('d M Y') : '-'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->date('d M Y')
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -52,7 +52,6 @@ class OutletImport implements ToModel, WithHeadingRow
                     'status_outlet' => strtoupper($row['status']),
                     'radius' => $row['radius'] ?? $outlet->radius,
                     'limit' => $row['limit'] ?? $outlet->limit,
-                    'latlong' => $row['latlong'] ?? $outlet->latlong,
                 ]);
                 return null;
             } else {
@@ -66,9 +65,9 @@ class OutletImport implements ToModel, WithHeadingRow
                     'alamat_outlet' => strtoupper($row['alamat_outlet']),
                     'distric' => strtoupper($row['distric']),
                     'status_outlet' => strtoupper($row['status']),
-                    'radius' => $row['radius'] ?? 0,
+                    'radius' => $row['radius'] ?? 100,
                     'limit' => $row['limit'] ?? 0,
-                    'latlong' => $row['latlong'],
+                    'latlong' => $row['latlong'] ?? null,
                 ]);
             }
         } catch (\Exception $e) {

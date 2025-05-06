@@ -37,6 +37,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(asset('icon/samsam.png'))
             ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth(MaxWidth::Full)
+            ->sidebarWidth('18rem')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->navigationItems([
@@ -53,11 +54,11 @@ class AdminPanelProvider extends PanelProvider
                     ->visible(fn() => auth()->user()?->role->name === 'SUPER ADMIN')
                     ->group('Developer'),
 
-                // NavigationItem::make('old-dashboard')
-                //     ->label('Old Dashboard')
-                //     ->url('/dashboard', shouldOpenInNewTab: false)
-                //     ->icon('heroicon-o-tv')
-                //     ->group('Settings'),
+                NavigationItem::make('old-dashboard')
+                    ->label('Old Dashboard')
+                    ->url('/dashboard', shouldOpenInNewTab: false)
+                    ->icon('heroicon-o-tv')
+                    ->group('Settings'),
             ])
             ->pages([
                 Pages\Dashboard::class,
