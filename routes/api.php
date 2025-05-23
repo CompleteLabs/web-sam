@@ -8,6 +8,7 @@ use App\Http\Controllers\API\PlanVisitController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\VisitController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\Auth\WhatsappOtpController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,26 +24,26 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'logku'])->group(function () {
     //USER
-    Route::get('user', [UserController::class, 'fetch']);
-    Route::post('logout', [UserController::class, 'logout']);
+    Route::get('user', [UserController::class, 'profile']);
+    Route::post('user/logout', [UserController::class, 'logout']);
 
     //OUTLET
-    Route::get('outlet', [OutletController::class, 'fetch']);
-    Route::get('outlet/{nama}', [OutletController::class, 'singleOutlet']);
-    Route::post('outlet', [OutletController::class, 'updatefoto']);
+    Route::get('outlet', [OutletController::class, 'index']);
+    Route::get('outlet/{kode}', [OutletController::class, 'show']);
+    Route::put('outlet/{kode}', [OutletController::class, 'update']);
 
     //VISIT
-    Route::get('visit', [VisitController::class, 'fetch']);
+    Route::get('visit', [VisitController::class, 'index']);
+    Route::get('visit/{id}', [VisitController::class, 'show']);
+    Route::post('visit', [VisitController::class, 'store']);
+    Route::put('visit/{id}', [VisitController::class, 'update']);
     Route::get('visit/check', [VisitController::class, 'check']);
-    Route::post('visit', [VisitController::class, 'submit']);
     Route::get('visit/monitor', [VisitController::class, 'monitor']);
 
-    //PLANVISIT
-    Route::get('planvisit', [PlanVisitController::class, 'fetch']);
-    Route::post('planvisit', [PlanVisitController::class, 'add']);
-    Route::get('planvisit/filter', [PlanVisitController::class, 'bymonth']);
-    Route::delete('planvisit', [PlanVisitController::class, 'delete']);
-    Route::delete('planvisitrealme', [PlanVisitController::class, 'deleterealme']);
+    //PLAN VISIT
+    Route::get('planvisit', [PlanVisitController::class, 'index']);
+    Route::post('planvisit', [PlanVisitController::class, 'store']);
+    Route::delete('planvisit/{id}', [PlanVisitController::class, 'destroy']);
 
     //NOO
     Route::get('noo/getbu', [NooController::class, 'getbu']);
@@ -66,15 +67,21 @@ Route::middleware(['auth:sanctum', 'logku'])->group(function () {
 
 // Route::post('user/register', [UserController::class, 'register']);
 Route::post('user/login', [UserController::class, 'login']);
+Route::post('user/send-otp', [WhatsappOtpController::class, 'sendOtp']);
+Route::post('user/verify-otp', [WhatsappOtpController::class, 'verifyOtp']);
 
 Route::post('notif', [SendNotif::class, 'sendMessage']);
 
 Route::get('divisi', [SettingController::class, 'getdivisi']);
 Route::get('region', [SettingController::class, 'getregion']);
 
-// Route::get('tes', function (Request $request) {
-//     return '';
-// });
 
+Route::get('/test', function () {
+    return response()->json([
+        'message' => 'Hello World',
+        'status' => 200,
+    ]);
+});
 // Route::get('/tes/outlet', [OutletController::class, 'all']);
 // Route::post('/outlet/delete', [outlet::class, 'deleteBulk']);
+

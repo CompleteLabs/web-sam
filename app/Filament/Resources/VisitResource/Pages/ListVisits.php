@@ -6,6 +6,7 @@ use App\Filament\Resources\VisitResource;
 use App\Models\Visit;
 use Filament\Actions;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Components\Tab;
 use Illuminate\Database\Eloquent\Builder;
@@ -27,12 +28,16 @@ class ListVisits extends ListRecords
                 ->color("success")
                 ->icon('heroicon-o-arrow-up-tray')
                 ->form([
+                    Select::make('Position')
+                    ->preload()
+                    ->searchable()
+                    ->options(Position::pluck('name', 'id')->toArray()),                
                     DatePicker::make('tanggal1')
                         ->label('Dari')
                         ->maxDate(now())
                         ->required(),
                     DatePicker::make('tanggal2')
-                        ->label('Sampai')
+                        ->label('Ke')
                         ->maxDate(now())
                         ->required(),
                 ])

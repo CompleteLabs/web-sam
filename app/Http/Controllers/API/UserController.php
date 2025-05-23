@@ -21,7 +21,7 @@ class UserController extends Controller
     /**
      * User - Fetch profile ✅
      */
-    public function fetch(Request $request)
+    public function profile(Request $request)
     {
         try {
             $user = User::with(['cluster', 'region', 'role', 'divisi', 'badanusaha'])

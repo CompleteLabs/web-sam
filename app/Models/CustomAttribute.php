@@ -12,20 +12,16 @@ class CustomAttribute extends Model
     use HasFactory;
 
     protected $fillable = ['key', 'label', 'type', 'options', 'active', 'system_defined', 'entity_type', 'apply_entity_type', 'apply_entity_id', 'validation_rules'];
-
-    protected $casts = [
-        'options' => 'array',
-        'validation_rules' => 'array',
-    ];
-
-    public function getOptionsAttribute($value)
+    protected function options(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        if (is_array($value)) {
-            return array_map(function ($item) {
-                return ['option' => $item]; // Mengubah menjadi array objek
-            }, $value);
-        }
-        return json_decode($value, true);
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+            if (is_array($value)) {
+                return array_map(function ($item) {
+                    return ['option' => $item]; // Mengubah menjadi array objek
+                }, $value);
+            }
+            return json_decode($value, true);
+        });
     }
     public function applyEntity(): MorphTo
     {
@@ -35,5 +31,12 @@ class CustomAttribute extends Model
     public function values(): HasMany
     {
         return $this->hasMany(CustomAttributeValue::class, 'custom_attribute_id');
+    }
+    protected function casts(): array
+    {
+        return [
+            'options' => 'array',
+            'validation_rules' => 'array',
+        ];
     }
 }

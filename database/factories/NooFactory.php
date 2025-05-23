@@ -5,6 +5,9 @@ namespace Database\Factories;
 use App\Models\noo;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\noo>
+ */
 class NooFactory extends Factory
 {
     /**

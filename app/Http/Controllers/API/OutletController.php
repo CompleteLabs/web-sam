@@ -82,7 +82,7 @@ class OutletController extends Controller
         }
     }
 
-    public function fetch(Request $request)
+    public function index(Request $request)
     {
         try {
             $user = Auth::user();
@@ -99,11 +99,11 @@ class OutletController extends Controller
         }
     }
 
-    public function singleOutlet(Request $request, $nama)
+    public function show(Request $request, $kode)
     {
         try {
             $outlet = Outlet::with(['badanusaha', 'cluster', 'region', 'divisi'])
-                ->where('kode_outlet', $nama)
+                ->where('kode_outlet', $kode)
                 ->get();
             return ResponseFormatter::success($outlet->map->formatForAPI(), 'berhasil');
         } catch (Exception $error) {
@@ -113,17 +113,16 @@ class OutletController extends Controller
         }
     }
 
-    public function updatefoto(Request $request)
+    public function update(Request $request, $kode)
     {
         try {
             $request->validate([
-                'kode_outlet' => ['required'],
                 'nama_pemilik_outlet' => ['required'],
                 'nomer_tlp_outlet' => ['required'],
                 'latlong' => ['required'],
             ]);
 
-            $data = Outlet::where('kode_outlet', $request->kode_outlet)->first();
+            $data = Outlet::where('kode_outlet', $kode)->first();
 
             $photoFields = ['poto_depan', 'poto_kanan', 'poto_kiri', 'poto_shop_sign', 'poto_ktp'];
             foreach ($photoFields as $index => $field) {

@@ -11,8 +11,10 @@ class PlanVisit extends Model
 {
     use HasFactory;
 
-    protected $guarded = [
-        'id'
+    protected $fillable = [
+        'user_id',
+        'outlet_id',
+        'tanggal_visit',
     ];
 
     public function scopeFilter($query)
@@ -32,18 +34,24 @@ class PlanVisit extends Model
         return $this->belongsTo(Outlet::class);
     }
 
-    public function getTanggalVisitAttribute($value)
+    protected function tanggalVisit(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return Carbon::parse($value)->timestamp * 1000;
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+            return Carbon::parse($value)->timestamp * 1000;
+        });
     }
 
-    public function getCreatedAtAttribute($value)
+    protected function createdAt(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return Carbon::parse($value)->timestamp;
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+            return Carbon::parse($value)->timestamp;
+        });
     }
 
-    public function getUpdatedAtAttribute($value)
+    protected function updatedAt(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return Carbon::parse($value)->timestamp;
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function ($value) {
+            return Carbon::parse($value)->timestamp;
+        });
     }
 }

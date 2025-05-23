@@ -305,20 +305,20 @@ class CustomAttributeResource extends Resource
                 case 'App\Models\BadanUsaha':
                     $query->where(function ($q) use ($role) {
                         $q->where('custom_attributes.apply_entity_type', 'App\Models\BadanUsaha')
-                            ->when(!empty($role->filter_data), function ($query) use ($role) {
+                            ->unless(empty($role->filter_data), function ($query) use ($role) {
                                 $query->whereIn('custom_attributes.apply_entity_id', (array) $role->filter_data);
                             });
                     })
                         ->orWhere(function ($q2) use ($divisionIds) {
                             $q2->where('custom_attributes.apply_entity_type', 'App\Models\Division')
-                                ->when(!empty($divisionIds), function ($query) use ($divisionIds) {
+                                ->unless(empty($divisionIds), function ($query) use ($divisionIds) {
                                     $query->whereIn('custom_attributes.apply_entity_id', $divisionIds);
                                 });
                         });
                     break;
                 case 'App\Models\Division':
                     $query->where('custom_attributes.apply_entity_type', 'App\Models\Division')
-                        ->when(!empty($role->filter_data), function ($query) use ($role) {
+                        ->unless(empty($role->filter_data), function ($query) use ($role) {
                             $query->whereIn('custom_attributes.apply_entity_id', (array) $role->filter_data);
                         });
                     break;

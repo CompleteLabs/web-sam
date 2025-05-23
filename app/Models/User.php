@@ -117,6 +117,14 @@ class User extends Authenticatable implements FilamentUser, HasName
         'id',
     ];
 
+    protected $fillable = [
+        'username',
+        'nama_lengkap',
+        'email',
+        'password',
+        'phone',
+    ];
+
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -129,15 +137,6 @@ class User extends Authenticatable implements FilamentUser, HasName
         'two_factor_secret',
         "created_at",
         "updated_at",
-    ];
-
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
     ];
 
     /**
@@ -175,6 +174,17 @@ class User extends Authenticatable implements FilamentUser, HasName
                 'name' => $this->badanusaha->name,
             ] : null,
             'id_notif' => $this->id_notif,
+        ];
+    }
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @return array
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
         ];
     }
 }

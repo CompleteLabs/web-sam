@@ -138,6 +138,9 @@ Route::middleware(['auth', 'isAdmin'])->group(function () {
 });
 
 Route::get('download/app', [SettingController::class, 'download']);
+Route::get('terms-and-conditions', function(){
+    return view('terms_and_conditions');
+});
 
 // Route::get('/tes',function (Request $request){
 //     // Log::channel('custom')->info('halo');

@@ -18,10 +18,6 @@ class Role extends Model
         'id'
     ];
 
-    protected $casts = [
-        'filter_data' => 'array',
-    ];
-
     public function user(): HasMany
     {
         return $this->hasMany(User::class);
@@ -30,5 +26,11 @@ class Role extends Model
     public function permissions()
     {
         return $this->belongsToMany(Permission::class, 'role_permissions');
+    }
+    protected function casts(): array
+    {
+        return [
+            'filter_data' => 'array',
+        ];
     }
 }

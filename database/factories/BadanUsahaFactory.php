@@ -5,6 +5,9 @@ namespace Database\Factories;
 use App\Models\BadanUsaha;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\BadanUsaha>
+ */
 class BadanUsahaFactory extends Factory
 {
     /**

@@ -24,9 +24,14 @@ class ResponseFormatter
     /**
      * Give success response.
      */
-    public static function success($data = null, $message = null)
+    public static function success($data = null, $message = null, $meta = [])
     {
+        // Set default meta
         self::$response['meta']['message'] = $message;
+        // Merge custom meta if provided
+        if (!empty($meta)) {
+            self::$response['meta'] = array_merge(self::$response['meta'], $meta);
+        }
         self::$response['data'] = $data;
 
         return response()->json(self::$response, self::$response['meta']['code']);

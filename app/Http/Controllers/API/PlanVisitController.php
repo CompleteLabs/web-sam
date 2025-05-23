@@ -13,10 +13,16 @@ use Illuminate\Support\Facades\Auth;
 
 class PlanVisitController extends Controller
 {
-    public function fetch(Request $request)
+    public function index(Request $request)
     {
         try {
-            $planVisit = PlanVisit::with([
+            $perPage = $request->input('per_page', 20);
+            $search = $request->input('search');
+            $month = $request->input('month');
+            $date = $request->input('date');
+            $outlet = $request->input('outlet');
+
+            $query = PlanVisit::with([
                 'outlet.badanusaha',
                 'outlet.region',
                 'outlet.divisi',
@@ -26,53 +32,46 @@ class PlanVisitController extends Controller
                 'user.divisi',
                 'user.cluster',
                 'user.role'
-            ])
-                ->where('user_id', Auth::user()->id)
-                ->whereDate('tanggal_visit', Carbon::today())
-                ->get();
+            ])->where('user_id', Auth::user()->id);
 
-            return ResponseFormatter::success($planVisit, 'Data plan visit berhasil diambil');
+            if ($search) {
+                $query->whereHas('outlet', function ($q) use ($search) {
+                    $q->where('nama_outlet', 'like', "%$search%")
+                        ->orWhere('kode_outlet', 'like', "%$search%");
+                });
+            }
+            if ($month) {
+                $query->whereMonth('tanggal_visit', $month);
+            }
+            if ($date) {
+                $query->whereDate('tanggal_visit', $date);
+            }
+            if ($outlet) {
+                $query->whereHas('outlet', function ($q) use ($outlet) {
+                    $q->where('kode_outlet', $outlet);
+                });
+            }
+
+            $planVisit = $query->orderBy('tanggal_visit')->paginate($perPage);
+
+            return ResponseFormatter::success(
+                collect($planVisit->items()),
+                'Data plan visit berhasil diambil',
+                [
+                    'current_page' => $planVisit->currentPage(),
+                    'last_page' => $planVisit->lastPage(),
+                    'total' => $planVisit->total(),
+                    'per_page' => $planVisit->perPage(),
+                ]
+            );
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Maaf, terjadi kendala saat mengambil data plan visit. Silakan coba lagi.'
             ], $error->getMessage(), 500);
         }
     }
 
-    public function bymonth(Request $request)
-    {
-        try {
-            $request->validate([
-                'bulan' => 'required|numeric',
-                'tahun' => 'required|numeric',
-            ]);
-
-            $plan = PlanVisit::with([
-                'outlet.badanusaha',
-                'outlet.region',
-                'outlet.divisi',
-                'outlet.cluster',
-                'user.badanusaha',
-                'user.region',
-                'user.divisi',
-                'user.cluster',
-                'user.role'
-            ])
-                ->whereYear('tanggal_visit', $request->tahun)
-                ->whereMonth('tanggal_visit', $request->bulan)
-                ->where('user_id', Auth::user()->id)
-                ->orderBy('tanggal_visit')
-                ->get();
-
-            return ResponseFormatter::success($plan, 'Berhasil mengambil data berdasarkan bulan');
-        } catch (Exception $error) {
-            return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
-            ], $error->getMessage(), 500);
-        }
-    }
-
-    public function add(Request $request)
+    public function store(Request $request)
     {
         try {
             $request->validate([
@@ -122,20 +121,10 @@ class PlanVisitController extends Controller
         }
     }
 
-    public function delete(Request $request)
+    public function destroy($id)
     {
         try {
-            $request->validate([
-                'bulan' => 'required|numeric',
-                'tahun' => 'required|numeric',
-                'kode_outlet' => 'required',
-            ]);
-
-            $outlet = Outlet::where('kode_outlet', $request->kode_outlet)->firstOrFail();
-
-            $planVisit = PlanVisit::where('outlet_id', $outlet->id)
-                ->whereYear('tanggal_visit', $request->tahun)
-                ->whereMonth('tanggal_visit', $request->bulan)
+            $planVisit = PlanVisit::where('id', $id)
                 ->where('user_id', Auth::user()->id)
                 ->first();
 
@@ -143,42 +132,20 @@ class PlanVisitController extends Controller
                 return ResponseFormatter::error(null, 'Plan visit tidak ditemukan', 404);
             }
 
-            // Validasi tanggal
-            if (Carbon::now()->isAfter(Carbon::createFromTimestamp($planVisit->tanggal_visit)->startOfMonth()->subDays(5))) {
-                return ResponseFormatter::error(null, 'Tidak bisa menghapus plan visit kurang dari h-5 bulan visit');
+            // Tidak bisa hapus jika sudah H-3 ke bawah dari tanggal_visit
+            $tanggalVisit = Carbon::parse($planVisit->tanggal_visit);
+            $now = Carbon::now();
+            // Jika hari ini >= tanggal_visit - 2 (artinya sudah H-2, H-1, atau hari H)
+            if ($now->greaterThanOrEqualTo($tanggalVisit->copy()->subDays(2))) {
+                return ResponseFormatter::error(null, 'Tidak bisa menghapus plan visit pada H-2, H-1, atau hari H. Minimal hanya bisa dihapus sebelum H-3 dari tanggal visit.');
             }
 
-            $delete = $planVisit->delete();
+            $planVisit->delete();
 
-            return ResponseFormatter::success($delete, 'Plan visit berhasil dihapus');
+            return ResponseFormatter::success(null, 'Plan visit berhasil dihapus');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
-            ], $error->getMessage(), 500);
-        }
-    }
-
-    public function deleterealme(Request $request)
-    {
-        try {
-            $request->validate([
-                'id' => 'required|exists:plan_visits,id',
-            ]);
-
-            $planVisit = PlanVisit::where('id', $request->id)
-                ->where('user_id', Auth::user()->id)
-                ->firstOrFail();
-
-            if (Carbon::now()->isAfter(Carbon::parse($planVisit->tanggal_visit)->startOfWeek()->addDay(1)->addHour(10))) {
-                return ResponseFormatter::error(null, 'Tidak bisa menghapus plan visit kurang dari atau dalam minggu yang berjalan');
-            }
-
-            $delete = $planVisit->delete();
-
-            return ResponseFormatter::success($delete, 'Plan visit berhasil dihapus');
-        } catch (Exception $error) {
-            return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Maaf, terjadi kendala saat menghapus plan visit. Silakan coba lagi.'
             ], $error->getMessage(), 500);
         }
     }

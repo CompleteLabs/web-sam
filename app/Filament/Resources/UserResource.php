@@ -47,7 +47,15 @@ class UserResource extends Resource
                             ->maxLength(255)
                             ->label('Nama Lengkap')
                             ->placeholder('Masukkan nama lengkap')
-                            ->dehydrateStateUsing(fn($state) => strtoupper($state))
+                            ->dehydrateStateUsing(fn($state) => strtoupper($state)),
+                        Forms\Components\TextInput::make('phone')
+                            ->label('Nomor Handphone')
+                            ->placeholder('08xxxxxxxxxx')
+                            ->maxLength(20)
+                            ->unique(ignoreRecord: true)
+                            ->tel()
+                            ->required()
+                            ->helperText('Nomor handphone harus unik dan aktif (untuk login WhatsApp OTP)'),
                     ])
                     ->collapsible()
                     ->columns(2),

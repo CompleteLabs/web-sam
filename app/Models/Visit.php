@@ -14,8 +14,20 @@ class Visit extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $guarded = [
-        'id'
+    protected $fillable = [
+        'tanggal_visit',
+        'user_id',
+        'outlet_id',
+        'tipe_visit',
+        'latlong_in',
+        'latlong_out',
+        'check_in_time',
+        'check_out_time',
+        'laporan_visit',
+        'transaksi',
+        'durasi_visit',
+        'picture_visit_in',
+        'picture_visit_out',
     ];
 
     public function user(): BelongsTo
