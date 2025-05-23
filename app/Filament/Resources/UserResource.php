@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\Cluster;
 use App\Models\User;
 use App\Services\OrganizationalStructureService;
@@ -17,14 +16,15 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
+
     protected static ?int $navigationSort = 0;
 
     public static function form(Form $form): Form
@@ -38,7 +38,7 @@ class UserResource extends Resource
                             ->maxLength(255)
                             ->label('Username')
                             ->unique(ignoreRecord: true)
-                            ->dehydrateStateUsing(fn($state) => strtolower($state))
+                            ->dehydrateStateUsing(fn ($state) => strtolower($state))
                             ->placeholder('Masukkan username yang unik')
                             ->regex('/^[\S]+$/', 'Username tidak boleh mengandung spasi')
                             ->helperText('Username tidak boleh mengandung spasi'),
@@ -47,7 +47,7 @@ class UserResource extends Resource
                             ->maxLength(255)
                             ->label('Nama Lengkap')
                             ->placeholder('Masukkan nama lengkap')
-                            ->dehydrateStateUsing(fn($state) => strtoupper($state)),
+                            ->dehydrateStateUsing(fn ($state) => strtoupper($state)),
                         Forms\Components\TextInput::make('phone')
                             ->label('Nomor Handphone')
                             ->placeholder('08xxxxxxxxxx')
@@ -68,7 +68,8 @@ class UserResource extends Resource
                             ->reactive()
                             ->placeholder('Pilih badan usaha')
                             ->options(function (callable $get) {
-                                $badanUsahaService = new OrganizationalStructureService();
+                                $badanUsahaService = new OrganizationalStructureService;
+
                                 return $badanUsahaService->getBadanUsahaOptions();
                             })
                             ->afterStateUpdated(function ($state, callable $set) {
@@ -86,10 +87,11 @@ class UserResource extends Resource
                             ->placeholder('Pilih divisi')
                             ->options(function (callable $get) {
                                 $badanusahaId = $get('badanusaha_id');
-                                if (!$badanusahaId) {
+                                if (! $badanusahaId) {
                                     return [];
                                 }
-                                $badanUsahaService = new OrganizationalStructureService();
+                                $badanUsahaService = new OrganizationalStructureService;
+
                                 return $badanUsahaService->getDivisiOptions($badanusahaId);
                             })
                             ->afterStateUpdated(function ($state, callable $set) {
@@ -106,10 +108,11 @@ class UserResource extends Resource
                             ->placeholder('Pilih region')
                             ->options(function (callable $get) {
                                 $divisiId = $get('divisi_id');
-                                if (!$divisiId) {
+                                if (! $divisiId) {
                                     return [];
                                 }
-                                $badanUsahaService = new OrganizationalStructureService();
+                                $badanUsahaService = new OrganizationalStructureService;
+
                                 return $badanUsahaService->getRegionOptions($divisiId);
                             })
                             ->afterStateUpdated(function ($state, callable $set) {
@@ -125,10 +128,11 @@ class UserResource extends Resource
                             ->placeholder('Pilih cluster')
                             ->options(function (callable $get) {
                                 $regionId = $get('region_id');
-                                if (!$regionId) {
+                                if (! $regionId) {
                                     return [];
                                 }
-                                $badanUsahaService = new OrganizationalStructureService();
+                                $badanUsahaService = new OrganizationalStructureService;
+
                                 return $badanUsahaService->getClusterOptions($regionId);
                             }),
                         Forms\Components\Select::make('cluster_id2')
@@ -139,9 +143,10 @@ class UserResource extends Resource
                             ->placeholder('Pilih cluster 2')
                             ->options(function (callable $get) {
                                 $clusterId = $get('region_id');
-                                if (!$clusterId) {
+                                if (! $clusterId) {
                                     return [];
                                 }
+
                                 return Cluster::where('region_id', $clusterId)
                                     ->orderBy('name')
                                     ->pluck('name', 'id');
@@ -164,6 +169,7 @@ class UserResource extends Resource
                                     return \App\Models\Role::whereIn('name', ['ASC', 'ASM', 'DSF/DM'])
                                         ->pluck('name', 'id')->toArray();
                                 }
+
                                 return \App\Models\Role::pluck('name', 'id')->toArray();
                             }),
                         Forms\Components\Select::make('tm_id')
@@ -180,12 +186,12 @@ class UserResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('password')
                             ->password()
-                            ->dehydrateStateUsing(fn($state) => Hash::make($state))
-                            ->dehydrated(fn($state) => filled($state))
+                            ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                            ->dehydrated(fn ($state) => filled($state))
                             ->maxLength(255)
                             ->label('Password')
                             ->placeholder('Masukkan password')
-                            ->required(fn(string $context): bool => $context === 'create')
+                            ->required(fn (string $context): bool => $context === 'create')
                             ->revealable(),
                     ])
                     ->columns(1),
@@ -219,7 +225,8 @@ class UserResource extends Resource
                         Select::make('businessEntity')
                             ->label('Badan Usaha')
                             ->options(function (callable $get) {
-                                $badanUsahaService = new OrganizationalStructureService();
+                                $badanUsahaService = new OrganizationalStructureService;
+
                                 return $badanUsahaService->getBadanUsahaOptions();
                             })
                             ->reactive()
@@ -234,9 +241,11 @@ class UserResource extends Resource
                             ->options(function (callable $get) {
                                 $businessEntityId = $get('businessEntity');
                                 if ($businessEntityId) {
-                                    $badanUsahaService = new OrganizationalStructureService();
+                                    $badanUsahaService = new OrganizationalStructureService;
+
                                     return $badanUsahaService->getDivisiOptions($businessEntityId);
                                 }
+
                                 return [];
                             })
                             ->reactive()
@@ -252,9 +261,11 @@ class UserResource extends Resource
                             ->options(function (callable $get) {
                                 $divisionId = $get('division');
                                 if ($divisionId) {
-                                    $badanUsahaService = new OrganizationalStructureService();
+                                    $badanUsahaService = new OrganizationalStructureService;
+
                                     return $badanUsahaService->getRegionOptions($divisionId);
                                 }
+
                                 return [];
                             })
                             ->reactive(),
@@ -269,11 +280,12 @@ class UserResource extends Resource
                         if ($data['region'] ?? null) {
                             $query->where('region_id', $data['region']);
                         }
+
                         return $query;
                     }),
 
                 Tables\Filters\TrashedFilter::make()
-                    ->hidden(fn() => !Gate::any(['restore_any_visit', 'force_delete_any_visit'], User::class)),
+                    ->hidden(fn () => ! Gate::any(['restore_any_visit', 'force_delete_any_visit'], User::class)),
             ], layout: FiltersLayout::Modal)
             ->filtersFormWidth(MaxWidth::Large)
             ->deferLoading()
@@ -299,8 +311,8 @@ class UserResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        $user  = auth()->user();
-        $role  = $user->role;
+        $user = auth()->user();
+        $role = $user->role;
         $filterData = $role->filter_data ?? [];
 
         if ($role->filter_type === 'App\Models\BadanUsaha') {

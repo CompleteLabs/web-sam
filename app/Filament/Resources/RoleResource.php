@@ -49,7 +49,7 @@ class RoleResource extends Resource
                                 'all' => 'All Data',
                             ])
                             ->searchable()
-                            ->visible(fn($get) => $get('can_access_web') !== false)
+                            ->visible(fn ($get) => $get('can_access_web') !== false)
                             ->reactive()
                             ->label('Filter Type')
                             ->required(),
@@ -57,20 +57,21 @@ class RoleResource extends Resource
                             ->label('Filter Data')
                             ->options(function ($get) {
                                 $filterType = $get('filter_type');
-                                $filterOptionsService = new FilterOptionsService();
+                                $filterOptionsService = new FilterOptionsService;
+
                                 return $filterOptionsService->getOptionsByFilterType($filterType);
                             })
                             ->placeholder('Pilih Data')
                             ->reactive()
-                            ->visible(fn($get) => $get('filter_type') && $get('filter_type') !== 'all' && $get('can_access_web') !== false)
-                            ->required(fn($get) => $get('filter_type') !== 'all')
+                            ->visible(fn ($get) => $get('filter_type') && $get('filter_type') !== 'all' && $get('can_access_web') !== false)
+                            ->required(fn ($get) => $get('filter_type') !== 'all')
                             ->multiple(),
                     ])
                     ->label('Role Settings')
                     ->columns(2),
                 Section::make('Permissions')
                     ->schema(static::getPermissionSchema())
-                    ->visible(fn($get) => $get('can_access_web') !== false)
+                    ->visible(fn ($get) => $get('can_access_web') !== false)
                     ->columnSpanFull(),
             ]);
     }
@@ -105,10 +106,12 @@ class RoleResource extends Resource
         $permissions = Permission::all()
             ->groupBy(function ($permission) {
                 $lastUnderscorePosition = strrpos($permission->name, '_');
+
                 return $lastUnderscorePosition !== false
                     ? substr($permission->name, $lastUnderscorePosition + 1)
                     : $permission->name;
             });
+
         return [
             Forms\Components\Grid::make(3)
                 ->schema(
@@ -120,7 +123,7 @@ class RoleResource extends Resource
                                 Toggle::make("select_all_{$resource}")
                                     ->label('Select All')
                                     ->reactive()
-                                    ->afterStateHydrated(function ($component, $state) use ($operations, $resource) {
+                                    ->afterStateHydrated(function ($component, $state) use ($operations) {
                                         $record = $component->getRecord();
                                         if ($record) {
                                             $existingPermissions = $record->permissions()
@@ -142,7 +145,7 @@ class RoleResource extends Resource
                                     ->options(self::formatOptions($operations))
                                     ->dehydrated(true)
                                     ->reactive()
-                                    ->afterStateHydrated(function ($component, $state) use ($operations, $resource) {
+                                    ->afterStateHydrated(function ($component, $state) use ($operations) {
                                         $record = $component->getRecord();
                                         if ($record) {
                                             $existingPermissions = $record->permissions()
@@ -169,6 +172,7 @@ class RoleResource extends Resource
                 ->columnSpanFull(),
         ];
     }
+
     protected static function formatHeadline(string $resource): string
     {
         return Str::headline(str_replace('::', ' ', $resource));
@@ -183,11 +187,11 @@ class RoleResource extends Resource
                     ? substr($operation, 0, $lastUnderscorePosition)
                     : $operation;
                 $label = Str::headline(str_replace('_', ' ', $baseOperation));
+
                 return [$operation => $label];
             })
             ->toArray();
     }
-
 
     public static function getRelations(): array
     {

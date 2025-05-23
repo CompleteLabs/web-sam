@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ClusterResource\Pages;
-use App\Filament\Resources\ClusterResource\RelationManagers;
 use App\Models\Cluster;
 use App\Services\OrganizationalStructureService;
 use Filament\Forms;
@@ -13,13 +12,15 @@ use Filament\Tables;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ClusterResource extends Resource
 {
     protected static ?string $model = Cluster::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
+
     protected static ?string $navigationGroup = 'Settings';
+
     protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
@@ -33,7 +34,8 @@ class ClusterResource extends Resource
                     ->reactive()
                     ->placeholder('Pilih badan usaha')
                     ->options(function (callable $get) {
-                        $organizationalStructureService = new OrganizationalStructureService();
+                        $organizationalStructureService = new OrganizationalStructureService;
+
                         return $organizationalStructureService->getBadanUsahaOptions();
                     })
                     ->afterStateUpdated(function ($state, callable $set) {
@@ -49,10 +51,11 @@ class ClusterResource extends Resource
                     ->reactive()
                     ->options(function (callable $get) {
                         $badanusahaId = $get('badanusaha_id');
-                        if (!$badanusahaId) {
+                        if (! $badanusahaId) {
                             return [];
                         }
-                        $organizationalStructureService = new OrganizationalStructureService();
+                        $organizationalStructureService = new OrganizationalStructureService;
+
                         return $organizationalStructureService->getDivisiOptions($badanusahaId);
                     })
                     ->afterStateUpdated(function ($state, callable $set) {
@@ -66,10 +69,11 @@ class ClusterResource extends Resource
                     ->reactive()
                     ->options(function (callable $get) {
                         $divisiId = $get('divisi_id');
-                        if (!$divisiId) {
+                        if (! $divisiId) {
                             return [];
                         }
-                        $organizationalStructureService = new OrganizationalStructureService();
+                        $organizationalStructureService = new OrganizationalStructureService;
+
                         return $organizationalStructureService->getRegionOptions($divisiId);
                     }),
                 Forms\Components\TextInput::make('name')

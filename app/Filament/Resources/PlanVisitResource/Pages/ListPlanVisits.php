@@ -22,7 +22,7 @@ class ListPlanVisits extends ListRecords
         // Check if the user is authorized to export
         if (Gate::allows('export', PlanVisit::class)) {
             $actions[] = Actions\Action::make('export')
-                ->color("success")
+                ->color('success')
                 ->icon('heroicon-o-arrow-up-tray')
                 ->form([
                     DatePicker::make('tanggal1')

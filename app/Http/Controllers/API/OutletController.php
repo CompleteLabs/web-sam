@@ -10,8 +10,6 @@ use App\Models\Region;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 class OutletController extends Controller
 {
@@ -26,6 +24,7 @@ class OutletController extends Controller
             case 9: // RKAM
                 $divisi = Division::where('name', $request->divisi)->first()->id;
                 $region = Region::where('name', $request->region)->where('divisi_id', $divisi)->first()->id;
+
                 return $query->where('divisi_id', $divisi)
                     ->where('region_id', $region)
                     ->orderBy('nama_outlet')
@@ -57,6 +56,7 @@ class OutletController extends Controller
             case 11: // CSO FAST EV
                 $divisi = Division::where('name', $request->divisi)->first()->id;
                 $region = Region::where('name', $request->region)->where('divisi_id', $divisi)->first()->id;
+
                 return $query->where('divisi_id', $divisi)
                     ->where('region_id', $region)
                     ->orderBy('nama_outlet')
@@ -71,13 +71,14 @@ class OutletController extends Controller
     {
         try {
             $outlet = Outlet::with(['badanusaha', 'cluster', 'region', 'divisi'])->get();
+
             return ResponseFormatter::success(
                 $outlet->map->formatForAPI(),
                 'berhasil'
             );
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -94,7 +95,7 @@ class OutletController extends Controller
             );
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -105,10 +106,11 @@ class OutletController extends Controller
             $outlet = Outlet::with(['badanusaha', 'cluster', 'region', 'divisi'])
                 ->where('kode_outlet', $kode)
                 ->get();
+
             return ResponseFormatter::success($outlet->map->formatForAPI(), 'berhasil');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -126,8 +128,8 @@ class OutletController extends Controller
 
             $photoFields = ['poto_depan', 'poto_kanan', 'poto_kiri', 'poto_shop_sign', 'poto_ktp'];
             foreach ($photoFields as $index => $field) {
-                if ($request->hasFile('photo' . $index)) {
-                    $photo = $request->file('photo' . $index);
+                if ($request->hasFile('photo'.$index)) {
+                    $photo = $request->file('photo'.$index);
                     $name = $photo->getClientOriginalName();
                     $photo->move(storage_path('app/public/'), $name);
                     $data[$field] = $name;
@@ -136,7 +138,7 @@ class OutletController extends Controller
 
             if ($request->hasFile('video')) {
                 $video = $request->file('video');
-                $videoName = 'update-' . now()->timestamp . '-' . $video->getClientOriginalName();
+                $videoName = 'update-'.now()->timestamp.'-'.$video->getClientOriginalName();
                 $video->move(storage_path('app/public/'), $videoName);
                 $data['video'] = $videoName;
             }
@@ -149,7 +151,7 @@ class OutletController extends Controller
             return ResponseFormatter::success(null, 'Berhasil Update');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }

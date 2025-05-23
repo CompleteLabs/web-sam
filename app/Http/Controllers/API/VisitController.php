@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Outlet;
 use App\Models\Visit;
 use Carbon\Carbon;
-use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +14,6 @@ use Illuminate\Support\Facades\DB;
 
 class VisitController extends Controller
 {
-
     public function monitor(Request $request)
     {
         try {
@@ -82,7 +80,7 @@ class VisitController extends Controller
             );
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Maaf, terjadi kendala saat memproses permintaan Anda. Silakan coba lagi.'
+                'message' => 'Maaf, terjadi kendala saat memproses permintaan Anda. Silakan coba lagi.',
             ], $error->getMessage(), 500);
         }
     }
@@ -106,7 +104,7 @@ class VisitController extends Controller
                 'user.region',
                 'user.divisi',
                 'user.cluster',
-                'user.role'
+                'user.role',
             ])->where('user_id', Auth::user()->id);
 
             // Search global (nama outlet, kode outlet)
@@ -120,9 +118,11 @@ class VisitController extends Controller
             }
 
             // Filter dinamis: hanya month, date, tipe_visit
-            if (!empty($filters)) {
+            if (! empty($filters)) {
                 foreach ($filters as $key => $value) {
-                    if ($value === null || $value === '') continue;
+                    if ($value === null || $value === '') {
+                        continue;
+                    }
                     if ($key === 'date') {
                         $query->whereDate('tanggal_visit', $value);
                     } elseif ($key === 'month') {
@@ -139,7 +139,7 @@ class VisitController extends Controller
 
             // Sorting dinamis (whitelist kolom untuk keamanan)
             $allowedSorts = ['tanggal_visit', 'check_in_time', 'check_out_time', 'tipe_visit', 'durasi_visit'];
-            if (!in_array($sortColumn, $allowedSorts)) {
+            if (! in_array($sortColumn, $allowedSorts)) {
                 $sortColumn = 'tanggal_visit';
             }
             $query->orderBy($sortColumn, $sortDirection);
@@ -158,8 +158,8 @@ class VisitController extends Controller
             );
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Maaf, terjadi kendala saat mengambil data kunjungan. Silakan coba lagi.'
-            ], 'Error: ' . $error->getMessage(), 500);
+                'message' => 'Maaf, terjadi kendala saat mengambil data kunjungan. Silakan coba lagi.',
+            ], 'Error: '.$error->getMessage(), 500);
         }
     }
 
@@ -175,7 +175,7 @@ class VisitController extends Controller
                 'user.region',
                 'user.divisi',
                 'user.cluster',
-                'user.role'
+                'user.role',
             ])->findOrFail($id);
 
             return ResponseFormatter::success(
@@ -184,7 +184,7 @@ class VisitController extends Controller
             );
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Maaf, data visit tidak ditemukan.'
+                'message' => 'Maaf, data visit tidak ditemukan.',
             ], $error->getMessage(), 404);
         }
     }
@@ -204,14 +204,15 @@ class VisitController extends Controller
                 ->where('divisi_id', Auth::user()->divisi_id)
                 ->first();
 
-            if (!$outlet) {
+            if (! $outlet) {
                 DB::rollBack();
+
                 return ResponseFormatter::error([
-                    'message' => 'Maaf, data outlet tidak ditemukan. Pastikan kode outlet dan divisi sudah benar.'
+                    'message' => 'Maaf, data outlet tidak ditemukan. Pastikan kode outlet dan divisi sudah benar.',
                 ], 'Invalid Outlet', 404);
             }
 
-            $imageName = date('Y-m-d') . '-' . Auth::user()->username . '-' . 'IN-' . Carbon::parse(time())->getPreciseTimestamp(3) . '.' . $request->picture_visit->extension();
+            $imageName = date('Y-m-d').'-'.Auth::user()->username.'-'.'IN-'.Carbon::parse(time())->getPreciseTimestamp(3).'.'.$request->picture_visit->extension();
             $request->picture_visit->move(storage_path('app/public/'), $imageName);
 
             $visit = Visit::create([
@@ -225,13 +226,15 @@ class VisitController extends Controller
             ]);
 
             DB::commit();
+
             return ResponseFormatter::success([
-                'visit' => $visit
+                'visit' => $visit,
             ], 'Berhasil check-in');
         } catch (Exception $error) {
             DB::rollBack();
+
             return ResponseFormatter::error([
-                'message' => 'Maaf, terjadi kendala saat memproses permintaan Anda. Silakan coba lagi.'
+                'message' => 'Maaf, terjadi kendala saat memproses permintaan Anda. Silakan coba lagi.',
             ], $error->getMessage(), 500);
         }
     }
@@ -252,7 +255,7 @@ class VisitController extends Controller
             $akhir = Carbon::now();
             $durasi = $awal->diffInMinutes($akhir);
 
-            $imageName = date('Y-m-d') . '-' . Auth::user()->username . '-' . 'OUT-' . Carbon::now()->getPreciseTimestamp(3) . '.' . $request->picture_visit->extension();
+            $imageName = date('Y-m-d').'-'.Auth::user()->username.'-'.'OUT-'.Carbon::now()->getPreciseTimestamp(3).'.'.$request->picture_visit->extension();
             $request->picture_visit->move(storage_path('app/public/'), $imageName);
 
             $visit->latlong_out = $request->latlong_out;
@@ -264,11 +267,13 @@ class VisitController extends Controller
             $visit->save();
 
             DB::commit();
+
             return ResponseFormatter::success($visit->formatForAPI(), 'Berhasil check-out');
         } catch (Exception $error) {
             DB::rollBack();
+
             return ResponseFormatter::error([
-                'message' => 'Maaf, data visit tidak dapat diperbarui saat ini. Silakan coba lagi.'
+                'message' => 'Maaf, data visit tidak dapat diperbarui saat ini. Silakan coba lagi.',
             ], $error->getMessage(), 400);
         }
     }
@@ -278,10 +283,11 @@ class VisitController extends Controller
         try {
             $visit = Visit::findOrFail($id);
             $visit->delete();
+
             return ResponseFormatter::success(null, 'Delete visit success');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Maaf, data visit tidak dapat dihapus saat ini. Silakan coba lagi.'
+                'message' => 'Maaf, data visit tidak dapat dihapus saat ini. Silakan coba lagi.',
             ], $error->getMessage(), 400);
         }
     }
@@ -308,8 +314,8 @@ class VisitController extends Controller
                         'outlet_aktif' => $visitAktif->outlet->kode_outlet,
                         'nama_outlet_aktif' => $visitAktif->outlet->nama_outlet,
                         'alamat_outlet_aktif' => $visitAktif->outlet->alamat,
-                        'waktu_checkin' => $visitAktif->check_in_time ? $visitAktif->check_in_time->format('d-m-Y H:i') : null
-                    ], 'Anda sudah check-in di outlet ini hari ini (Outlet: ' . $visitAktif->outlet->nama_outlet . ', Alamat: ' . $visitAktif->outlet->alamat . '). Silakan lakukan check-out sebelum membuat kunjungan baru.');
+                        'waktu_checkin' => $visitAktif->check_in_time ? $visitAktif->check_in_time->format('d-m-Y H:i') : null,
+                    ], 'Anda sudah check-in di outlet ini hari ini (Outlet: '.$visitAktif->outlet->nama_outlet.', Alamat: '.$visitAktif->outlet->alamat.'). Silakan lakukan check-out sebelum membuat kunjungan baru.');
                 } else {
                     return ResponseFormatter::error([
                         'checked_in' => true,
@@ -318,8 +324,8 @@ class VisitController extends Controller
                         'outlet_aktif' => $visitAktif->outlet->kode_outlet,
                         'nama_outlet_aktif' => $visitAktif->outlet->nama_outlet,
                         'alamat_outlet_aktif' => $visitAktif->outlet->alamat,
-                        'waktu_checkin' => $visitAktif->check_in_time ? $visitAktif->check_in_time->format('d-m-Y H:i') : null
-                    ], 'Anda masih memiliki kunjungan yang belum selesai (belum check-out) di outlet lain (Outlet: ' . $visitAktif->outlet->nama_outlet . ', Alamat: ' . $visitAktif->outlet->alamat . '). Silakan selesaikan (check-out) kunjungan sebelumnya sebelum melakukan check-in baru.');
+                        'waktu_checkin' => $visitAktif->check_in_time ? $visitAktif->check_in_time->format('d-m-Y H:i') : null,
+                    ], 'Anda masih memiliki kunjungan yang belum selesai (belum check-out) di outlet lain (Outlet: '.$visitAktif->outlet->nama_outlet.', Alamat: '.$visitAktif->outlet->alamat.'). Silakan selesaikan (check-out) kunjungan sebelumnya sebelum melakukan check-in baru.');
                 }
             }
 
@@ -328,9 +334,9 @@ class VisitController extends Controller
                 ->where('divisi_id', Auth::user()->divisi_id)
                 ->first();
 
-            if (!$outlet) {
+            if (! $outlet) {
                 return ResponseFormatter::error([
-                    'message' => 'Maaf, data outlet tidak ditemukan. Pastikan kode outlet dan divisi sudah benar.'
+                    'message' => 'Maaf, data outlet tidak ditemukan. Pastikan kode outlet dan divisi sudah benar.',
                 ], 'Outlet tidak valid', 400);
             }
 
@@ -340,15 +346,15 @@ class VisitController extends Controller
                 ->latest()
                 ->first();
 
-            if (!$visit) {
+            if (! $visit) {
                 return ResponseFormatter::success([
                     'checked_in' => false,
                     'checked_out' => false,
                     'visit_id' => null,
                     'outlet_diminta' => $outlet->kode_outlet,
                     'nama_outlet_diminta' => $outlet->nama_outlet,
-                    'alamat_outlet_diminta' => $outlet->alamat
-                ], 'Anda belum melakukan check-in di outlet ini hari ini (Outlet: ' . $outlet->nama_outlet . ', Alamat: ' . $outlet->alamat . '). Silakan lakukan check-in terlebih dahulu.');
+                    'alamat_outlet_diminta' => $outlet->alamat,
+                ], 'Anda belum melakukan check-in di outlet ini hari ini (Outlet: '.$outlet->nama_outlet.', Alamat: '.$outlet->alamat.'). Silakan lakukan check-in terlebih dahulu.');
             }
 
             if ($visit->check_out_time) {
@@ -360,8 +366,8 @@ class VisitController extends Controller
                     'nama_outlet_diminta' => $outlet->nama_outlet,
                     'alamat_outlet_diminta' => $outlet->alamat,
                     'waktu_checkin' => $visit->check_in_time ? $visit->check_in_time->format('d-m-Y H:i') : null,
-                    'waktu_checkout' => $visit->check_out_time ? $visit->check_out_time->format('d-m-Y H:i') : null
-                ], 'Visit Anda ke outlet ini hari ini sudah selesai (sudah check-out di ' . $outlet->nama_outlet . ').');
+                    'waktu_checkout' => $visit->check_out_time ? $visit->check_out_time->format('d-m-Y H:i') : null,
+                ], 'Visit Anda ke outlet ini hari ini sudah selesai (sudah check-out di '.$outlet->nama_outlet.').');
             } else {
                 return ResponseFormatter::success([
                     'checked_in' => true,
@@ -370,12 +376,12 @@ class VisitController extends Controller
                     'outlet_diminta' => $outlet->kode_outlet,
                     'nama_outlet_diminta' => $outlet->nama_outlet,
                     'alamat_outlet_diminta' => $outlet->alamat,
-                    'waktu_checkin' => $visit->check_in_time ? $visit->check_in_time->format('d-m-Y H:i') : null
-                ], 'Anda sudah check-in di outlet ini hari ini (Outlet: ' . $outlet->nama_outlet . ', Alamat: ' . $outlet->alamat . '). Silakan lakukan check-out sebelum membuat kunjungan baru.');
+                    'waktu_checkin' => $visit->check_in_time ? $visit->check_in_time->format('d-m-Y H:i') : null,
+                ], 'Anda sudah check-in di outlet ini hari ini (Outlet: '.$outlet->nama_outlet.', Alamat: '.$outlet->alamat.'). Silakan lakukan check-out sebelum membuat kunjungan baru.');
             }
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }

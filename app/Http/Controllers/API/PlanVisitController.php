@@ -31,7 +31,7 @@ class PlanVisitController extends Controller
                 'user.region',
                 'user.divisi',
                 'user.cluster',
-                'user.role'
+                'user.role',
             ])->where('user_id', Auth::user()->id);
 
             if ($search) {
@@ -66,7 +66,7 @@ class PlanVisitController extends Controller
             );
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Maaf, terjadi kendala saat mengambil data plan visit. Silakan coba lagi.'
+                'message' => 'Maaf, terjadi kendala saat mengambil data plan visit. Silakan coba lagi.',
             ], $error->getMessage(), 500);
         }
     }
@@ -116,7 +116,7 @@ class PlanVisitController extends Controller
             return ResponseFormatter::success($addPlan, 'Plan visit berhasil ditambahkan');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -128,7 +128,7 @@ class PlanVisitController extends Controller
                 ->where('user_id', Auth::user()->id)
                 ->first();
 
-            if (!$planVisit) {
+            if (! $planVisit) {
                 return ResponseFormatter::error(null, 'Plan visit tidak ditemukan', 404);
             }
 
@@ -145,7 +145,7 @@ class PlanVisitController extends Controller
             return ResponseFormatter::success(null, 'Plan visit berhasil dihapus');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Maaf, terjadi kendala saat menghapus plan visit. Silakan coba lagi.'
+                'message' => 'Maaf, terjadi kendala saat menghapus plan visit. Silakan coba lagi.',
             ], $error->getMessage(), 500);
         }
     }

@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
 class MigrateNoosToOutlets extends Command
 {
     protected $signature = 'crm:migrate-noos-to-outlets';
+
     protected $description = 'Migrasi data dari tabel noos ke tabel outlets dengan mapping status';
 
     public function handle()
@@ -27,7 +27,9 @@ class MigrateNoosToOutlets extends Command
             };
             // Cek jika sudah ada outlet dengan kode_outlet sama, skip
             $exists = DB::table('outlets')->where('kode_outlet', $noo->kode_outlet)->exists();
-            if ($exists) continue;
+            if ($exists) {
+                continue;
+            }
             DB::table('outlets')->insert([
                 'kode_outlet' => $noo->kode_outlet,
                 'nama_outlet' => $noo->nama_outlet,

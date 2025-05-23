@@ -1,14 +1,14 @@
 <?php
 
 use App\Helpers\SendNotif;
-use App\Http\Controllers\API\NooController;
 use App\Http\Controllers\API\LeadController;
+use App\Http\Controllers\API\NooController;
 use App\Http\Controllers\API\OutletController;
 use App\Http\Controllers\API\PlanVisitController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\VisitController;
-use App\Http\Controllers\SettingController;
 use App\Http\Controllers\Auth\WhatsappOtpController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,16 +23,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth:sanctum', 'logku'])->group(function () {
-    //USER
+    // USER
     Route::get('user', [UserController::class, 'profile']);
     Route::post('user/logout', [UserController::class, 'logout']);
 
-    //OUTLET
+    // OUTLET
     Route::get('outlet', [OutletController::class, 'index']);
     Route::get('outlet/{kode}', [OutletController::class, 'show']);
     Route::put('outlet/{kode}', [OutletController::class, 'update']);
 
-    //VISIT
+    // VISIT
     Route::get('visit', [VisitController::class, 'index']);
     Route::get('visit/{id}', [VisitController::class, 'show']);
     Route::post('visit', [VisitController::class, 'store']);
@@ -40,12 +40,12 @@ Route::middleware(['auth:sanctum', 'logku'])->group(function () {
     Route::get('visit/check', [VisitController::class, 'check']);
     Route::get('visit/monitor', [VisitController::class, 'monitor']);
 
-    //PLAN VISIT
+    // PLAN VISIT
     Route::get('planvisit', [PlanVisitController::class, 'index']);
     Route::post('planvisit', [PlanVisitController::class, 'store']);
     Route::delete('planvisit/{id}', [PlanVisitController::class, 'destroy']);
 
-    //NOO
+    // NOO
     Route::get('noo/getbu', [NooController::class, 'getbu']);
     Route::get('noo/getdiv', [NooController::class, 'getdiv']);
     Route::get('noo/getreg', [NooController::class, 'getreg']);
@@ -60,7 +60,7 @@ Route::middleware(['auth:sanctum', 'logku'])->group(function () {
     Route::post('noo/approved', [NooController::class, 'approved']);
     Route::post('noo/reject', [NooController::class, 'reject']);
 
-    //LEAD
+    // LEAD
     Route::post('lead', [LeadController::class, 'create']);
     Route::post('lead/update', [LeadController::class, 'update']);
 });
@@ -75,7 +75,6 @@ Route::post('notif', [SendNotif::class, 'sendMessage']);
 Route::get('divisi', [SettingController::class, 'getdivisi']);
 Route::get('region', [SettingController::class, 'getregion']);
 
-
 Route::get('/test', function () {
     return response()->json([
         'message' => 'Hello World',
@@ -84,4 +83,3 @@ Route::get('/test', function () {
 });
 // Route::get('/tes/outlet', [OutletController::class, 'all']);
 // Route::post('/outlet/delete', [outlet::class, 'deleteBulk']);
-

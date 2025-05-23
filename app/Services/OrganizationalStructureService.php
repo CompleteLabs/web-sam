@@ -3,19 +3,19 @@
 namespace App\Services;
 
 use App\Models\BadanUsaha;
+use App\Models\Cluster;
 use App\Models\Division;
 use App\Models\Region;
-use App\Models\Cluster;
 use Illuminate\Support\Facades\Auth;
 
 class OrganizationalStructureService
 {
     private function getFilteredOptions($model, $filterType, $filterData, $relasi = [], $badanUsahaId = null, $divisiId = null, $regionId = null)
     {
-        if ($filterType && !empty($filterData)) {
+        if ($filterType && ! empty($filterData)) {
             $filterData = is_string($filterData) ? json_decode($filterData) : $filterData;
 
-            if (!is_array($filterData)) {
+            if (! is_array($filterData)) {
                 return [];
             }
 
@@ -28,26 +28,29 @@ class OrganizationalStructureService
                         $divisions->where('badanusaha_id', $badanUsahaId);
                     }
                     $divisions = $divisions->with('badanusaha')->get();
+
                     return [
                         'badanusahas' => $divisions->pluck('badanusaha.name', 'badanusaha_id')->toArray(),
-                        'divisions'   => $divisions->pluck('name', 'id')->toArray(),
+                        'divisions' => $divisions->pluck('name', 'id')->toArray(),
                     ];
                 }
 
                 if ($filterType === 'App\Models\BadanUsaha') {
                     $badanUsahas = \App\Models\BadanUsaha::whereIn('id', $filterData)->get();
+
                     return $badanUsahas->pluck('name', 'id');
                 }
 
-                if  ($filterType === 'App\Models\Division') {
+                if ($filterType === 'App\Models\Division') {
                     $divisions = \App\Models\Division::whereIn('id', $filterData);
                     if ($badanUsahaId) {
                         $divisions->where('badanusaha_id', $badanUsahaId);
                     }
                     $divisions = $divisions->with('badanusaha')->get();
+
                     return [
                         'badanusahas' => $divisions->pluck('badanusaha.name', 'badanusaha_id')->toArray(),
-                        'divisions'   => $divisions->pluck('name', 'id')->toArray(),
+                        'divisions' => $divisions->pluck('name', 'id')->toArray(),
                     ];
                 }
 
@@ -60,6 +63,7 @@ class OrganizationalStructureService
                         $regions->where('divisi_id', $divisiId);
                     }
                     $regions = $regions->with(['badanusaha', 'divisi'])->get();
+
                     return [
                         'badanusahas' => $regions->pluck('badanusaha.name', 'badanusaha_id')->toArray(),
                         'divisions' => $regions->pluck('divisi.name', 'divisi_id')->toArray(),
@@ -79,6 +83,7 @@ class OrganizationalStructureService
                         $clusters->where('region_id', $regionId);
                     }
                     $clusters = $clusters->with(['badanusaha', 'divisi', 'region'])->get();
+
                     return [
                         'badanusahas' => $clusters->pluck('badanusaha.name', 'badanusaha_id')->toArray(),
                         'divisions' => $clusters->pluck('divisi.name', 'divisi_id')->toArray(),

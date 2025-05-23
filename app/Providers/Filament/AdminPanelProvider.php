@@ -45,13 +45,13 @@ class AdminPanelProvider extends PanelProvider
                     ->label('API Docs')
                     ->url('/docs/api', shouldOpenInNewTab: true)
                     ->icon('heroicon-o-code-bracket-square')
-                    ->visible(fn() => auth()->user()?->role->name === 'SUPER ADMIN')
+                    ->visible(fn () => auth()->user()?->role->name === 'SUPER ADMIN')
                     ->group('Developer'),
                 NavigationItem::make('pulse')
                     ->label('Monitoring Server')
                     ->url('/pulse', shouldOpenInNewTab: true)
                     ->icon('heroicon-o-server-stack')
-                    ->visible(fn() => auth()->user()?->role->name === 'SUPER ADMIN')
+                    ->visible(fn () => auth()->user()?->role->name === 'SUPER ADMIN')
                     ->group('Developer'),
 
                 // NavigationItem::make('old-dashboard')
@@ -69,7 +69,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugin(
                 \Hasnayeen\Themes\ThemesPlugin::make()
-                    ->canViewThemesPage(fn() => auth()->user()?->role->name === 'SUPER ADMIN'),
+                    ->canViewThemesPage(fn () => auth()->user()?->role->name === 'SUPER ADMIN'),
             )
             ->middleware([
                 EncryptCookies::class,

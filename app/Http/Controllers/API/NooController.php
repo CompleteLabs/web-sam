@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\API;
 
-use Exception;
-use App\Models\Noo;
-use App\Models\User;
-use App\Models\Outlet;
-use App\Models\Region;
+use App\Helpers\ResponseFormatter;
+use App\Helpers\SendNotif;
+use App\Http\Controllers\Controller;
+use App\Models\BadanUsaha;
 use App\Models\Cluster;
 use App\Models\Division;
-use App\Helpers\SendNotif;
-use App\Models\BadanUsaha;
-use Illuminate\Support\Str;
+use App\Models\Noo;
+use App\Models\Outlet;
+use App\Models\Region;
+use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
-use App\Helpers\ResponseFormatter;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class NooController extends Controller
 {
@@ -32,7 +32,7 @@ class NooController extends Controller
             $query = Noo::with(['badanusaha', 'cluster', 'region', 'divisi']);
 
             switch ($roleId) {
-                    #ASM
+                // ASM
                 case 1:
                     // Cek jika akunnya adalah sodikc maka ambil data dari region Bigtasik, Bigcrb, Bigpwt, Bigbdg, Bigkarawang dengan divisi realme
                     if ($user->id === 158) {
@@ -55,7 +55,7 @@ class NooController extends Controller
                     // ->get();
 
                     break;
-                    #ASC
+                    // ASC
                 case 2:
                     $noos = $query
                         ->where('badanusaha_id', $badanusahaId)
@@ -64,7 +64,7 @@ class NooController extends Controller
                         ->latest()
                         ->get();
                     break;
-                    #DSF/DM
+                    // DSF/DM
                 case 3:
                     $noos = $query
                         ->where('badanusaha_id', $badanusahaId)
@@ -74,27 +74,27 @@ class NooController extends Controller
                         ->orderBy('updated_at', 'DESC')
                         ->get();
                     break;
-                    #COO
+                    // COO
                 case 6:
                     $noos = $query
                         ->latest()
                         ->get();
                     break;
-                    #CSO
+                    // CSO
                 case 8:
                     $noos = $query
                         ->where('divisi_id', 4)
                         ->latest()
                         ->get();
                     break;
-                    #RKAM
+                    // RKAM
                 case 9:
                     $noos = $query
                         ->where('tm_id', $user->id)
                         ->latest()
                         ->get();
                     break;
-                    #KAM
+                    // KAM
                 case 10:
                     $noos = $query
                         ->where('badanusaha_id', $badanusahaId)
@@ -104,7 +104,7 @@ class NooController extends Controller
                         ->get();
                     break;
 
-                    #CSO FAST EV
+                    // CSO FAST EV
                 case 11:
                     $noos = $query
                         ->where('divisi_id', 7)
@@ -123,7 +123,7 @@ class NooController extends Controller
             );
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -139,7 +139,7 @@ class NooController extends Controller
             );
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -167,7 +167,7 @@ class NooController extends Controller
                 'tm_id' => $user->tm->id,
             ];
             switch ($user->role_id) {
-                    #ASM
+                // ASM
                 case 1:
                     $badanusaha_id = BadanUsaha::where('name', $request->bu)->first()->id;
                     $divisi_id = Division::where('badanusaha_id', $badanusaha_id)->where('name', $request->div)->first()->id;
@@ -179,7 +179,7 @@ class NooController extends Controller
                     $data['cluster_id'] = $cluster_id;
                     break;
 
-                    #ASC
+                    // ASC
                 case 2:
                     $data['badanusaha_id'] = $user->badanusaha_id;
                     $data['divisi_id'] = $user->divisi_id;
@@ -188,7 +188,7 @@ class NooController extends Controller
                     error_log($data['cluster_id']);
                     break;
 
-                    #RKAM
+                    // RKAM
                 case 9:
                     $badanusaha_id = BadanUsaha::where('name', $request->bu)->first()->id;
                     $divisi_id = Division::where('badanusaha_id', $badanusaha_id)->where('name', $request->div)->first()->id;
@@ -200,7 +200,7 @@ class NooController extends Controller
                     $data['cluster_id'] = $cluster_id;
                     break;
 
-                    #KAM
+                    // KAM
                 case 10:
                     $data['badanusaha_id'] = $user->badanusaha_id;
                     $data['divisi_id'] = $user->divisi_id;
@@ -218,61 +218,61 @@ class NooController extends Controller
             }
 
             for ($i = 0; $i <= 4; $i++) {
-                $namaFoto = $request->file('photo' . $i)->getClientOriginalName();
+                $namaFoto = $request->file('photo'.$i)->getClientOriginalName();
                 if (Str::contains($namaFoto, 'fotodepan')) {
                     $data['poto_depan'] = $namaFoto;
-                } else if (Str::contains($namaFoto, 'fotokanan')) {
+                } elseif (Str::contains($namaFoto, 'fotokanan')) {
                     $data['poto_kanan'] = $namaFoto;
-                } else if (Str::contains($namaFoto, 'fotokiri')) {
+                } elseif (Str::contains($namaFoto, 'fotokiri')) {
                     $data['poto_kiri'] = $namaFoto;
-                } else if (Str::contains($namaFoto, 'fotoktp')) {
+                } elseif (Str::contains($namaFoto, 'fotoktp')) {
                     $data['poto_ktp'] = $namaFoto;
                 } else {
                     $data['poto_shop_sign'] = $namaFoto;
                 }
-                $request->file('photo' . $i)->move(storage_path('app/public/'), $namaFoto);
+                $request->file('photo'.$i)->move(storage_path('app/public/'), $namaFoto);
             }
 
             if ($request->hasFile('video')) {
                 $name = $request->file('video')->getClientOriginalName();
-                $data['video'] = 'noo-' . time() . $name;
-                $request->file('video')->move(storage_path('app/public/'), 'noo-' . time() . $name);
+                $data['video'] = 'noo-'.time().$name;
+                $request->file('video')->move(storage_path('app/public/'), 'noo-'.time().$name);
             }
 
             switch ($user->id) {
-                    #ASM
+                // ASM
                 case 1:
-                    $notifId = array();
+                    $notifId = [];
                     array_push($notifId, User::where('role_id', 4)->first()->id_notif);
                     break;
-                    #ASC
+                    // ASC
                 case 2:
-                    $notifId = array();
-                    #notif ar
+                    $notifId = [];
+                    // notif ar
                     array_push($notifId, User::where('role_id', 4)->first()->id_notif);
-                    #notif tm
+                    // notif tm
                     array_push($notifId, $user->tm->id_notif);
                     break;
-                    #RKAM
+                    // RKAM
                 case 9:
-                    $notifId = array();
+                    $notifId = [];
                     array_push($notifId, User::where('role_id', 4)->first()->id_notif);
                     break;
-                    #KAM
+                    // KAM
                 case 10:
-                    $notifId = array();
-                    #notif ar
+                    $notifId = [];
+                    // notif ar
                     array_push($notifId, User::where('role_id', 4)->first()->id_notif);
-                    #notif tm
+                    // notif tm
                     array_push($notifId, $user->tm->id_notif);
                     break;
                 default:
-                    $notifId = array();
-                    #notif ar
+                    $notifId = [];
+                    // notif ar
                     array_push($notifId, User::where('role_id', 4)->first()->id_notif);
-                    #notif tm
+                    // notif tm
                     array_push($notifId, $user->tm->id_notif);
-                    #notif asc
+                    // notif asc
                     $asc = User::where('role_id', 2)->where('divisi_id', $user->divisi_id)->where('region_id', $user->region_id)->first()->id_notif ?? null;
                     if ($asc) {
                         array_push($notifId, $asc);
@@ -281,12 +281,13 @@ class NooController extends Controller
             }
             $insert = Noo::create($data);
             if ($insert && count($notifId) != 0) {
-                SendNotif::sendMessage('Noo baru ' . $request->nama_outlet . ' ditambahkan oleh ' . Auth::user()->nama_lengkap, $notifId);
+                SendNotif::sendMessage('Noo baru '.$request->nama_outlet.' ditambahkan oleh '.Auth::user()->nama_lengkap, $notifId);
             }
-            return ResponseFormatter::success(null, 'berhasil menambahkan NOO ' . $request->nama_outlet);
+
+            return ResponseFormatter::success(null, 'berhasil menambahkan NOO '.$request->nama_outlet);
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -310,16 +311,17 @@ class NooController extends Controller
             $noo->confirmed_at = now();
             $noo->update();
             SendNotif::sendMessage(
-                'Noo ' . $noo->nama_outlet . ' sudah di konfirmasi oleh ' .
-                    Auth::user()->nama_lengkap . PHP_EOL .
-                    'Dengan limit : Rp ' . number_format($request->limit, 0, ',', '.'),
-                array(User::where('nama_lengkap', $noo->created_by)->first()->id_notif ?? '-', $noo->tm->id_notif)
+                'Noo '.$noo->nama_outlet.' sudah di konfirmasi oleh '.
+                    Auth::user()->nama_lengkap.PHP_EOL.
+                    'Dengan limit : Rp '.number_format($request->limit, 0, ',', '.'),
+                [User::where('nama_lengkap', $noo->created_by)->first()->id_notif ?? '-', $noo->tm->id_notif]
 
             );
+
             return ResponseFormatter::success($noo, 'berhasil update');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -339,7 +341,7 @@ class NooController extends Controller
             $noo->approved_at = now();
             $noo->update();
 
-            $notif = array();
+            $notif = [];
             $register = User::where('nama_lengkap', $noo->created_by)->first()->id_notif;
             if ($register) {
                 array_push($notif, $register);
@@ -379,15 +381,16 @@ class NooController extends Controller
             }
             if (count($notif) != 0 && $insert) {
                 SendNotif::sendMessage(
-                    'Noo ' . $noo->nama_outlet . ' sudah di setujui oleh ' .
+                    'Noo '.$noo->nama_outlet.' sudah di setujui oleh '.
                         Auth::user()->nama_lengkap,
                     $notif
                 );
             }
+
             return ResponseFormatter::success($noo, 'berhasil update');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -409,12 +412,12 @@ class NooController extends Controller
 
             $noo->update();
 
-            SendNotif::sendMessage('Noo ' . $noo->nama_outlet . ' ditolak oleh ' . Auth::user()->nama_lengkap . PHP_EOL . 'Alasan : ' . $request->alasan, array($noo->tm->id_notif));
+            SendNotif::sendMessage('Noo '.$noo->nama_outlet.' ditolak oleh '.Auth::user()->nama_lengkap.PHP_EOL.'Alasan : '.$request->alasan, [$noo->tm->id_notif]);
 
             return ResponseFormatter::success($noo, 'berhasil update');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -423,10 +426,11 @@ class NooController extends Controller
     {
         try {
             $badanusahas = BadanUsaha::all();
+
             return ResponseFormatter::success($badanusahas, 'berhasil');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -436,10 +440,11 @@ class NooController extends Controller
         try {
             $badanusaha_id = BadanUsaha::where('name', $request->bu)->first()->id;
             $divisi = Division::where('badanusaha_id', $badanusaha_id)->get();
+
             return ResponseFormatter::success($divisi, 'berhasil');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -450,10 +455,11 @@ class NooController extends Controller
             $badanusaha_id = BadanUsaha::where('name', $request->bu)->first()->id;
             $divisi_id = Division::where('badanusaha_id', $badanusaha_id)->where('name', $request->div)->first()->id;
             $region = Region::where('badanusaha_id', $badanusaha_id)->where('divisi_id', $divisi_id)->get();
+
             return ResponseFormatter::success($region, 'berhasil');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -470,10 +476,11 @@ class NooController extends Controller
                 $region_id = Region::where('badanusaha_id', $badanusaha_id)->where('divisi_id', $divisi_id)->where('name', $request->reg)->first()->id;
                 $cluster = Cluster::where('badanusaha_id', $badanusaha_id)->where('divisi_id', $divisi_id)->where('region_id', $region_id)->get();
             }
+
             return ResponseFormatter::success($cluster, 'berhasil');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -491,10 +498,11 @@ class NooController extends Controller
                 $region_id = Region::where('badanusaha_id', $badanusaha_id)->where('divisi_id', $divisi_id)->where('name', $request->reg)->first()->id;
                 $cluster = Cluster::where('badanusaha_id', $badanusaha_id)->where('divisi_id', $divisi_id)->where('region_id', $region_id)->get();
             }
+
             return ResponseFormatter::success($cluster, 'berhasil');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -512,14 +520,14 @@ class NooController extends Controller
             $query = Noo::with(['badanusaha', 'cluster', 'region', 'divisi'])->where('approved_by', null);
 
             switch ($roleId) {
-                    #ASM
+                // ASM
                 case 1:
                     $noos = $query
                         ->where('tm_id', $user->id)
                         ->orderBy('nama_outlet')
                         ->get();
                     break;
-                    #ASC
+                    // ASC
                 case 2:
                     $noos = $query
                         ->where('badanusaha_id', $badanusahaId)
@@ -528,7 +536,7 @@ class NooController extends Controller
                         ->orderBy('nama_outlet')
                         ->get();
                     break;
-                    #DSF/DM
+                    // DSF/DM
                 case 3:
                     $noos = $query
                         ->where('badanusaha_id', $badanusahaId)
@@ -550,22 +558,23 @@ class NooController extends Controller
             );
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
 
     public function singleOutlet(Request $request, $kodeOutlet)
     {
-        //dd($request->all());
+        // dd($request->all());
         try {
             $noo = Noo::with(['badanusaha', 'cluster', 'region', 'divisi'])
                 ->where('id', $kodeOutlet)
                 ->get();
+
             return ResponseFormatter::success($noo, 'berhasil');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }

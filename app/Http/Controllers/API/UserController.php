@@ -2,21 +2,19 @@
 
 namespace App\Http\Controllers\API;
 
-use Exception;
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Actions\Fortify\PasswordValidationRules;
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Actions\Fortify\PasswordValidationRules;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-
     use PasswordValidationRules;
-
 
     /**
      * User - Fetch profile ✅
@@ -34,11 +32,10 @@ class UserController extends Controller
             );
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
-
 
     /**
      * User - Login ✅
@@ -66,14 +63,14 @@ class UserController extends Controller
 
             return ResponseFormatter::error([
                 'errors' => $errors,
-                'message' => $userMessage
+                'message' => $userMessage,
             ], 'Invalid Input', 422);
         }
         try {
             $credentials = request(['username', 'password']);
-            if (!Auth::attempt($credentials)) {
+            if (! Auth::attempt($credentials)) {
                 return ResponseFormatter::error([
-                    'message' => 'Cek kembali username dan password anda'
+                    'message' => 'Cek kembali username dan password anda',
                 ], 'Unauthorized', 500);
             }
 
@@ -81,7 +78,7 @@ class UserController extends Controller
                 ->where('username', $request->username)
                 ->first();
 
-            if (!Hash::check($request->password, $user->password)) {
+            if (! Hash::check($request->password, $user->password)) {
                 throw new Exception('Invalid Credentials');
             }
 
@@ -97,7 +94,7 @@ class UserController extends Controller
             ], 'Authenticated');
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -109,13 +106,14 @@ class UserController extends Controller
     {
         try {
             $request->user()->currentAccessToken()->delete();
+
             return ResponseFormatter::success(
                 ['message' => 'Anda telah berhasil keluar dari aplikasi'],
                 'Token Revoked'
             );
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }

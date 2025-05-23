@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RegionResource\Pages;
-use App\Filament\Resources\RegionResource\RelationManagers;
 use App\Models\Region;
 use App\Services\OrganizationalStructureService;
 use Filament\Forms;
@@ -13,14 +12,15 @@ use Filament\Tables;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class RegionResource extends Resource
 {
     protected static ?string $model = Region::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-flag';
+
     protected static ?string $navigationGroup = 'Settings';
+
     protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
@@ -34,7 +34,8 @@ class RegionResource extends Resource
                     ->reactive()
                     ->placeholder('Pilih badan usaha')
                     ->options(function (callable $get) {
-                        $organizationalStructureService = new OrganizationalStructureService();
+                        $organizationalStructureService = new OrganizationalStructureService;
+
                         return $organizationalStructureService->getBadanUsahaOptions();
                     })
                     ->afterStateUpdated(function ($state, callable $set) {
@@ -48,10 +49,11 @@ class RegionResource extends Resource
                     ->reactive()
                     ->options(function (callable $get) {
                         $badanusahaId = $get('badanusaha_id');
-                        if (!$badanusahaId) {
+                        if (! $badanusahaId) {
                             return [];
                         }
-                        $organizationalStructureService = new OrganizationalStructureService();
+                        $organizationalStructureService = new OrganizationalStructureService;
+
                         return $organizationalStructureService->getDivisiOptions($badanusahaId);
                     }),
                 Forms\Components\TextInput::make('name')

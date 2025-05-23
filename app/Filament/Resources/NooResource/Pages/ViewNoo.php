@@ -22,7 +22,7 @@ class ViewNoo extends ViewRecord
                 ->label('Confirm')
                 ->icon('heroicon-o-check-circle')
                 ->color('primary')
-                ->visible(fn() => $this->record
+                ->visible(fn () => $this->record
                     && $this->record->status === 'PENDING'
                     && Gate::allows('confirm', $this->record))
                 ->form([
@@ -36,38 +36,38 @@ class ViewNoo extends ViewRecord
                 ])
                 ->action(function ($record, $data) {
                     $this->record->update([
-                        'kode_outlet'   => $data['kode_outlet'],
-                        'limit'         => $data['limit'],
-                        'confirmed_at'  => Carbon::now(),
-                        'confirmed_by'  => auth()->user()->nama_lengkap,
-                        'status'        => 'CONFIRMED',
+                        'kode_outlet' => $data['kode_outlet'],
+                        'limit' => $data['limit'],
+                        'confirmed_at' => Carbon::now(),
+                        'confirmed_by' => auth()->user()->nama_lengkap,
+                        'status' => 'CONFIRMED',
                     ]);
 
                     Notification::make()
-                        ->title($this->record->nama_outlet . ' Confirm')
+                        ->title($this->record->nama_outlet.' Confirm')
                         ->success()
                         ->send();
                 }),
 
-                Actions\Action::make('approve')
+            Actions\Action::make('approve')
                 ->label('Approve')
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
                 ->requiresConfirmation()
                 ->modalHeading('Konfirmasi Persetujuan')
                 ->modalSubheading('Apakah Anda yakin ingin mengapprove record ini?')
-                ->visible(fn() => $this->record
+                ->visible(fn () => $this->record
                     && $this->record->status === 'CONFIRMED'
                     && Gate::allows('approve', $this->record))
                 ->action(function () {
                     $this->record->update([
                         'approved_at' => Carbon::now(),
                         'approved_by' => auth()->user()->nama_lengkap,
-                        'status'      => 'APPROVED',
+                        'status' => 'APPROVED',
                     ]);
 
                     Notification::make()
-                        ->title($this->record->nama_outlet . ' Approved')
+                        ->title($this->record->nama_outlet.' Approved')
                         ->success()
                         ->send();
                 }),
@@ -76,7 +76,7 @@ class ViewNoo extends ViewRecord
                 ->label('Reject')
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
-                ->visible(fn() => $this->record
+                ->visible(fn () => $this->record
                     && $this->record->status !== 'REJECTED'
                     && $this->record->status !== 'APPROVED'
                     && Gate::allows('reject', $this->record))
@@ -86,14 +86,14 @@ class ViewNoo extends ViewRecord
                 ])
                 ->action(function ($record, $data) {
                     $this->record->update([
-                        'confirmed_at'  => Carbon::now(),
-                        'confirmed_by'  => auth()->user()->name,
-                        'status'        => 'REJECTED',
-                        'keterangan'    => $data['alasan'],
+                        'confirmed_at' => Carbon::now(),
+                        'confirmed_by' => auth()->user()->name,
+                        'status' => 'REJECTED',
+                        'keterangan' => $data['alasan'],
                     ]);
 
                     Notification::make()
-                        ->title($this->record->nama_outlet . ' Rejected')
+                        ->title($this->record->nama_outlet.' Rejected')
                         ->success()
                         ->send();
                 }),

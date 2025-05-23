@@ -4,7 +4,6 @@ namespace App\Filament\Resources;
 
 use App\Filament\Concerns\DynamicAttributes;
 use App\Filament\Resources\OutletResource\Pages;
-use App\Filament\Resources\OutletResource\RelationManagers;
 use App\Models\Outlet;
 use App\Services\OrganizationalStructureService;
 use Carbon\Carbon;
@@ -20,7 +19,6 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -32,9 +30,10 @@ class OutletResource extends Resource
     use DynamicAttributes;
 
     protected static ?string $model = Outlet::class;
-    protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
-    protected static ?int $navigationSort = 1;
 
+    protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
@@ -109,7 +108,8 @@ class OutletResource extends Resource
                             ->label('Foto Tanda Toko')
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
-                                return $outletName . '-fotoshopsign-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
+
+                                return $outletName.'-fotoshopsign-'.Carbon::now()->format('dmYHis').'.'.$file->getClientOriginalExtension();
                             }),
                         Forms\Components\FileUpload::make('poto_depan')
                             ->image()
@@ -118,7 +118,8 @@ class OutletResource extends Resource
                             ->label('Foto Depan')
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
-                                return $outletName . '-fotodepan-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
+
+                                return $outletName.'-fotodepan-'.Carbon::now()->format('dmYHis').'.'.$file->getClientOriginalExtension();
                             }),
                         Forms\Components\FileUpload::make('poto_kiri')
                             ->image()
@@ -127,7 +128,8 @@ class OutletResource extends Resource
                             ->label('Foto Kiri')
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
-                                return $outletName . '-fotokiri-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
+
+                                return $outletName.'-fotokiri-'.Carbon::now()->format('dmYHis').'.'.$file->getClientOriginalExtension();
                             }),
                         Forms\Components\FileUpload::make('poto_kanan')
                             ->image()
@@ -136,7 +138,8 @@ class OutletResource extends Resource
                             ->label('Foto Kanan')
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
-                                return $outletName . '-fotokanan-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
+
+                                return $outletName.'-fotokanan-'.Carbon::now()->format('dmYHis').'.'.$file->getClientOriginalExtension();
                             }),
                         Forms\Components\FileUpload::make('poto_ktp')
                             ->image()
@@ -145,7 +148,8 @@ class OutletResource extends Resource
                             ->label('Foto KTP Pemilik')
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
-                                return $outletName . '-fotoktp-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
+
+                                return $outletName.'-fotoktp-'.Carbon::now()->format('dmYHis').'.'.$file->getClientOriginalExtension();
                             }),
                         Forms\Components\FileUpload::make('video')
                             ->disk('public')
@@ -153,7 +157,8 @@ class OutletResource extends Resource
                             ->label('Video Toko')
                             ->getUploadedFileNameForStorageUsing(function (UploadedFile $file, $get) {
                                 $outletName = strtolower(str_replace(' ', '_', $get('nama_outlet')));
-                                return $outletName . '-video-' . Carbon::now()->format('dmYHis') .  '.' . $file->getClientOriginalExtension();
+
+                                return $outletName.'-video-'.Carbon::now()->format('dmYHis').'.'.$file->getClientOriginalExtension();
                             }),
                     ])
                     ->collapsible()
@@ -167,7 +172,8 @@ class OutletResource extends Resource
                             ->reactive()
                             ->placeholder('Pilih badan usaha')
                             ->options(function (callable $get) {
-                                $organizationalStructureService = new OrganizationalStructureService();
+                                $organizationalStructureService = new OrganizationalStructureService;
+
                                 return $organizationalStructureService->getBadanUsahaOptions();
                             })
                             ->afterStateUpdated(function ($state, callable $set) {
@@ -184,10 +190,11 @@ class OutletResource extends Resource
                             ->placeholder('Pilih divisi')
                             ->options(function (callable $get) {
                                 $badanusahaId = $get('badanusaha_id');
-                                if (!$badanusahaId) {
+                                if (! $badanusahaId) {
                                     return [];
                                 }
-                                $organizationalStructureService = new OrganizationalStructureService();
+                                $organizationalStructureService = new OrganizationalStructureService;
+
                                 return $organizationalStructureService->getDivisiOptions($badanusahaId);
                             })
                             ->afterStateUpdated(function ($state, callable $set) {
@@ -204,10 +211,11 @@ class OutletResource extends Resource
                             ->placeholder('Pilih region')
                             ->options(function (callable $get) {
                                 $divisiId = $get('divisi_id');
-                                if (!$divisiId) {
+                                if (! $divisiId) {
                                     return [];
                                 }
-                                $organizationalStructureService = new OrganizationalStructureService();
+                                $organizationalStructureService = new OrganizationalStructureService;
+
                                 return $organizationalStructureService->getRegionOptions($divisiId);
                             })
                             ->afterStateUpdated(function ($state, callable $set) {
@@ -223,10 +231,11 @@ class OutletResource extends Resource
                             ->placeholder('Pilih cluster')
                             ->options(function (callable $get) {
                                 $regionId = $get('region_id');
-                                if (!$regionId) {
+                                if (! $regionId) {
                                     return [];
                                 }
-                                $organizationalStructureService = new OrganizationalStructureService();
+                                $organizationalStructureService = new OrganizationalStructureService;
+
                                 return $organizationalStructureService->getClusterOptions($regionId);
                             }),
                     ])
@@ -251,6 +260,7 @@ class OutletResource extends Resource
                                 $divisiId,
                                 $entityId
                             );
+
                             return array_merge($attributesBadanUsaha, $attributesDivisi);
                         } elseif ($badanusahaId) {
                             return static::dynamicAttributesSchema(
@@ -267,6 +277,7 @@ class OutletResource extends Resource
                                 $entityId
                             );
                         }
+
                         return [];
                     })
                     ->collapsible()
@@ -346,38 +357,38 @@ class OutletResource extends Resource
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('poto_shop_sign')
                     ->label('Foto Tanda Outlet')
-                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->formatStateUsing(fn (string $state): HtmlString => new HtmlString('FOTO'))
+                    ->url(fn ($state): string => asset('storage/'.$state), shouldOpenInNewTab: true)
                     ->color('primary')
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('poto_depan')
                     ->label('Foto Depan')
-                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->formatStateUsing(fn (string $state): HtmlString => new HtmlString('FOTO'))
+                    ->url(fn ($state): string => asset('storage/'.$state), shouldOpenInNewTab: true)
                     ->color('primary')
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('poto_kiri')
                     ->label('Foto Kiri')
-                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->formatStateUsing(fn (string $state): HtmlString => new HtmlString('FOTO'))
+                    ->url(fn ($state): string => asset('storage/'.$state), shouldOpenInNewTab: true)
                     ->color('primary')
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('poto_kanan')
                     ->label('Foto Kanan')
-                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO'))
-                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->formatStateUsing(fn (string $state): HtmlString => new HtmlString('FOTO'))
+                    ->url(fn ($state): string => asset('storage/'.$state), shouldOpenInNewTab: true)
                     ->color('primary')
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('poto_ktp')
                     ->label('Foto KTP')
-                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('FOTO KTP'))
-                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->formatStateUsing(fn (string $state): HtmlString => new HtmlString('FOTO KTP'))
+                    ->url(fn ($state): string => asset('storage/'.$state), shouldOpenInNewTab: true)
                     ->color('primary')
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('video')
                     ->label('Video Outlet')
-                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('VIDEO'))
-                    ->url(fn($state): string => asset('storage/' . $state), shouldOpenInNewTab: true)
+                    ->formatStateUsing(fn (string $state): HtmlString => new HtmlString('VIDEO'))
+                    ->url(fn ($state): string => asset('storage/'.$state), shouldOpenInNewTab: true)
                     ->color('primary')
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('limit')
@@ -388,8 +399,8 @@ class OutletResource extends Resource
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('latlong')
                     ->label('Lokasi (LatLong)')
-                    ->formatStateUsing(fn(string $state): HtmlString => new HtmlString('LOKASI'))
-                    ->url(fn($state): string => 'https://www.google.com/maps/place/' . $state, shouldOpenInNewTab: true)
+                    ->formatStateUsing(fn (string $state): HtmlString => new HtmlString('LOKASI'))
+                    ->url(fn ($state): string => 'https://www.google.com/maps/place/'.$state, shouldOpenInNewTab: true)
                     ->color('primary')
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('status_outlet')
@@ -408,64 +419,70 @@ class OutletResource extends Resource
             ->deferLoading()
             ->filters([
                 Filter::make('region')
-                ->form([
-                    Select::make('businessEntity')
-                        ->label('Badan Usaha')
-                        ->options(function (callable $get) {
-                            $badanUsahaService = new OrganizationalStructureService();
-                            return $badanUsahaService->getBadanUsahaOptions();
-                        })
-                        ->reactive()
-                        ->searchable()
-                        ->placeholder('Pilih Business Entity')
-                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                            $set('division', null);
-                            $set('region', null);
-                        }),
-                    Select::make('division')
-                        ->label('Divisi')
-                        ->options(function (callable $get) {
-                            $businessEntityId = $get('businessEntity');
-                            if ($businessEntityId) {
-                                $badanUsahaService = new OrganizationalStructureService();
-                                return $badanUsahaService->getDivisiOptions($businessEntityId);
-                            }
-                            return [];
-                        })
-                        ->reactive()
-                        ->searchable()
-                        ->placeholder('Pilih Division')
-                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                            $set('region', null);
-                        }),
-                    Select::make('region')
-                        ->label('Region')
-                        ->searchable()
-                        ->placeholder('Pilih Region')
-                        ->options(function (callable $get) {
-                            $divisionId = $get('division');
-                            if ($divisionId) {
-                                $badanUsahaService = new OrganizationalStructureService();
-                                return $badanUsahaService->getRegionOptions($divisionId);
-                            }
-                            return [];
-                        })
-                        ->reactive(),
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    if ($data['businessEntity'] ?? null) {
-                        $query->where('badanusaha_id', $data['businessEntity']);
-                    }
-                    if ($data['division'] ?? null) {
-                        $query->where('divisi_id', $data['division']);
-                    }
-                    if ($data['region'] ?? null) {
-                        $query->where('region_id', $data['region']);
-                    }
-                    return $query;
-                }),
+                    ->form([
+                        Select::make('businessEntity')
+                            ->label('Badan Usaha')
+                            ->options(function (callable $get) {
+                                $badanUsahaService = new OrganizationalStructureService;
+
+                                return $badanUsahaService->getBadanUsahaOptions();
+                            })
+                            ->reactive()
+                            ->searchable()
+                            ->placeholder('Pilih Business Entity')
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                $set('division', null);
+                                $set('region', null);
+                            }),
+                        Select::make('division')
+                            ->label('Divisi')
+                            ->options(function (callable $get) {
+                                $businessEntityId = $get('businessEntity');
+                                if ($businessEntityId) {
+                                    $badanUsahaService = new OrganizationalStructureService;
+
+                                    return $badanUsahaService->getDivisiOptions($businessEntityId);
+                                }
+
+                                return [];
+                            })
+                            ->reactive()
+                            ->searchable()
+                            ->placeholder('Pilih Division')
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                $set('region', null);
+                            }),
+                        Select::make('region')
+                            ->label('Region')
+                            ->searchable()
+                            ->placeholder('Pilih Region')
+                            ->options(function (callable $get) {
+                                $divisionId = $get('division');
+                                if ($divisionId) {
+                                    $badanUsahaService = new OrganizationalStructureService;
+
+                                    return $badanUsahaService->getRegionOptions($divisionId);
+                                }
+
+                                return [];
+                            })
+                            ->reactive(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if ($data['businessEntity'] ?? null) {
+                            $query->where('badanusaha_id', $data['businessEntity']);
+                        }
+                        if ($data['division'] ?? null) {
+                            $query->where('divisi_id', $data['division']);
+                        }
+                        if ($data['region'] ?? null) {
+                            $query->where('region_id', $data['region']);
+                        }
+
+                        return $query;
+                    }),
                 Tables\Filters\TrashedFilter::make()
-                    ->hidden(fn() => !Gate::any(['restore_any_visit', 'force_delete_any_visit'], Outlet::class)),
+                    ->hidden(fn () => ! Gate::any(['restore_any_visit', 'force_delete_any_visit'], Outlet::class)),
 
             ], layout: FiltersLayout::Modal)
             ->filtersFormWidth(MaxWidth::Large)
@@ -514,7 +531,7 @@ class OutletResource extends Resource
                                 ]);
                             }
                         })
-                        ->authorize(fn() => Gate::allows('reset_any_outlet')),
+                        ->authorize(fn () => Gate::allows('reset_any_outlet')),
                 ]),
             ]);
     }
@@ -522,8 +539,8 @@ class OutletResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        $user  = auth()->user();
-        $role  = $user->role;
+        $user = auth()->user();
+        $role = $user->role;
         $filterData = $role->filter_data ?? [];
 
         if ($role->filter_type === 'App\Models\BadanUsaha') {

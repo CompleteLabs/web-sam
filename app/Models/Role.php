@@ -11,11 +11,11 @@ class Role extends Model
     use HasFactory;
 
     protected $hidden = [
-        "created_at", "updated_at"
+        'created_at', 'updated_at',
     ];
 
     protected $guarded = [
-        'id'
+        'id',
     ];
 
     public function user(): HasMany
@@ -27,6 +27,7 @@ class Role extends Model
     {
         return $this->belongsToMany(Permission::class, 'role_permissions');
     }
+
     protected function casts(): array
     {
         return [

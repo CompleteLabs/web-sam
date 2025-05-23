@@ -43,10 +43,10 @@ class EditOutlet extends EditRecord
     protected function afterSave(): void
     {
         $record = $this->record;
-        if (!empty($this->customAttributes)) {
+        if (! empty($this->customAttributes)) {
             foreach ($this->customAttributes as $attributeKey => $attributeValue) {
                 $attributeDefinition = CustomAttribute::where('key', $attributeKey)->first();
-                if (!$attributeDefinition) {
+                if (! $attributeDefinition) {
                     continue;
                 }
                 CustomAttributeValue::updateOrCreate(

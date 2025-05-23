@@ -24,6 +24,7 @@ class EditNoo extends EditRecord
             ->pluck('value', 'customAttribute.key')
             ->toArray();
         $data['custom_attributes'] = $customAttributes;
+
         return $data;
     }
 
@@ -31,16 +32,17 @@ class EditNoo extends EditRecord
     {
         $this->customAttributes = $data['custom_attributes'] ?? [];
         unset($data['custom_attributes']);
+
         return $data;
     }
 
     protected function afterSave(): void
     {
         $record = $this->record;
-        if (!empty($this->customAttributes)) {
+        if (! empty($this->customAttributes)) {
             foreach ($this->customAttributes as $attributeKey => $attributeValue) {
                 $attributeDefinition = CustomAttribute::where('key', $attributeKey)->first();
-                if (!$attributeDefinition) {
+                if (! $attributeDefinition) {
                     continue;
                 }
                 CustomAttributeValue::updateOrCreate(

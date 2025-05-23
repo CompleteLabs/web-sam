@@ -3,13 +3,9 @@
 namespace App\Filament\Resources\OutletResource\Pages;
 
 use App\Filament\Resources\OutletResource;
-use App\Models\AttributeDefinition;
 use App\Models\CustomAttribute;
 use App\Models\CustomAttributeValue;
-use App\Models\EntityAttribute;
-use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Database\Eloquent\Model;
 
 class CreateOutlet extends CreateRecord
 {
@@ -28,10 +24,10 @@ class CreateOutlet extends CreateRecord
     protected function afterCreate(): void
     {
         $record = $this->record;
-        if (!empty($this->customAttributes)) {
+        if (! empty($this->customAttributes)) {
             foreach ($this->customAttributes as $attributeKey => $attributeValue) {
                 $attributeDefinition = CustomAttribute::where('key', $attributeKey)->first();
-                if (!$attributeDefinition) {
+                if (! $attributeDefinition) {
                     continue;
                 }
                 if ($attributeDefinition) {
@@ -45,5 +41,4 @@ class CreateOutlet extends CreateRecord
             }
         }
     }
-
 }

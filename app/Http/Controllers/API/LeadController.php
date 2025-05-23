@@ -2,21 +2,20 @@
 
 namespace App\Http\Controllers\API;
 
-use Exception;
-use App\Models\Noo;
-use App\Models\User;
-use App\Models\Region;
+use App\Helpers\ResponseFormatter;
+use App\Helpers\SendNotif;
+use App\Http\Controllers\Controller;
+use App\Models\BadanUsaha;
 use App\Models\Cluster;
 use App\Models\Division;
-use App\Models\BadanUsaha;
-use Illuminate\Http\Request;
-use App\Helpers\SendNotif;
-use App\Helpers\ResponseFormatter;
-use App\Http\Controllers\Controller;
+use App\Models\Noo;
 use App\Models\Outlet;
+use App\Models\Region;
+use App\Models\User;
+use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 
 class LeadController extends Controller
 {
@@ -57,8 +56,8 @@ class LeadController extends Controller
                 'latlong' => $request->latlong,
                 'created_by' => $user->nama_lengkap,
                 'tm_id' => $user->tm->id,
-                'keterangan' => "LEAD",
-                'poto_ktp' => "-",
+                'keterangan' => 'LEAD',
+                'poto_ktp' => '-',
             ];
 
             switch ($user->role_id) {
@@ -102,11 +101,11 @@ class LeadController extends Controller
             // Handle file upload for photos (Multiple files)
             $uploadedPhotos = collect();
             for ($i = 0; $i <= 3; $i++) {
-                if ($request->hasFile('photo' . $i)) {
-                    $photo = $request->file('photo' . $i);
+                if ($request->hasFile('photo'.$i)) {
+                    $photo = $request->file('photo'.$i);
                     $photoName = $photo->getClientOriginalName();
                     $photo->move(storage_path('app/public/'), $photoName);
-                    $uploadedPhotos->put('photo' . $i, $photoName);
+                    $uploadedPhotos->put('photo'.$i, $photoName);
 
                     // Determine the photo field to store based on name
                     if (Str::contains($photoName, 'fotodepan')) {
@@ -123,7 +122,7 @@ class LeadController extends Controller
 
             if ($request->hasFile('video')) {
                 $video = $request->file('video');
-                $videoName = 'noo-' . time() . $video->getClientOriginalName();
+                $videoName = 'noo-'.time().$video->getClientOriginalName();
                 $video->move(storage_path('app/public/'), $videoName);
                 $data['video'] = $videoName;
             }
@@ -131,7 +130,7 @@ class LeadController extends Controller
             $noo = Noo::create($data);
 
             $outletData = [
-                'kode_outlet' => 'LEAD' . $noo->id,
+                'kode_outlet' => 'LEAD'.$noo->id,
                 'limit' => 0,
                 'radius' => 100,
                 'is_member' => 0,
@@ -139,10 +138,10 @@ class LeadController extends Controller
 
             Outlet::create(array_merge($data, $outletData));
 
-            return ResponseFormatter::success(null, 'Berhasil menambahkan LEAD ' . $request->nama_outlet);
+            return ResponseFormatter::success(null, 'Berhasil menambahkan LEAD '.$request->nama_outlet);
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }
@@ -163,18 +162,18 @@ class LeadController extends Controller
             }
 
             $lead->ktp_outlet = $request->noktp;
-            $lead->keterangan = NULL;
+            $lead->keterangan = null;
             $lead->save();
 
             SendNotif::sendMessage(
-                'Noo baru ' . $lead->nama_outlet . ' ditambahkan oleh ' . Auth::user()->nama_lengkap,
+                'Noo baru '.$lead->nama_outlet.' ditambahkan oleh '.Auth::user()->nama_lengkap,
                 [User::where('role_id', 4)->first()->id_notif]
             );
 
-            return ResponseFormatter::success(null, 'Berhasil menambahkan Lead ' . $request->nama_outlet);
+            return ResponseFormatter::success(null, 'Berhasil menambahkan Lead '.$request->nama_outlet);
         } catch (Exception $error) {
             return ResponseFormatter::error([
-                'message' => 'Terjadi kesalahan pada server.'
+                'message' => 'Terjadi kesalahan pada server.',
             ], $error->getMessage(), 500);
         }
     }

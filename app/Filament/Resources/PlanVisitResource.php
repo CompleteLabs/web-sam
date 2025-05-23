@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PlanVisitResource\Pages;
-use App\Filament\Resources\PlanVisitResource\RelationManagers;
 use App\Models\Outlet;
 use App\Models\PlanVisit;
 use App\Models\User;
@@ -13,13 +12,14 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Routing\Route;
 
 class PlanVisitResource extends Resource
 {
     protected static ?string $model = PlanVisit::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-calendar-date-range';
+
     protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form
@@ -41,6 +41,7 @@ class PlanVisitResource extends Resource
                                 return $users->mapWithKeys(function ($user) {
                                     $badanusahaName = $user->badanusaha ? $user->badanusaha->name : 'Tidak ada badan usaha';
                                     $divisiName = $user->divisi ? $user->divisi->name : 'Tidak ada divisi';
+
                                     return [$user->id => "{$user->nama_lengkap} - {$badanusahaName} / {$divisiName}"];
                                 });
                             }),
@@ -57,6 +58,7 @@ class PlanVisitResource extends Resource
                                     // Menggabungkan nama outlet, badan usaha, dan divisi untuk label
                                     $badanusahaName = $outlet->badanusaha ? $outlet->badanusaha->name : 'Tidak ada badan usaha';
                                     $divisiName = $outlet->divisi ? $outlet->divisi->name : 'Tidak ada divisi';
+
                                     return [$outlet->id => "[{$outlet->kode_outlet}] {$outlet->nama_outlet} - {$badanusahaName} / {$divisiName}"];
                                 });
                             }),
@@ -77,7 +79,6 @@ class PlanVisitResource extends Resource
             ]);
     }
 
-
     public static function table(Table $table): Table
     {
         return $table
@@ -90,7 +91,7 @@ class PlanVisitResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('outlet.kode_outlet'),
                 Tables\Columns\TextColumn::make('tanggal_visit')
-                    ->formatStateUsing(fn($state) => $state ? \Carbon\Carbon::createFromTimestamp($state / 1000)->format('d M Y') : '-'),
+                    ->formatStateUsing(fn ($state) => $state ? \Carbon\Carbon::createFromTimestamp($state / 1000)->format('d M Y') : '-'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->date('d M Y')
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -148,7 +149,7 @@ class PlanVisitResource extends Resource
         return $query;
     }
 
-    public static function getRecordId(): null|string
+    public static function getRecordId(): ?string
     {
         return Route::current()->parameter('record');
     }
@@ -157,7 +158,6 @@ class PlanVisitResource extends Resource
     {
         return self::getEloquentQuery()->where('plan_visits.id', $key)->first();
     }
-
 
     public static function getPages(): array
     {

@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
 class Outlet extends Model
@@ -16,14 +16,14 @@ class Outlet extends Model
     use SoftDeletes;
 
     protected $guarded = [
-        'id'
+        'id',
     ];
 
     public function scopeFilter($query)
     {
         if (request('search')) {
-            $query->where('nama_outlet', "like", '%' . request('search') . '%')
-                ->orWhere('kode_outlet', "like", '%' . request('search') . '%');
+            $query->where('nama_outlet', 'like', '%'.request('search').'%')
+                ->orWhere('kode_outlet', 'like', '%'.request('search').'%');
         }
     }
 
@@ -31,6 +31,7 @@ class Outlet extends Model
     {
         return $this->hasMany(PlanVisit::class);
     }
+
     public function visit(): HasMany
     {
         return $this->hasMany(Visit::class);

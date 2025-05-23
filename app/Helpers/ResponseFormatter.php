@@ -29,7 +29,7 @@ class ResponseFormatter
         // Set default meta
         self::$response['meta']['message'] = $message;
         // Merge custom meta if provided
-        if (!empty($meta)) {
+        if (! empty($meta)) {
             self::$response['meta'] = array_merge(self::$response['meta'], $meta);
         }
         self::$response['data'] = $data;

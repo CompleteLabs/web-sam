@@ -7,8 +7,8 @@ use App\Models\Visit;
 use Filament\Actions;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Components\Tab;
+use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 
@@ -25,13 +25,13 @@ class ListVisits extends ListRecords
         // Check if the user is authorized to export
         if (Gate::allows('export', Visit::class)) {
             $actions[] = Actions\Action::make('export')
-                ->color("success")
+                ->color('success')
                 ->icon('heroicon-o-arrow-up-tray')
                 ->form([
                     Select::make('Position')
-                    ->preload()
-                    ->searchable()
-                    ->options(Position::pluck('name', 'id')->toArray()),                
+                        ->preload()
+                        ->searchable()
+                        ->options(Position::pluck('name', 'id')->toArray()),
                     DatePicker::make('tanggal1')
                         ->label('Dari')
                         ->maxDate(now())
@@ -66,12 +66,12 @@ class ListVisits extends ListRecords
             'all' => Tab::make(),
 
             'EXTRACALL' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('tipe_visit', 'EXTRACALL'))
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('tipe_visit', 'EXTRACALL'))
                 ->badge($this->getStatusBadgeCount($query, 'EXTRACALL'))
                 ->badgeColor('warning'),
 
             'PLANNED' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('tipe_visit', 'PLANNED'))
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('tipe_visit', 'PLANNED'))
                 ->badge($this->getStatusBadgeCount($query, 'PLANNED'))
                 ->badgeColor('info'),
         ];

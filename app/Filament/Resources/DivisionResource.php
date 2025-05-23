@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\DivisionResource\Pages;
-use App\Filament\Resources\DivisionResource\RelationManagers;
 use App\Models\Division;
 use App\Services\OrganizationalStructureService;
 use Filament\Forms;
@@ -13,14 +12,15 @@ use Filament\Tables;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class DivisionResource extends Resource
 {
     protected static ?string $model = Division::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
+
     protected static ?string $navigationGroup = 'Settings';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
@@ -33,7 +33,8 @@ class DivisionResource extends Resource
                     ->required()
                     ->placeholder('Pilih badan usaha')
                     ->options(function (callable $get) {
-                        $badanUsahaService = new OrganizationalStructureService();
+                        $badanUsahaService = new OrganizationalStructureService;
+
                         return $badanUsahaService->getBadanUsahaOptions();
                     }),
                 Forms\Components\TextInput::make('name')

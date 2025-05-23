@@ -3,8 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CustomAttributeResource\Pages;
-use App\Filament\Resources\CustomAttributeResource\RelationManagers;
-use App\Models\BadanUsaha;
 use App\Models\CustomAttribute;
 use App\Models\Division;
 use App\Services\OrganizationalStructureService;
@@ -15,12 +13,13 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CustomAttributeResource extends Resource
 {
     protected static ?string $model = CustomAttribute::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-cube';
+
     protected static ?string $navigationGroup = 'Settings';
 
     public static function form(Form $form): Form
@@ -46,7 +45,7 @@ class CustomAttributeResource extends Resource
                                     ->required()
                                     ->options([
                                         'App\Models\Noo' => 'NOO',
-                                        'App\Models\Outlet' => 'Outlet'
+                                        'App\Models\Outlet' => 'Outlet',
                                     ])
                                     ->icons([
                                         'App\Models\Noo' => 'heroicon-o-building-office',
@@ -90,11 +89,12 @@ class CustomAttributeResource extends Resource
                                     ->label('Badan Usaha')
                                     ->required()
                                     ->options(function () {
-                                        $organizationalStructureService = new OrganizationalStructureService();
+                                        $organizationalStructureService = new OrganizationalStructureService;
+
                                         return $organizationalStructureService->getBadanUsahaOptions();
                                     })
                                     ->searchable()
-                                    ->visible(fn(Get $get) => $get('apply_entity_type') === 'App\Models\BadanUsaha')
+                                    ->visible(fn (Get $get) => $get('apply_entity_type') === 'App\Models\BadanUsaha')
                                     ->columnSpanFull()
                                     ->placeholder('Pilih Badan Usaha'),
                                 Forms\Components\Select::make('apply_entity_id')
@@ -107,7 +107,8 @@ class CustomAttributeResource extends Resource
                                         $role = $user->role;
 
                                         if ($role->filter_type !== 'all' && $role->filter_type !== null) {
-                                            $organizationalStructureService = new OrganizationalStructureService();
+                                            $organizationalStructureService = new OrganizationalStructureService;
+
                                             return $organizationalStructureService->getDivisiOptions(null);
                                         }
 
@@ -119,10 +120,11 @@ class CustomAttributeResource extends Resource
 
                                         return $divisions->mapWithKeys(function ($division) {
                                             $badanusahaName = $division->badanusaha ? $division->badanusaha->name : 'Tidak ada badan usaha';
+
                                             return [$division->id => "{$badanusahaName} / {$division->name}"];
                                         });
                                     })
-                                    ->visible(fn(Get $get) => $get('apply_entity_type') === 'App\Models\Division')
+                                    ->visible(fn (Get $get) => $get('apply_entity_type') === 'App\Models\Division')
                                     ->columnSpanFull()
                                     ->placeholder('Pilih Divisi'),
                                 Forms\Components\Select::make('type')
@@ -147,7 +149,7 @@ class CustomAttributeResource extends Resource
                                     ])
                                     ->reactive()
                                     ->afterStateUpdated(function (Forms\Set $set, $state) {
-                                        if (!in_array($state, ['SELECT'])) {
+                                        if (! in_array($state, ['SELECT'])) {
                                             $set('attribute_options', []);
                                         }
                                     })
@@ -159,7 +161,7 @@ class CustomAttributeResource extends Resource
                                             ->label('Option')
                                             ->required(),
                                     ])
-                                    ->visible(fn(Get $get) => $get('type') === 'SELECT')
+                                    ->visible(fn (Get $get) => $get('type') === 'SELECT')
                                     ->columnSpanFull(),
                             ]),
                         Forms\Components\Tabs\Tab::make('Validation Rules')
@@ -222,7 +224,7 @@ class CustomAttributeResource extends Resource
                                                     ->toArray();
                                             })
                                             ->columnSpanFull()
-                                            ->visible(fn(Get $get) => $get('validation_rules.conditional_visibility.enable') === true),
+                                            ->visible(fn (Get $get) => $get('validation_rules.conditional_visibility.enable') === true),
                                         Forms\Components\Select::make('validation_rules.conditional_visibility.value')
                                             ->label('Has the value:')
                                             ->required()
@@ -233,19 +235,21 @@ class CustomAttributeResource extends Resource
                                                 if ($selectedFieldKey) {
                                                     $attribute = \App\Models\CustomAttribute::where('key', $selectedFieldKey)->first();
                                                     $options = $attribute?->options ?? [];
+
                                                     return collect($options)
-                                                        ->mapWithKeys(fn($item) => [$item['option'] => $item['option']])
+                                                        ->mapWithKeys(fn ($item) => [$item['option'] => $item['option']])
                                                         ->toArray();
                                                 }
+
                                                 return [];
                                             })
                                             ->columnSpanFull()
-                                            ->visible(fn(Get $get) => $get('validation_rules.conditional_visibility.field')
+                                            ->visible(fn (Get $get) => $get('validation_rules.conditional_visibility.field')
                                                 && $get('validation_rules.conditional_visibility.enable') === true),
                                     ])
                                     ->collapsed(),
                             ]),
-                    ])->columnSpanFull()
+                    ])->columnSpanFull(),
             ]);
     }
 
@@ -275,11 +279,11 @@ class CustomAttributeResource extends Resource
                 Tables\Actions\EditAction::make()
                     ->slideOver()
                     ->visible(function ($record) {
-                        return !$record->system_defined;
+                        return ! $record->system_defined;
                     }),
                 Tables\Actions\DeleteAction::make()
                     ->visible(function ($record) {
-                        return !$record->system_defined;
+                        return ! $record->system_defined;
                     }),
             ])
             ->bulkActions([
